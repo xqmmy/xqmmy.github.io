@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="机器学习逻辑回归与softmax机器学习中的线性模型谈及线性模型，其实我们很早就已经与它打过交道，还记得高中数学必修3课本中那个顽皮的“最小二乘法”吗？这就是线性模型的经典算法之一：根据给定的（x，y）点对，求出一条与这些点拟合效果最好的直线y=ax+b，之前我们利用下面的公式便可以计算出拟合直线的系数a,b（3.1中给出了具体的计算过程），从而对于一个新的x，可以预测它所对应的y值。前面我们提到">
+<meta name="keywords" content="机器学习,LR,softmax">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习逻辑回归与softmax">
+<meta property="og:url" content="http://mmyblog.cn/2019/08/29/机器学习逻辑回归与softmax/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="机器学习逻辑回归与softmax机器学习中的线性模型谈及线性模型，其实我们很早就已经与它打过交道，还记得高中数学必修3课本中那个顽皮的“最小二乘法”吗？这就是线性模型的经典算法之一：根据给定的（x，y）点对，求出一条与这些点拟合效果最好的直线y=ax+b，之前我们利用下面的公式便可以计算出拟合直线的系数a,b（3.1中给出了具体的计算过程），从而对于一个新的x，可以预测它所对应的y值。前面我们提到">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc722b068e48.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc722b0ccec4.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc72567b8bcd.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc722b0ad8f7.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc722b0af652.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc722b090543.png">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/line04.jpg">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/line05.jpg">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/line06.jpg">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/line07.jpg">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc722b0cde33.png">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/line01.jpg">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/line02.jpg">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/line03.jpg">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc722b103cbf.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc722b0a2841.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc722b0c7748.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc722b0a655d.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc723b824f0c.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc723b817961.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc723b863ebb.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc723b85bfa9.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc723b8156e1.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc723b7e9db3.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc723b7e8a61.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc723b83d5e0.png">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/line08.jpg">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/line09.jpg">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc723b862bfb.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc723b8300d5.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/17/5bc726fe87ae2.png">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/line10.jpg">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/line11.jpg">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/line12.jpg">
+<meta property="og:updated_time" content="2019-08-30T08:47:22.260Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="机器学习逻辑回归与softmax">
+<meta name="twitter:description" content="机器学习逻辑回归与softmax机器学习中的线性模型谈及线性模型，其实我们很早就已经与它打过交道，还记得高中数学必修3课本中那个顽皮的“最小二乘法”吗？这就是线性模型的经典算法之一：根据给定的（x，y）点对，求出一条与这些点拟合效果最好的直线y=ax+b，之前我们利用下面的公式便可以计算出拟合直线的系数a,b（3.1中给出了具体的计算过程），从而对于一个新的x，可以预测它所对应的y值。前面我们提到">
+<meta name="twitter:image" content="https://i.loli.net/2018/10/17/5bc722b068e48.png">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>机器学习逻辑回归与softmax | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-机器学习逻辑回归与softmax" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/08/29/机器学习逻辑回归与softmax/" class="article-date">
+      <time datetime="2019-08-29T08:39:02.000Z" itemprop="datePublished">2019-08-29</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      机器学习逻辑回归与softmax
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/机器学习/">机器学习</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LR/">LR</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/softmax/">softmax</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h1 id="机器学习逻辑回归与softmax"><a href="#机器学习逻辑回归与softmax" class="headerlink" title="机器学习逻辑回归与softmax"></a>机器学习逻辑回归与softmax</h1><h2 id="机器学习中的线性模型"><a href="#机器学习中的线性模型" class="headerlink" title="机器学习中的线性模型"></a>机器学习中的线性模型</h2><p>谈及线性模型，其实我们很早就已经与它打过交道，还记得高中数学必修3课本中那个顽皮的“最小二乘法”吗？这就是线性模型的经典算法之一：根据给定的（x，y）点对，求出一条与这些点拟合效果最好的直线y=ax+b，之前我们利用下面的公式便可以计算出拟合直线的系数a,b（3.1中给出了具体的计算过程），从而对于一个新的x，可以预测它所对应的y值。前面我们提到：在机器学习的术语中，当预测值为连续值时，称为“回归问题”，离散值时为“分类问题”。本篇先从线性回归任务开始，接着讨论分类和多分类问题。</p>
+<p><img src="https://i.loli.net/2018/10/17/5bc722b068e48.png" alt="1.png"></p>
+<h3 id="线性回归"><a href="#线性回归" class="headerlink" title="线性回归"></a>线性回归</h3><p>线性回归问题就是试图学到一个线性模型尽可能准确地预测新样本的输出值，例如：通过历年的人口数据预测2017年人口数量。在这类问题中，往往我们会先得到一系列的有标记数据，例如：2000–&gt;13亿…2016–&gt;15亿，这时输入的属性只有一个，即年份；也有输入多属性的情形，假设我们预测一个人的收入，这时输入的属性值就不止一个了，例如：（学历，年龄，性别，颜值，身高，体重）–&gt;15k。</p>
+<p>有时这些输入的属性值并不能直接被我们的学习模型所用，需要进行相应的处理，对于连续值的属性，一般都可以被学习器所用，有时会根据具体的情形作相应的预处理，例如：归一化等；对于离散值的属性，可作下面的处理：</p>
+<ul>
+<li><p>若属性值之间存在“序关系”，则可以将其转化为连续值，例如：身高属性分为“高”“中等”“矮”，可转化为数值：{1， 0.5， 0}。</p>
+</li>
+<li><p>若属性值之间不存在“序关系”，则通常将其转化为向量的形式，例如：性别属性分为“男”“女”，可转化为二维向量：{（1，0），（0，1）}。</p>
+</li>
+</ul>
+<p>（1）当输入属性只有一个的时候，就是最简单的情形，也就是我们高中时最熟悉的“最小二乘法”（Euclidean distance），首先计算出每个样本预测值与真实值之间的误差并求和，通过最小化均方误差MSE，使用求偏导等于零的方法计算出拟合直线y=wx+b的两个参数w和b，计算过程如下图所示：</p>
+<p><img src="https://i.loli.net/2018/10/17/5bc722b0ccec4.png" alt="2.png"></p>
+<p>（2）当输入属性有多个的时候，例如对于一个样本有d个属性{（x1,x2…xd）,y}，则y=wx+b需要写成：</p>
+<p><img src="https://i.loli.net/2018/10/17/5bc72567b8bcd.png" alt="0.png"></p>
+<p>通常对于多元问题，常常使用矩阵的形式来表示数据。在本问题中，将具有m个样本的数据集表示成矩阵X，将系数w与b合并成一个列向量，这样每个样本的预测值以及所有样本的均方误差最小化就可以写成下面的形式：</p>
+<p><img src="https://i.loli.net/2018/10/17/5bc722b0ad8f7.png" alt="3.png"></p>
+<p><img src="https://i.loli.net/2018/10/17/5bc722b0af652.png" alt="4.png"></p>
+<p><img src="https://i.loli.net/2018/10/17/5bc722b090543.png" alt="5.png"></p>
+<p><img src="/blog_picture/line04.jpg" alt="avatar"></p>
+<p><img src="/blog_picture/line05.jpg" alt="avatar"></p>
+<p><img src="/blog_picture/line06.jpg" alt="avatar"></p>
+<p><img src="/blog_picture/line07.jpg" alt="avatar"></p>
+<h3 id="最小二乘法"><a href="#最小二乘法" class="headerlink" title="最小二乘法"></a>最小二乘法</h3><p>同样地，我们使用最小二乘法对w和b进行估计，令均方误差的求导等于0，需要注意的是，当一个矩阵的行列式不等于0时，我们才可能对其求逆，因此对于下式，我们需要考虑矩阵（X的转置*X）的行列式是否为0，若不为0，则可以求出其解，若为0，则需要使用其它的方法进行计算，书中提到了引入正则化，此处不进行深入。</p>
+<p><img src="https://i.loli.net/2018/10/17/5bc722b0cde33.png" alt="6.png"></p>
+<p>然而现实任务中当特征数量大于样本数时，XTX不满秩，此时θ有多个解；而且当数据量大时，求矩阵的逆非常耗时；对于不可逆矩阵（特征之间不相互独立），这种正规方程方法是不能用的。所以，还可以采用梯度下降法，利用迭代的方式求解θ。</p>
+<h3 id="梯度下降法"><a href="#梯度下降法" class="headerlink" title="梯度下降法"></a>梯度下降法</h3><p>梯度下降法是按下面的流程进行的：<br>1）首先对θ赋值，这个值可以是随机的，也可以让θ是一个全零的向量。<br>2）改变θ的值，使得θ按梯度下降的方向进行减少。</p>
+<p><img src="/blog_picture/line01.jpg" alt="avatar"></p>
+<p>对于只有两维属性的样本，J(θ)即J(θ0,θ1)的等高线图</p>
+<p><img src="/blog_picture/line02.jpg" alt="avatar"></p>
+<p><img src="/blog_picture/line03.jpg" alt="avatar"></p>
+<p>迭代更新的方式有多种</p>
+<ul>
+<li>批量梯度下降（batch gradient descent），也就是是梯度下降法最原始的形式，对全部的训练数据求得误差后再对θ<br>进行更新，优点是每步都趋向全局最优解；缺点是对于大量数据，由于每步要计算整体数据，训练过程慢；</li>
+<li>随机梯度下降（stochastic gradient descent），每一步随机选择一个样本对θ<br>进行更新，优点是训练速度快；缺点是每次的前进方向不好确定，容易陷入局部最优；</li>
+<li>微型批量梯度下降（mini-batch gradient descent），每步选择一小批数据进行批量梯度下降更新θ<br>，属于批量梯度下降和随机梯度下降的一种折中，非常适合并行处理。</li>
+</ul>
+<p>另一方面，有时像上面这种原始的线性回归可能并不能满足需求，例如：y值并不是线性变化，而是在指数尺度上变化。这时我们可以采用线性模型来逼近y的衍生物，例如lny，这时衍生的线性模型如下所示，实际上就是相当于将指数曲线投影在一条直线上，如下图所示：</p>
+<p><img src="https://i.loli.net/2018/10/17/5bc722b103cbf.png" alt="7.png"></p>
+<p>更一般地，考虑所有y的衍生物的情形，就得到了“广义的线性模型”（generalized linear model），其中，g（*）称为联系函数（link function）。</p>
+<p><img src="https://i.loli.net/2018/10/17/5bc722b0a2841.png" alt="8.png"></p>
+<h3 id="对数几率回归"><a href="#对数几率回归" class="headerlink" title="对数几率回归"></a>对数几率回归</h3><p>回归就是通过输入的属性值得到一个预测值，利用上述广义线性模型的特征，是否可以通过一个联系函数，将预测值转化为离散值从而进行分类呢？线性几率回归正是研究这样的问题。对数几率引入了一个对数几率函数（logistic function）,将预测值投影到0-1之间，从而将线性回归问题转化为二分类问题。</p>
+<p><img src="https://i.loli.net/2018/10/17/5bc722b0c7748.png" alt="9.png"></p>
+<p><img src="https://i.loli.net/2018/10/17/5bc722b0a655d.png" alt="10.png"></p>
+<p>若将y看做样本为正例的概率，（1-y）看做样本为反例的概率，则上式实际上使用线性回归模型的预测结果器逼近真实标记的对数几率。因此这个模型称为“对数几率回归”（logistic regression），也有一些书籍称之为“逻辑回归”。下面使用最大似然估计的方法来计算出w和b两个参数的取值，下面只列出求解的思路，不列出具体的计算过程。</p>
+<p><img src="https://i.loli.net/2018/10/17/5bc723b824f0c.png" alt="11.png"></p>
+<p><img src="https://i.loli.net/2018/10/17/5bc723b817961.png" alt="12.png"></p>
+<h3 id="线性判别分析"><a href="#线性判别分析" class="headerlink" title="线性判别分析"></a>线性判别分析</h3><p>线性判别分析（Linear Discriminant Analysis，简称LDA）,其基本思想是：将训练样本投影到一条直线上，使得同类的样例尽可能近，不同类的样例尽可能远。如图所示：</p>
+<p><img src="https://i.loli.net/2018/10/17/5bc723b863ebb.png" alt="13.png"><img src="https://i.loli.net/2018/10/17/5bc723b85bfa9.png" alt="14.png"></p>
+<p>想让同类样本点的投影点尽可能接近，不同类样本点投影之间尽可能远，即：让各类的协方差之和尽可能小，不用类之间中心的距离尽可能大。基于这样的考虑，LDA定义了两个散度矩阵。</p>
+<ul>
+<li>类内散度矩阵（within-class scatter matrix）</li>
+</ul>
+<p><img src="https://i.loli.net/2018/10/17/5bc723b8156e1.png" alt="15.png"></p>
+<ul>
+<li>类间散度矩阵(between-class scaltter matrix)</li>
+</ul>
+<p><img src="https://i.loli.net/2018/10/17/5bc723b7e9db3.png" alt="16.png"></p>
+<p>因此得到了LDA的最大化目标：“广义瑞利商”（generalized Rayleigh quotient）。</p>
+<p><img src="https://i.loli.net/2018/10/17/5bc723b7e8a61.png" alt="17.png"></p>
+<p>从而分类问题转化为最优化求解w的问题，当求解出w后，对新的样本进行分类时，只需将该样本点投影到这条直线上，根据与各个类别的中心值进行比较，从而判定出新样本与哪个类别距离最近。求解w的方法如下所示，使用的方法为λ乘子。</p>
+<p><img src="https://i.loli.net/2018/10/17/5bc723b83d5e0.png" alt="18.png"></p>
+<p>若将w看做一个投影矩阵，类似PCA的思想，则LDA可将样本投影到N-1维空间（N为类簇数），投影的过程使用了类别信息（标记信息），因此LDA也常被视为一种经典的监督降维技术。    </p>
+<h3 id="回归与欠-过拟合"><a href="#回归与欠-过拟合" class="headerlink" title="回归与欠/过拟合"></a>回归与欠/过拟合</h3><p><img src="/blog_picture/line08.jpg" alt="avatar">    </p>
+<h3 id="线性回归与正则化"><a href="#线性回归与正则化" class="headerlink" title="线性回归与正则化"></a>线性回归与正则化</h3><p><img src="/blog_picture/line09.jpg" alt="avatar">     </p>
+<h3 id="多分类学习"><a href="#多分类学习" class="headerlink" title="多分类学习"></a>多分类学习</h3><p>现实中我们经常遇到不只两个类别的分类问题，即多分类问题，在这种情形下，我们常常运用“拆分”的策略，通过多个二分类学习器来解决多分类问题，即将多分类问题拆解为多个二分类问题，训练出多个二分类学习器，最后将多个分类结果进行集成得出结论。最为经典的拆分策略有三种：“一对一”（OvO）、“一对其余”（OvR）和“多对多”（MvM），核心思想与示意图如下所示。</p>
+<ul>
+<li><p>OvO：给定数据集D，假定其中有N个真实类别，将这N个类别进行两两配对（一个正类/一个反类），从而产生N（N-1）/2个二分类学习器，在测试阶段，将新样本放入所有的二分类学习器中测试，得出N（N-1）个结果，最终通过投票产生最终的分类结果。</p>
+</li>
+<li><p>OvM：给定数据集D，假定其中有N个真实类别，每次取出一个类作为正类，剩余的所有类别作为一个新的反类，从而产生N个二分类学习器，在测试阶段，得出N个结果，若仅有一个学习器预测为正类，则对应的类标作为最终分类结果。</p>
+</li>
+<li><p>MvM：给定数据集D，假定其中有N个真实类别，每次取若干个类作为正类，若干个类作为反类（通过ECOC码给出，编码），若进行了M次划分，则生成了M个二分类学习器，在测试阶段（解码），得出M个结果组成一个新的码，最终通过计算海明/欧式距离选择距离最小的类别作为最终分类结果。</p>
+</li>
+</ul>
+<p><img src="https://i.loli.net/2018/10/17/5bc723b862bfb.png" alt="19.png"></p>
+<p><img src="https://i.loli.net/2018/10/17/5bc723b8300d5.png" alt="20.png"></p>
+<h3 id="类别不平衡问题"><a href="#类别不平衡问题" class="headerlink" title="类别不平衡问题"></a>类别不平衡问题</h3><p>类别不平衡（class-imbanlance）就是指分类问题中不同类别的训练样本相差悬殊的情况，例如正例有900个，而反例只有100个，这个时候我们就需要进行相应的处理来平衡这个问题。常见的做法有三种：</p>
+<ol>
+<li>在训练样本较多的类别中进行“欠采样”（undersampling）,比如从正例中采出100个，常见的算法有：EasyEnsemble。</li>
+<li>在训练样本较少的类别中进行“过采样”（oversampling）,例如通过对反例中的数据进行插值，来产生额外的反例，常见的算法有SMOTE。</li>
+<li>直接基于原数据集进行学习，对预测值进行“再缩放”处理。其中再缩放也是代价敏感学习的基础。<img src="https://i.loli.net/2018/10/17/5bc726fe87ae2.png" alt="21.png"></li>
+</ol>
+<h3 id="LR应用经验"><a href="#LR应用经验" class="headerlink" title="LR应用经验"></a>LR应用经验</h3><p><img src="/blog_picture/line10.jpg" alt="avatar">   </p>
+<p><img src="/blog_picture/line11.jpg" alt="avatar">   </p>
+<p><img src="/blog_picture/line12.jpg" alt="avatar">   </p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2019-08-29, 16:39:02</p>
+        <p><span>最后更新:</span>2019-08-30, 16:47:22</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2019/08/29/机器学习逻辑回归与softmax/" title="机器学习逻辑回归与softmax">http://mmyblog.cn/2019/08/29/机器学习逻辑回归与softmax/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2019/08/29/机器学习逻辑回归与softmax/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2019/08/23/机器学习基本概念/">
+                    机器学习基本概念
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#机器学习逻辑回归与softmax"><span class="toc-number">1.</span> <span class="toc-text">机器学习逻辑回归与softmax</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#机器学习中的线性模型"><span class="toc-number">1.1.</span> <span class="toc-text">机器学习中的线性模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#线性回归"><span class="toc-number">1.1.1.</span> <span class="toc-text">线性回归</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#最小二乘法"><span class="toc-number">1.1.2.</span> <span class="toc-text">最小二乘法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#梯度下降法"><span class="toc-number">1.1.3.</span> <span class="toc-text">梯度下降法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#对数几率回归"><span class="toc-number">1.1.4.</span> <span class="toc-text">对数几率回归</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#线性判别分析"><span class="toc-number">1.1.5.</span> <span class="toc-text">线性判别分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回归与欠-过拟合"><span class="toc-number">1.1.6.</span> <span class="toc-text">回归与欠/过拟合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#线性回归与正则化"><span class="toc-number">1.1.7.</span> <span class="toc-text">线性回归与正则化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多分类学习"><span class="toc-number">1.1.8.</span> <span class="toc-text">多分类学习</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#类别不平衡问题"><span class="toc-number">1.1.9.</span> <span class="toc-text">类别不平衡问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LR应用经验"><span class="toc-number">1.1.10.</span> <span class="toc-text">LR应用经验</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"机器学习逻辑回归与softmax　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2019/08/23/机器学习基本概念/" title="下一篇: 机器学习基本概念">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
