@@ -18,7 +18,7 @@
 <meta name="description" content="攀登传统机器学习的珠峰-SVM (上) 攀登传统机器学习的珠峰-SVM (中) 攀登传统机器学习的珠峰-SVM (下)  机器学习中的SVM支持向量机是一种经典的二分类模型，基本模型定义为特征空间中最大间隔的线性分类器，其学习的优化目标便是间隔最大化，因此支持向量机本身可以转化为一个凸二次规划求解的问题。 函数间隔与几何间隔对于二分类学习，假设现在的数据是线性可分的，这时分类学习最基本的想法就是">
 <meta name="keywords" content="机器学习,SVM">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Stay hungry, Stay foolish.">
+<meta property="og:title" content="SVM">
 <meta property="og:url" content="http://mmyblog.cn/2019/09/01/SVM/index.html">
 <meta property="og:site_name" content="Stay hungry, Stay foolish.">
 <meta property="og:description" content="攀登传统机器学习的珠峰-SVM (上) 攀登传统机器学习的珠峰-SVM (中) 攀登传统机器学习的珠峰-SVM (下)  机器学习中的SVM支持向量机是一种经典的二分类模型，基本模型定义为特征空间中最大间隔的线性分类器，其学习的优化目标便是间隔最大化，因此支持向量机本身可以转化为一个凸二次规划求解的问题。 函数间隔与几何间隔对于二分类学习，假设现在的数据是线性可分的，这时分类学习最基本的想法就是">
@@ -57,9 +57,9 @@
 <meta property="og:image" content="https://i.loli.net/2018/10/17/5bc7317a4c96e.png">
 <meta property="og:image" content="https://i.loli.net/2018/10/17/5bc7317a6dff2.png">
 <meta property="og:image" content="https://i.loli.net/2018/10/17/5bc7317ab6646.png">
-<meta property="og:updated_time" content="2019-09-01T14:37:53.298Z">
+<meta property="og:updated_time" content="2020-04-24T05:09:10.381Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Stay hungry, Stay foolish.">
+<meta name="twitter:title" content="SVM">
 <meta name="twitter:description" content="攀登传统机器学习的珠峰-SVM (上) 攀登传统机器学习的珠峰-SVM (中) 攀登传统机器学习的珠峰-SVM (下)  机器学习中的SVM支持向量机是一种经典的二分类模型，基本模型定义为特征空间中最大间隔的线性分类器，其学习的优化目标便是间隔最大化，因此支持向量机本身可以转化为一个凸二次规划求解的问题。 函数间隔与几何间隔对于二分类学习，假设现在的数据是线性可分的，这时分类学习最基本的想法就是">
 <meta name="twitter:image" content="https://i.loli.net/2018/10/17/5bc72f6a2ec8a.png">
 
@@ -93,7 +93,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>Stay hungry, Stay foolish.</title>
+<title>SVM | Stay hungry, Stay foolish.</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -308,6 +308,32 @@
       <input type="hidden" class="isFancy" />
     
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      SVM
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/机器学习/">机器学习</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SVM/">SVM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
     <div class="article-entry" itemprop="articleBody">
       
           
@@ -402,12 +428,12 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2019/09/01/SVM/"></a></p>
+        <p><span>本文标题:</span><a href="/2019/09/01/SVM/">SVM</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
         <p><span>发布时间:</span>2019-09-01, 22:35:08</p>
-        <p><span>最后更新:</span>2019-09-01, 22:37:53</p>
+        <p><span>最后更新:</span>2020-04-24, 13:09:10</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2019/09/01/SVM/" title="">http://mmyblog.cn/2019/09/01/SVM/</a>
+            <span>原始链接:</span><a class="post-url" href="/2019/09/01/SVM/" title="SVM">http://mmyblog.cn/2019/09/01/SVM/</a>
             <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2019/09/01/SVM/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -477,7 +503,7 @@
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"SVM　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
