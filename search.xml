@@ -4,6 +4,37 @@
   
     
     <entry>
+      <title>word2vec</title>
+      <link href="/2020/04/24/word2vec/"/>
+      <url>/2020/04/24/word2vec/</url>
+      
+        <content type="html"><![CDATA[<h4 id="word2vec"><a href="#word2vec" class="headerlink" title="word2vec"></a>word2vec</h4><ul><li>有一个很大的词表库</li><li>在词表中的每个词都可以通过向量表征</li><li>有一个中心词c，有一个输出词o</li><li>用词c和o的相似度来计算他们之间同时出现的概率</li><li>调整这个词向量来获得最大输出概率</li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> word2vec </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> skip-gram </tag>
+            
+            <tag> cbow </tag>
+            
+            <tag> hierarchical softmax </tag>
+            
+            <tag> negative sampling </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>特征工程与模型调优</title>
       <link href="/2020/04/20/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B%E4%B8%8E%E6%A8%A1%E5%9E%8B%E8%B0%83%E4%BC%98/"/>
       <url>/2020/04/20/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B%E4%B8%8E%E6%A8%A1%E5%9E%8B%E8%B0%83%E4%BC%98/</url>
