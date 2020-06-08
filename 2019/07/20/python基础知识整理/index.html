@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="#Canda环境安装以及包管理 12345678910111213141516171819清华镜像下载https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/命令行启动jupyter notebook或点击快捷图标方式启动conda list # 查看所在环境的安装的包conda upgrade --all # 对包进行更新spyder # 启动">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python基础知识整理">
+<meta property="og:url" content="http://mmyblog.cn/2019/07/20/python基础知识整理/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="#Canda环境安装以及包管理 12345678910111213141516171819清华镜像下载https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/命令行启动jupyter notebook或点击快捷图标方式启动conda list # 查看所在环境的安装的包conda upgrade --all # 对包进行更新spyder # 启动">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-04-24T04:21:39.406Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python基础知识整理">
+<meta name="twitter:description" content="#Canda环境安装以及包管理 12345678910111213141516171819清华镜像下载https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/命令行启动jupyter notebook或点击快捷图标方式启动conda list # 查看所在环境的安装的包conda upgrade --all # 对包进行更新spyder # 启动">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>python基础知识整理 | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-python基础知识整理" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/07/20/python基础知识整理/" class="article-date">
+      <time datetime="2019-07-20T06:17:41.000Z" itemprop="datePublished">2019-07-20</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      python基础知识整理
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/机器学习/">机器学习</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>#Canda环境安装以及包管理</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">清华镜像下载https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/</span><br><span class="line">命令行启动jupyter notebook或点击快捷图标方式启动</span><br><span class="line">conda list <span class="comment"># 查看所在环境的安装的包</span></span><br><span class="line">conda upgrade --all <span class="comment"># 对包进行更新</span></span><br><span class="line">spyder <span class="comment"># 启动anaconda中的IDE</span></span><br><span class="line">conda install numpy pandas <span class="comment"># 在某个环境下能够安装某些Python包</span></span><br><span class="line">conda install numpy=<span class="number">1.10</span> <span class="comment"># 安装特定版本的包</span></span><br><span class="line">conda remove &lt; package_name &gt; <span class="comment"># 删除包</span></span><br><span class="line">conda env list <span class="comment"># 列出当前机器上创建的虚拟环境</span></span><br><span class="line">conda create -n env1 python=<span class="number">2.7</span> <span class="comment"># 创建一个名为env1的环境然后在其中安装python2.7</span></span><br><span class="line">conda create -n env1 numpy <span class="comment"># 创建一个名为env1的环境然后在其中安装numpy</span></span><br><span class="line">source activate env1 <span class="comment"># 进入env1虚拟环境，在window上不用加source</span></span><br><span class="line">source deactivate <span class="comment"># 离开环境</span></span><br><span class="line">conda install -n py27 ipykernel <span class="comment"># 在虚拟环境py27下安装ipykernel</span></span><br><span class="line">python -m ipykernel install --user --name py27 --display-name <span class="string">"python2"</span> <span class="comment"># 在py27环境内安装ipykernel并在菜单里命名为python2</span></span><br><span class="line">conda env remove -n py27 <span class="comment"># 移除py27的虚拟环境</span></span><br><span class="line">conda install jupyter notebook <span class="comment"># 在conda环境中安装jupyter notebook</span></span><br><span class="line">%matplotlib <span class="comment"># jupyter notebook中已交互式方式实现matplotlib的绘图</span></span><br><span class="line">%matplotlib inline <span class="comment"># 不跳出，直接内嵌在web中</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="jupyter-notebook常用配置"><a href="#jupyter-notebook常用配置" class="headerlink" title="jupyter notebook常用配置"></a>jupyter notebook常用配置</h1><h2 id="notebook中的magic开关"><a href="#notebook中的magic开关" class="headerlink" title="notebook中的magic开关"></a>notebook中的magic开关</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">为实现一些快捷操作，提升效率。notebook中提供magic开关，能极大的优化使用notebook的体验。</span><br><span class="line">magic开关分为两大类：%line magic &amp; %%cell magic</span><br></pre></td></tr></table></figure>
+
+<p>​        </p>
+<h2 id="magic开关总览"><a href="#magic开关总览" class="headerlink" title="magic开关总览"></a>magic开关总览</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">%quickref<span class="comment"># 所有magic命令 </span></span><br><span class="line">%lsmagic<span class="comment"># 打印所有magic命令</span></span><br><span class="line"></span><br><span class="line">%config ZMQInteractiveShell.ast_node_interactivity=<span class="string">'all'</span>/<span class="string">'last_expr'</span></span><br><span class="line">%pprint <span class="comment"># 打印所有结果,保证每次执行都输出,默认只输出最后一个内容</span></span><br><span class="line">%config ZMQInteractiveShell可以查看可选择的输出类型</span><br><span class="line">或者执行这个命令保证多输出</span><br><span class="line"><span class="keyword">from</span> IPython.core.interactiveshell <span class="keyword">import</span> InteractiveShell</span><br><span class="line">InteractiveShell.ast_node_interactivity = <span class="string">'all'</span>/<span class="string">'last_expr'</span></span><br><span class="line"></span><br><span class="line"> %%整个cell magic</span><br><span class="line"> %%writefile test.py <span class="comment"># 将cell中的命令写入文件test.py</span></span><br><span class="line"> %%timeit代码计时</span><br><span class="line"> %%bash <span class="comment"># 在cell内可以执行bash命令</span></span><br><span class="line"> %%writefile xx.py <span class="comment"># 把整个cell中的内容输入到xx.py中,如果新加内容可以%%writefile -a xx.py</span></span><br><span class="line"></span><br><span class="line"> %line magic命令</span><br><span class="line"> %matplotline inline <span class="comment"># 在jupyter内打印图片</span></span><br><span class="line"> %run utils.ipynb <span class="comment"># 执行本地的utils.ipynb文件,进行配置</span></span><br><span class="line"></span><br><span class="line"> line magic和cell magic区别就在于line magic只在一行有效,cell magic在多行都有效</span><br><span class="line"> 具体参考:https://gispark.readthedocs.io/zh_CN/latest/pystart/jupyter_magics.html</span><br></pre></td></tr></table></figure>
+
+<h2 id="Jupyter-notebook扩展"><a href="#Jupyter-notebook扩展" class="headerlink" title="Jupyter notebook扩展"></a>Jupyter notebook扩展</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">jupyter_contrib_nbextensions</span><br><span class="line">直接安装官网conda命令安装即可</span><br><span class="line">conda install jupyter notebook</span><br><span class="line">conda install -c conda-forge jupyter_contrib_nbextensions </span><br><span class="line">pip install -i https://pypi.tuna.tsinghua.edu.cn/simple autopep8 </span><br><span class="line">pip安装加速镜像:https://www.cnblogs.com/microman/p/6107879.html</span><br><span class="line">jupyter 使用参考资料:https://zhuanlan.zhihu.com/p/33105153</span><br><span class="line">jupyter extension 参考资料:https://zhuanlan.zhihu.com/p/52890101</span><br></pre></td></tr></table></figure>
+
+<h3 id="jupyter-使用linux命令"><a href="#jupyter-使用linux命令" class="headerlink" title="jupyter 使用linux命令"></a>jupyter 使用linux命令</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">!head -n 5 xx.txt # 直接通过jupyter行使linux命令</span><br></pre></td></tr></table></figure>
+
+<h1 id="python"><a href="#python" class="headerlink" title="python"></a>python</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">python语言是一种面向对象、动态数据类型的解释型语言</span><br><span class="line">1.运行方式</span><br><span class="line">    解释运行:直接py脚本运行</span><br><span class="line">    交互运行:jupyter输入一个输出一个</span><br><span class="line"></span><br><span class="line">2.命名规则:</span><br><span class="line">    常量大写，下划线隔开单词</span><br><span class="line">    类用驼峰命名</span><br><span class="line">     del xx 删除变量xx</span><br><span class="line"></span><br><span class="line">3.操作优先级：</span><br><span class="line">    函数调用，寻址，下标</span><br><span class="line">    幂运算</span><br><span class="line">    翻转运算符</span><br><span class="line">    正负号</span><br><span class="line">    * / %</span><br><span class="line">    - + </span><br><span class="line">4.赋值</span><br><span class="line">    多重赋值:a=b=10相当于a=10,b=10</span><br><span class="line">    多元赋值 a,b,c = 1,2,3</span><br><span class="line">    交换赋值 a,b = b,a # 指针</span><br><span class="line"></span><br><span class="line">5.解包(需要拓展 参考:https://zhuanlan.zhihu.com/p/33896402?utm_source=wechat_session&amp;utm_medium=social&amp;s_r=0)</span><br><span class="line">    l1 = [1,2,3,4,5,&apos;6&apos;]; a,b,*c,d = l1</span><br><span class="line">    l1=[1,2,3,4];b=&apos;sdaad&apos;;[*l1,*b]</span><br><span class="line">    b,=[[3,4,5]] # 逗号解包 </span><br><span class="line"></span><br><span class="line">6.python进制及基本类型</span><br><span class="line">    bin() 二进制</span><br><span class="line">    oct() 八进制</span><br><span class="line">    hex() 十六进制</span><br><span class="line"></span><br><span class="line">    float(&apos;inf&apos;) 正无穷</span><br></pre></td></tr></table></figure>
+
+<h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#行内注释</span><br><span class="line">&quot;&quot;&quot; &quot;&quot;&quot;多行注释</span><br><span class="line">？内省，显示对象的通用信息</span><br><span class="line">？？内省，显示出大部分函数的源代码</span><br><span class="line">help()显示一个对象的帮助文档</span><br><span class="line">%timeit 魔法命令，计算语句的平均执行时间</span><br><span class="line">type（x）查看变量x的数据类型</span><br><span class="line">in(x) 将变量x的数据类型转换为整型</span><br><span class="line">isinstance(x,float)检测变量x是否为浮点型，返回一个布尔型数值</span><br></pre></td></tr></table></figure>
+
+<p>##字符串</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">s=u&quot; &quot;定义Unicode字符串</span><br><span class="line">s=r&quot; &quot;定义原始字符串，避免字符串中的字符串转义，在正则表达式中经常使用到</span><br><span class="line">len(s)返回s字符串的字数</span><br><span class="line">s.lower()字母全部转为小写</span><br><span class="line">s.upper()字母全部转为大写</span><br><span class="line">s.capitalize()将字符串s中的首个字符转换为大写，其余部分转换为小写</span><br><span class="line">s.replace(&apos;k&apos;,&apos;l&apos;)使用字符&quot;l&quot;替换掉s中所有的字符&quot;k&quot;,返回结果是cooldata</span><br><span class="line">s.strip()去掉s最前面和最后面的空格</span><br><span class="line">s.split(&quot;\t&quot;)使用制表符&quot;\t&quot;分割字符串</span><br><span class="line">&apos;%s is No.%d&apos;%(s,1)格式化</span><br><span class="line">&apos;&#123;&#125; is No.&#123;&#125;&apos;.format(s,1)格式化</span><br></pre></td></tr></table></figure>
+
+<h2 id="列表"><a href="#列表" class="headerlink" title="列表"></a>列表</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">list()空列表</span><br><span class="line">l[-1]返回列表的最后一个元素</span><br><span class="line">l[1:3]返回列表的第二个和第三个元素</span><br><span class="line">len(l)返回列表长度</span><br><span class="line">l[::-1]将列表进行逆序排列</span><br><span class="line">l.reverse()将列表进行逆序排列</span><br><span class="line">l.insert(1,&quot;b&quot;)在指定的索引位置插入&apos;b&apos;</span><br><span class="line">l.append()在列表末尾添加元素</span><br><span class="line">l.extend()等价于&quot;1+L&quot;，将列表L中的元素依次添加到1的末尾</span><br><span class="line">l.remove()删除列表中的某个元素</span><br><span class="line">l.pop()等价于del l[]，删除列表中对应索引位置的元素</span><br><span class="line">&quot; &quot;.join([&apos;&apos;c,&apos;o&apos;,&apos;o&apos;,&apos;k&apos;])将列表中的各个字符串元素用空格连接起来并转换为字符串，返回结果为cook</span><br></pre></td></tr></table></figure>
+
+<h2 id="条件判断和循环语句"><a href="#条件判断和循环语句" class="headerlink" title="条件判断和循环语句"></a>条件判断和循环语句</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">if condition1:</span><br><span class="line">		statement1</span><br><span class="line">elif condition2:</span><br><span class="line">		statement2</span><br><span class="line">else:</span><br><span class="line">		statement3</span><br><span class="line">		</span><br><span class="line">for item in sequence:</span><br><span class="line">		statement</span><br><span class="line">		</span><br><span class="line">while condition:</span><br><span class="line">		statement</span><br><span class="line">		</span><br><span class="line">range(5)产生一个从0到5且间隔为1的整数列表[0，1，2，3，4]</span><br><span class="line">break从最内层for循环或while循环中跳出</span><br><span class="line">continue继续执行下一次循环</span><br><span class="line">pass占位符</span><br></pre></td></tr></table></figure>
+
+<h2 id="enumerate（）and-zip（）"><a href="#enumerate（）and-zip（）" class="headerlink" title="enumerate（）and zip（）"></a>enumerate（）and zip（）</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">for i,item in emumerate(l)在每一次循环时取出索引号和相应的值分别赋给和item</span><br><span class="line">s=&#123;item**2 for item in l&#125;集合推导式，对l中的每一个元素取平方得到的新集合</span><br><span class="line">D=&#123;key:value for key,value in zip(l,k)&#125;字典推导式，通过zip()函数将两个列表l和k中的元素组成键对并形成字典</span><br><span class="line">enumerate(list/set, start=0) # 遍历元素，start指定从哪个数字作为开始下标</span><br><span class="line">c = list(zip(a,b))</span><br><span class="line">c = set(zip(a,b))</span><br><span class="line">c = dict(zip(a,b))</span><br><span class="line">list(zip(*c)) # 解压</span><br></pre></td></tr></table></figure>
+
+<h2 id="推导式"><a href="#推导式" class="headerlink" title="推导式"></a>推导式</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">L=[item**2 for item in l]列表推导式，对l中每一个元素取平方得到新的列表</span><br><span class="line">S=&#123;item**2 for item in l&#125;集合推导式，对l中的每一个元素取平方得到新的集合</span><br><span class="line">D=&#123;key:value for key,value in zip(l,k)&#125;字典推导式，通过zip()函数将两个列表l和k中的元素组成键值对并形成字典</span><br><span class="line">[i for i in range(30) if 1%2==0] # 取0-29之间偶数</span><br><span class="line">[function(i) for i in range(30) if 1%2==0] # function可以自己定义</span><br><span class="line">[ x**2 if x%2 ==0 else x**3 for x in range(10)] # 两个条件</span><br></pre></td></tr></table></figure>
+
+<h2 id="文件读写"><a href="#文件读写" class="headerlink" title="文件读写"></a>文件读写</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">读取文件</span><br><span class="line">f=open(filename,mode)返回一个文件对象f，读文件&quot;mode=r&quot;,写文件&quot;mode=w&quot;</span><br><span class="line">f.read(size)返回包含前size个字符的字符串</span><br><span class="line">f.readline()每次读取一行，返回该行字符串</span><br><span class="line">f.readlines()返回包含每个文件内容的列表，列表的元素为文件的每一行内容所构成的字符串</span><br><span class="line">f.close()关闭文件并释放它所占用的系统资源</span><br><span class="line">with open(&quot;aa.txt&quot;,&quot;r&quot;) as f:</span><br><span class="line">		content = f.readlines()</span><br><span class="line">在with主体块语句执行完后，自动关闭文件并释放占用的系统资源</span><br><span class="line">import csv</span><br><span class="line">f=open(&quot;aa.csv&quot;,&quot;r&quot;)</span><br><span class="line">csvreader = csv.reader(f)</span><br><span class="line">content_list=list(csvreader)</span><br><span class="line">读取csv文件，并把数据存储为一个嵌套列表(列表的元素扔是一个对象)content_list</span><br><span class="line"></span><br><span class="line">写入文件</span><br><span class="line">f.write(s)</span><br><span class="line">print(s,file=f)</span><br><span class="line">两种等价的方式，将字符串s写入文件对象f中</span><br></pre></td></tr></table></figure>
+
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">def sum(a,b=1)</span><br><span class="line">		return a+b</span><br><span class="line">def sum(*args,**kwargs)不定长参数，*args接收包含多个位置参数的元组，**kwargs接收包含多个关键字参数的字典。</span><br><span class="line">obj.methodname一个方法是一个&quot;属于&quot;对象并被命名为obj.methodname的函数</span><br></pre></td></tr></table></figure>
+
+<h2 id="map-和lambda"><a href="#map-和lambda" class="headerlink" title="map()和lambda()"></a>map()和lambda()</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">map(func,sequence)将函数依次作用在序列的每个元素上，把结果作为一个新的序列返回。</span><br><span class="line">lambda a,b:a+b匿名函数，正常函数定义的语法糖</span><br><span class="line">lambda [参数列表]:表达式</span><br><span class="line">例如: sum = lambda x,y:x+y # 可以有多个参数,返回只能有一个式子</span><br><span class="line">可以作为一个函数的参数赋给另外一个参数</span><br><span class="line">当然普通函数也可以作为参数传入</span><br><span class="line">a = [&#123;&apos;name&apos;:&apos;ss&apos;,&apos;age&apos;:10&#125;,&#123;&apos;name&apos;:&apos;yy&apos;,&apos;age&apos;:7&#125;,&#123;&apos;name&apos;:&apos;zz&apos;,&apos;age&apos;:15&#125;] # 将匿名函数作为参数传入第三方函数的参数</span><br><span class="line">a.sort(key=lambda x:x[&apos;age&apos;]) # sort方法需要传入一个key，这个key可以作为排序依据，lambda可以提取每个元素，并对元素排列</span><br><span class="line">a.sort(key=lambda x:x[&apos;age&apos;]， reverse=True) # 降序</span><br></pre></td></tr></table></figure>
+
+<h2 id="包模块"><a href="#包模块" class="headerlink" title="包模块"></a>包模块</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">包是一个文件夹</span><br><span class="line">模块是不同的python文件</span><br><span class="line">import package.module.func()</span><br><span class="line">import package1.module1, package2.module1 # 多个模块调用</span><br><span class="line">import package1.module1 as p1m1 # 对模块进行重命名使用</span><br><span class="line">from package.module import func1 # 调用某个包某个模块的某个函数</span><br><span class="line">import sys;sys.path # 搜索模块路径，包含当前文件夹</span><br><span class="line">package.module.__file__ # 可以确定当前的模块所在的路径</span><br><span class="line">__init__.py  #在包被加载的时候，会被执行。在一个包下面可以有也可以没有__init__.py</span><br><span class="line">from package import * # 引用包下面所有的模块都加载，自动搜索是不会发生的，</span><br><span class="line">    需要我们在__init__.py下进行定义才可以实现,定义的内容是__all__=[&quot;module1&quot;,&quot;module2&quot;],</span><br><span class="line">    将package下的module1和module2都加载进来</span><br><span class="line">    如果想直接加载某个函数，在__init__.py里面加入from .module1 import func1, __all__=[&quot;func1&quot;]</span><br><span class="line">    这样修改完之后，可以直接from package import *，然后直接调用func1即可，不用带package.module</span><br><span class="line">    restart kernel</span><br><span class="line">如果想要直接引用包,如：import package,这样的话，需要一定要有__init__.py，否则会在打印package.__file__的时候报错。</span><br><span class="line">注意import package和from package import *效果相同</span><br></pre></td></tr></table></figure>
+
+<h2 id="Counter"><a href="#Counter" class="headerlink" title="Counter"></a>Counter</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">字典的继承类</span><br><span class="line">set dict list tuple 作为key</span><br><span class="line">from collection import Counter # 导入</span><br><span class="line">cnt = Counter()</span><br><span class="line">for i in [1,1,2,2,2,3]:</span><br><span class="line">    cnt[i] += 1</span><br><span class="line">print cnt</span><br><span class="line">如果用key的话会报错先做第一次初始化才行</span><br><span class="line">cnt2 = Counter(alist)  #可以统计每个元素出现的次数（字符串，set,list,）</span><br><span class="line">Counter(cat=4,dogs=8,abc=-1) # 初始化counter次数，或者用dictionary构建</span><br><span class="line">Counter(&#123;&apos;cat&apos;:4,&apos;dogs&apos;:8,&apos;abc&apos;:-1&#125;)</span><br><span class="line">Counter返回一个字典，如果缺失的话会返回0</span><br><span class="line">del cnt2[&apos;xx&apos;]</span><br><span class="line">.values()</span><br><span class="line">list(cnt),set(cnt),dict(cnt) # 前两个只返回key</span><br><span class="line">cnt.most_common()[0] # 对出现次数排序</span><br><span class="line">cnt.clear()</span><br><span class="line">cnt1+cnt2 # 对于key相同的value做加法，如果为0则不保留</span><br><span class="line">cnt1-cnt2 # 对于key相同的value做减法</span><br><span class="line">&amp; # 求key相同value的最小值</span><br><span class="line">| # 求key相同value的最大值</span><br></pre></td></tr></table></figure>
+
+<h2 id="random"><a href="#random" class="headerlink" title="random"></a>random</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">import random #引入</span><br><span class="line">random.random() # 0-1</span><br><span class="line">random.uniform(1,10) # 包含1，10的浮点数</span><br><span class="line">random.randint(1,10)  # 包含1，10的整数</span><br><span class="line">random.randrange(0,20,3) # 0-20能被3整除的数</span><br><span class="line">random.choice([1,2,3]) # 随机取元素</span><br><span class="line">random.choice(&quot;qwdwq&quot;) # 随机取元素</span><br><span class="line">random.shuffle([12,3,1,4,2,3]) # 混洗</span><br><span class="line">random.sample([1,2,3,4,5], 3) # 从前面的list中选3个</span><br></pre></td></tr></table></figure>
+
+<h2 id="编码和解码"><a href="#编码和解码" class="headerlink" title="编码和解码"></a>编码和解码</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">import chardet</span><br><span class="line">chardet.detect(s)</span><br><span class="line">检测字符串的编码方式</span><br></pre></td></tr></table></figure>
+
+<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">try:</span><br><span class="line">		statement</span><br><span class="line">except:</span><br><span class="line">		pass</span><br><span class="line"></span><br><span class="line">try:</span><br><span class="line">		statement</span><br><span class="line">except Exception as e:</span><br><span class="line">		print(e)</span><br><span class="line"></span><br><span class="line">try:</span><br><span class="line">		statement</span><br><span class="line">except (Exception1,Exception2) as e:</span><br><span class="line">		statement1</span><br><span class="line">else:</span><br><span class="line">		statement2</span><br><span class="line">finally:</span><br><span class="line">		statement3#无论对错都运行</span><br><span class="line">抛出异常</span><br><span class="line">raise Exception(&apos;Oops！&apos;)</span><br><span class="line">assert statement,e#若继续运行代码、否则抛出e的错误提示信息</span><br></pre></td></tr></table></figure>
+
+<h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line">import re</span><br><span class="line">raw_s=r&apos;\d&#123;17&#125;[\d|x]|\d&#123;15&#125;&apos;</span><br><span class="line">pattern=re.compile(raw_s)</span><br><span class="line">re.search(pattern,s)</span><br><span class="line">用于匹配身份证号</span><br><span class="line">首先使用原始字符串定义正则表达式；然后编译原始字符为正则表达式Pattern对象；最后对整个字符串s进行模式搜索，如果模式匹配，则返回MatchObject的实例，如果该字符串没有模式匹配，则返回弄none</span><br><span class="line">re.search(r&apos;\d&#123;17&#125;[\d|x]|\d&#123;15&#125;&apos;,s)将Pattern编译过程与搜索过程合二为一</span><br><span class="line">re.match(pattern,s)从字符串s的起始位置匹配一个模式，如果匹配不成功返回None</span><br><span class="line">re.findall(pattern,s)返回一个包含所有满足条件的字串列表</span><br><span class="line">re.sub(pattern,repl,s)使用替换字符串repl替换匹配到的字符串</span><br><span class="line">re.split(pattern,s)利用满足匹配模式的字符串将字符串s分隔开，并返回一个列表</span><br><span class="line"></span><br><span class="line">1.正则表达式的match与search区别</span><br><span class="line">    https://segmentfault.com/a/1190000006736033</span><br><span class="line"></span><br><span class="line">2.贪婪匹配与非贪婪匹配的区别</span><br><span class="line">    https://segmentfault.com/a/1190000002640851</span><br><span class="line">    https://blog.csdn.net/lxcnn/article/details/4756030</span><br><span class="line"></span><br><span class="line">3. 练习网站</span><br><span class="line">    https://alf.nu/RegexGolf 一个正则表达式练习网站</span><br><span class="line">    https://regexr.com/ 验证网站</span><br><span class="line"></span><br><span class="line">4. 单字符匹配</span><br><span class="line">    . # 匹配出点换行符之外的任意字符</span><br><span class="line">    \. # 匹配单个.字符</span><br><span class="line">    [abd] # 匹配a/b/d单个字符</span><br><span class="line">    \d # 匹配数字, 相当于[1,2,3,4,5,6,7,8,9]</span><br><span class="line">    \D # 所有非字符</span><br><span class="line">    \s # 空白符,空格 tab等等</span><br><span class="line">    \S # 所有非空格</span><br><span class="line">    \w # a-z,A-Z,0-9,_</span><br><span class="line">    \W # 除了 a-z,A-Z,0-9</span><br><span class="line"></span><br><span class="line">5. 数量词用来多匹配</span><br><span class="line">    m&#123;2&#125; # 表示匹配两个m</span><br><span class="line">    m&#123;2,4&#125; # 表示匹配2/3/4个m,贪婪匹配</span><br><span class="line">    m* # 0个或者更多个,贪婪匹配</span><br><span class="line">    m+ # 1个或者更多个,贪婪匹配</span><br><span class="line">    m? # 0个或者1个</span><br><span class="line">    ^xx # 文本开头是xx进行匹配</span><br><span class="line">    xxx$ # 对结尾进行匹配</span><br><span class="line">    (re)su(lt) # group</span><br><span class="line"></span><br><span class="line">6. python中的正则表达式步骤</span><br><span class="line">    写一个文本pattern</span><br><span class="line">    进行匹配</span><br><span class="line">    对匹配的文本进行后续操作</span><br><span class="line">    例子:</span><br><span class="line">        import re</span><br><span class="line">        pattern = re.compile(r&apos;hello.*\!&apos;) # hello后面有若干个字符串直到有!</span><br><span class="line">        match = pattern.match(&apos;hello, xxx! how are you?&apos;) # 对文本进行匹配</span><br><span class="line">        if match: # 是否匹配</span><br><span class="line">            print match.group() # 如果匹配上了返回相应的匹配到的部分</span><br><span class="line"></span><br><span class="line">7. 使用实例</span><br><span class="line">    import re</span><br><span class="line">    re.compile(r&quot;&quot;&quot;</span><br><span class="line">    \d+ # 数字部分</span><br><span class="line">    \. # 小数点</span><br><span class="line">    \d # 小数部分</span><br><span class="line">    &quot;&quot;&quot;, re.X)</span><br><span class="line">    这种模式下可以写注解</span><br><span class="line">    re.compile(r&quot;\d+\.\d&quot;) # 与这个模式结果一样</span><br><span class="line"></span><br><span class="line">8.一些命令</span><br><span class="line">    match # 一次匹配结果,从头匹配,开头没有就匹配不上了</span><br><span class="line">    search # 所有匹配到的</span><br><span class="line">    findall # search返回第一个匹配的结果,findall会返回所有的结果</span><br><span class="line">    m=re.match()</span><br><span class="line">    m.string # 匹配的字符串</span><br><span class="line">    m.group(1,2) # 匹配1和2处字符串</span><br><span class="line"></span><br><span class="line">9. 替换和分割</span><br><span class="line">     split也可以使用正则表达式进行分割</span><br><span class="line">        p = re.compile(r&apos;\d+&apos;)</span><br><span class="line">        p.split(&apos;adwdwad1dawwd23dwadw&apos;) # 字符串复杂分割</span><br><span class="line">    sub # 用来替换</span><br><span class="line">        p = re.compile(r&apos;(\w+) (\w+)&apos;)</span><br><span class="line">        p.sub(r&apos;\2 \1&apos;, s) # 匹配字符串并且在匹配到的字符串处进行前后颠倒 </span><br><span class="line">    subn # 和sub类似,只不过除了返回替换的远足之外,还返回相应的替换次数,可以p.subn(afunc, s), afunc可以自己定义</span><br></pre></td></tr></table></figure>
+
+<h2 id="日期处理"><a href="#日期处理" class="headerlink" title="日期处理"></a>日期处理</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">from datetime import datetimes</span><br><span class="line">format=&quot;%Y-%m-%d %H:%M:%S&quot;指定日期格式</span><br><span class="line">date_s=datetime.striptime(s,format)</span><br><span class="line">date_s.year</span><br><span class="line">date_s.month</span><br><span class="line">date_s.now()</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2019/07/20/python基础知识整理/">python基础知识整理</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2019-07-20, 14:17:41</p>
+        <p><span>最后更新:</span>2020-04-24, 12:21:39</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2019/07/20/python基础知识整理/" title="python基础知识整理">http://mmyblog.cn/2019/07/20/python基础知识整理/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2019/07/20/python基础知识整理/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2019/07/22/数据分析常用工具总结/">
+                    数据分析常用工具总结
+                </a>
+            </div>
+        
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#jupyter-notebook常用配置"><span class="toc-number">1.</span> <span class="toc-text">jupyter notebook常用配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#notebook中的magic开关"><span class="toc-number">1.1.</span> <span class="toc-text">notebook中的magic开关</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#magic开关总览"><span class="toc-number">1.2.</span> <span class="toc-text">magic开关总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jupyter-notebook扩展"><span class="toc-number">1.3.</span> <span class="toc-text">Jupyter notebook扩展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jupyter-使用linux命令"><span class="toc-number">1.3.1.</span> <span class="toc-text">jupyter 使用linux命令</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#python"><span class="toc-number">2.</span> <span class="toc-text">python</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#基本操作"><span class="toc-number">2.1.</span> <span class="toc-text">基本操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#列表"><span class="toc-number">2.2.</span> <span class="toc-text">列表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#条件判断和循环语句"><span class="toc-number">2.3.</span> <span class="toc-text">条件判断和循环语句</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#enumerate（）and-zip（）"><span class="toc-number">2.4.</span> <span class="toc-text">enumerate（）and zip（）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#推导式"><span class="toc-number">2.5.</span> <span class="toc-text">推导式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文件读写"><span class="toc-number">2.6.</span> <span class="toc-text">文件读写</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#函数"><span class="toc-number">2.7.</span> <span class="toc-text">函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#map-和lambda"><span class="toc-number">2.8.</span> <span class="toc-text">map()和lambda()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#包模块"><span class="toc-number">2.9.</span> <span class="toc-text">包模块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Counter"><span class="toc-number">2.10.</span> <span class="toc-text">Counter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#random"><span class="toc-number">2.11.</span> <span class="toc-text">random</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编码和解码"><span class="toc-number">2.12.</span> <span class="toc-text">编码和解码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#异常处理"><span class="toc-number">2.13.</span> <span class="toc-text">异常处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正则表达式"><span class="toc-number">2.14.</span> <span class="toc-text">正则表达式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#日期处理"><span class="toc-number">2.15.</span> <span class="toc-text">日期处理</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"python基础知识整理　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2019/07/22/数据分析常用工具总结/" title="上一篇: 数据分析常用工具总结">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

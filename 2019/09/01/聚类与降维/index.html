@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="机器学习中的聚类算法聚类是一种经典的无监督学习方法，无监督学习的目标是通过对无标记训练样本的学习，发掘和揭示数据集本身潜在的结构与规律，即不依赖于训练数据集的类标记信息。聚类则是试图将数据集的样本划分为若干个互不相交的类簇，从而每个簇对应一个潜在的类别。 聚类直观上来说是将相似的样本聚在一起，从而形成一个类簇（cluster）。那首先的问题是如何来度量相似性（similarity measure）">
+<meta name="keywords" content="机器学习,聚类,降维">
+<meta property="og:type" content="article">
+<meta property="og:title" content="聚类与降维">
+<meta property="og:url" content="http://mmyblog.cn/2019/09/01/聚类与降维/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="机器学习中的聚类算法聚类是一种经典的无监督学习方法，无监督学习的目标是通过对无标记训练样本的学习，发掘和揭示数据集本身潜在的结构与规律，即不依赖于训练数据集的类标记信息。聚类则是试图将数据集的样本划分为若干个互不相交的类簇，从而每个簇对应一个潜在的类别。 聚类直观上来说是将相似的样本聚在一起，从而形成一个类簇（cluster）。那首先的问题是如何来度量相似性（similarity measure）">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84ed4c0390.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84ed49e31f.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84ed49c31f.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84ed497613.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84ed4e9560.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84ed507bc7.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84ed59160e.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84ed587438.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84ed581852.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84ed582854.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84fb82b5d3.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84fb9c0817.png">
+<meta property="og:image" content="http://mmyblog.cn/2019/09/01/img/K-Means.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84fb870d98.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84fb876794.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84fb9191d9.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84fb871d4a.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84fb8a6f32.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84fb9c4fa4.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc84fb9bd69c.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc8509f8d619.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc8509feb587.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc8509ebb022.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc8509eb2b30.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc8509f089a7.png">
+<meta property="og:image" content="https://i.loli.net/2018/10/18/5bc8509f9d4a0.png">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/clustering.png">
+<meta property="og:image" content="http://mmyblog.cn/blog_picture/PCA_.jpg">
+<meta property="og:updated_time" content="2019-09-01T14:43:37.454Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="聚类与降维">
+<meta name="twitter:description" content="机器学习中的聚类算法聚类是一种经典的无监督学习方法，无监督学习的目标是通过对无标记训练样本的学习，发掘和揭示数据集本身潜在的结构与规律，即不依赖于训练数据集的类标记信息。聚类则是试图将数据集的样本划分为若干个互不相交的类簇，从而每个簇对应一个潜在的类别。 聚类直观上来说是将相似的样本聚在一起，从而形成一个类簇（cluster）。那首先的问题是如何来度量相似性（similarity measure）">
+<meta name="twitter:image" content="https://i.loli.net/2018/10/18/5bc84ed4c0390.png">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>聚类与降维 | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-聚类与降维" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/09/01/聚类与降维/" class="article-date">
+      <time datetime="2019-09-01T14:40:06.000Z" itemprop="datePublished">2019-09-01</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      聚类与降维
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/机器学习/">机器学习</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/聚类/">聚类</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/降维/">降维</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="机器学习中的聚类算法"><a href="#机器学习中的聚类算法" class="headerlink" title="机器学习中的聚类算法"></a>机器学习中的聚类算法</h2><p>聚类是一种经典的<strong>无监督学习</strong>方法，<strong>无监督学习的目标是通过对无标记训练样本的学习，发掘和揭示数据集本身潜在的结构与规律</strong>，即不依赖于训练数据集的类标记信息。聚类则是试图将数据集的样本划分为若干个互不相交的类簇，从而每个簇对应一个潜在的类别。</p>
+<p>聚类直观上来说是将相似的样本聚在一起，从而形成一个<strong>类簇（cluster）</strong>。那首先的问题是如何来<strong>度量相似性</strong>（similarity measure）呢？这便是<strong>距离度量</strong>，在生活中我们说差别小则相似，对应到多维样本，每个样本可以对应于高维空间中的一个数据点，若它们的距离相近，我们便可以称它们相似。那接着如何来评价聚类结果的好坏呢？这便是<strong>性能度量</strong>，性能度量为评价聚类结果的好坏提供了一系列有效性指标。</p>
+<h3 id="距离度量"><a href="#距离度量" class="headerlink" title="距离度量"></a>距离度量</h3><p>谈及距离度量，最熟悉的莫过于欧式距离了，从年头一直用到年尾的距离计算公式：即对应属性之间相减的平方和再开根号。度量距离还有其它的很多经典方法，通常它们需要满足一些基本性质：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84ed4c0390.png" alt="1.png"></p>
+<p>最常用的距离度量方法是<strong>“闵可夫斯基距离”（Minkowski distance)</strong>：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84ed49e31f.png" alt="2.png"></p>
+<p>当p=1时，闵可夫斯基距离即<strong>曼哈顿距离（Manhattan distance）</strong>：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84ed49c31f.png" alt="3.png"></p>
+<p>当p=2时，闵可夫斯基距离即<strong>欧氏距离（Euclidean distance）</strong>：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84ed497613.png" alt="4.png"></p>
+<p>我们知道属性分为两种：<strong>连续属性</strong>和<strong>离散属性</strong>（有限个取值）。对于连续值的属性，一般都可以被学习器所用，有时会根据具体的情形作相应的预处理，例如：归一化等；而对于离散值的属性，需要作下面进一步的处理：</p>
+<blockquote>
+<p>若属性值之间<strong>存在序关系</strong>，则可以将其转化为连续值，例如：身高属性“高”“中等”“矮”，可转化为{1, 0.5, 0}。<br>若属性值之间<strong>不存在序关系</strong>，则通常将其转化为向量的形式，例如：性别属性“男”“女”，可转化为{（1,0），（0,1）}。</p>
+</blockquote>
+<p>在进行距离度量时，易知<strong>连续属性和存在序关系的离散属性都可以直接参与计算</strong>，因为它们都可以反映一种程度，我们称其为“<strong>有序属性</strong>”；而对于不存在序关系的离散属性，我们称其为：“<strong>无序属性</strong>”，显然无序属性再使用闵可夫斯基距离就行不通了。</p>
+<p><strong>对于无序属性，我们一般采用VDM进行距离的计算</strong>，例如：对于离散属性的两个取值a和b，定义：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84ed4e9560.png" alt="5.png"></p>
+<p>于是，在计算两个样本之间的距离时，我们可以将闵可夫斯基距离和VDM混合在一起进行计算：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84ed507bc7.png" alt="6.png"></p>
+<p>若我们定义的距离计算方法是用来度量相似性，例如下面将要讨论的聚类问题，即距离越小，相似性越大，反之距离越大，相似性越小。这时距离的度量方法并不一定需要满足前面所说的四个基本性质，这样的方法称为：<strong>非度量距离（non-metric distance）</strong>。</p>
+<h3 id="性能度量"><a href="#性能度量" class="headerlink" title="性能度量"></a>性能度量</h3><p>由于聚类算法不依赖于样本的真实类标，就不能像监督学习的分类那般，通过计算分对分错（即精确度或错误率）来评价学习器的好坏或作为学习过程中的优化目标。一般聚类有两类性能度量指标：<strong>外部指标</strong>和<strong>内部指标</strong>。</p>
+<h4 id="外部指标"><a href="#外部指标" class="headerlink" title="外部指标"></a>外部指标</h4><p>即将聚类结果与某个参考模型的结果进行比较，<strong>以参考模型的输出作为标准，来评价聚类好坏</strong>。假设聚类给出的结果为λ，参考模型给出的结果是λ*，则我们将样本进行两两配对，定义：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84ed59160e.png" alt="7.png"></p>
+<p>显然a和b代表着聚类结果好坏的正能量，b和c则表示参考结果和聚类结果相矛盾，基于这四个值可以导出以下常用的外部评价指标：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84ed587438.png" alt="8.png"></p>
+<h4 id="内部指标"><a href="#内部指标" class="headerlink" title="内部指标"></a>内部指标</h4><p>内部指标即不依赖任何外部模型，直接对聚类的结果进行评估，聚类的目的是想将那些相似的样本尽可能聚在一起，不相似的样本尽可能分开，直观来说：<strong>簇内高内聚紧紧抱团，簇间低耦合老死不相往来</strong>。定义：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84ed581852.png" alt="9.png"></p>
+<p>基于上面的四个距离，可以导出下面这些常用的内部评价指标：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84ed582854.png" alt="10.png"></p>
+<h3 id="原型聚类"><a href="#原型聚类" class="headerlink" title="原型聚类"></a>原型聚类</h3><p>原型聚类即“<strong>基于原型的聚类</strong>”（prototype-based clustering），原型表示模板的意思，就是通过参考一个模板向量或模板分布的方式来完成聚类的过程，常见的K-Means便是基于簇中心来实现聚类，混合高斯聚类则是基于簇分布来实现聚类。</p>
+<h4 id="K-Means"><a href="#K-Means" class="headerlink" title="K-Means"></a>K-Means</h4><p>K-Means的思想十分简单，<strong>首先随机指定类中心，根据样本与类中心的远近划分类簇，接着重新计算类中心，迭代直至收敛</strong>。但是其中迭代的过程并不是主观地想象得出，事实上，若将样本的类别看做为“隐变量”（latent variable），类中心看作样本的分布参数，这一过程正是通过<strong>EM算法</strong>的两步走策略而计算出，其根本的目的是为了最小化平方误差函数E：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84fb82b5d3.png" alt="11.png"></p>
+<p>K-Means的算法流程如下所示：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84fb9c0817.png" alt="12.png"></p>
+<p><img src="../img/K-Means.png" alt></p>
+<h4 id="高斯混合聚类"><a href="#高斯混合聚类" class="headerlink" title="高斯混合聚类"></a>高斯混合聚类</h4><p>现在可以看出K-Means与LVQ都试图以类中心作为原型指导聚类，高斯混合聚类则采用高斯分布来描述原型。现假设<strong>每个类簇中的样本都服从一个多维高斯分布，那么空间中的样本可以看作由k个多维高斯分布混合而成</strong>。</p>
+<p>对于多维高斯分布，其概率密度函数如下所示：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84fb870d98.png" alt="14.png"></p>
+<p>其中u表示均值向量，∑表示协方差矩阵，可以看出一个多维高斯分布完全由这两个参数所确定。接着定义高斯混合分布为：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84fb876794.png" alt="15.png"></p>
+<p>α称为混合系数，这样空间中样本的采集过程则可以抽象为：<strong>（1）先选择一个类簇（高斯分布），（2）再根据对应高斯分布的密度函数进行采样</strong>，这时候贝叶斯公式又能大展身手了：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84fb9191d9.png" alt="16.png"></p>
+<p>此时只需要选择PM最大时的类簇并将该样本划分到其中，看到这里很容易发现：这和那个传说中的贝叶斯分类不是神似吗，都是通过贝叶斯公式展开，然后计算类先验概率和类条件概率。但遗憾的是：<strong>这里没有真实类标信息，对于类条件概率，并不能像贝叶斯分类那样通过最大似然法美好地计算出来</strong>，因为这里的样本可能属于所有的类簇，这里的似然函数变为：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84fb871d4a.png" alt="17.png"></p>
+<p>可以看出：简单的最大似然法根本无法求出所有的参数，这样PM也就没法计算。<strong>这里就要召唤出之前的EM大法，首先对高斯分布的参数及混合系数进行随机初始化，计算出各个PM（即γji，第i个样本属于j类），再最大化似然函数（即LL（D）分别对α、u和∑求偏导 ），对参数进行迭代更新</strong>。</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84fb8a6f32.png" alt="18.png"></p>
+<p>高斯混合聚类的算法流程如下图所示：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84fb9c4fa4.png" alt="19.png"></p>
+<h4 id="密度聚类"><a href="#密度聚类" class="headerlink" title="密度聚类"></a>密度聚类</h4><p>密度聚类则是基于密度的聚类，它从样本分布的角度来考察样本之间的可连接性，并基于可连接性（密度可达）不断拓展疆域（类簇）。其中最著名的便是<strong>DBSCAN</strong>算法，首先定义以下概念：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc84fb9bd69c.png" alt="20.png"></p>
+<p><img src="https://i.loli.net/2018/10/18/5bc8509f8d619.png" alt="21.png"></p>
+<p>简单来理解DBSCAN便是：<strong>找出一个核心对象所有密度可达的样本集合形成簇</strong>。首先从数据集中任选一个核心对象A，找出所有A密度可达的样本集合，将这些样本形成一个密度相连的类簇，直到所有的核心对象都遍历完。DBSCAN算法的流程如下图所示：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc8509feb587.png" alt="22.png"></p>
+<h4 id="层次聚类"><a href="#层次聚类" class="headerlink" title="层次聚类"></a>层次聚类</h4><p>层次聚类是一种基于树形结构的聚类方法，常用的是<strong>自底向上</strong>的结合策略（<strong>AGNES算法</strong>）。假设有N个待聚类的样本，其基本步骤是：</p>
+<ul>
+<li>1.初始化–&gt;把每个样本归为一类，计算每两个类之间的距离，也就是样本与样本之间的相似度；</li>
+<li>2.寻找各个类之间最近的两个类，把他们归为一类（这样类的总数就少了一个）；</li>
+<li>3.重新计算新生成的这个<strong>类与各个旧类之间的相似度</strong>；</li>
+<li>4.重复2和3直到所有样本点都归为一类，结束。</li>
+</ul>
+<p>可以看出其中最关键的一步就是<strong>计算两个类簇的相似度</strong>，这里有多种度量方法：</p>
+<pre><code>* 单链接（single-linkage）:取类间最小距离。</code></pre><p><img src="https://i.loli.net/2018/10/18/5bc8509ebb022.png" alt="23.png"></p>
+<pre><code>* 全链接（complete-linkage）:取类间最大距离</code></pre><p><img src="https://i.loli.net/2018/10/18/5bc8509eb2b30.png" alt="24.png"></p>
+<pre><code>* 均链接（average-linkage）:取类间两两的平均距离</code></pre><p><img src="https://i.loli.net/2018/10/18/5bc8509f089a7.png" alt="25.png"></p>
+<p>很容易看出：<strong>单链接的包容性极强，稍微有点暧昧就当做是自己人了，全链接则是坚持到底，只要存在缺点就坚决不合并，均连接则是从全局出发顾全大局</strong>。层次聚类法的算法流程如下所示：</p>
+<p><img src="https://i.loli.net/2018/10/18/5bc8509f9d4a0.png" alt="26.png"><br><img src="/blog_picture/clustering.png" alt="avatar"></p>
+<h2 id="机器学习中的PCA降维"><a href="#机器学习中的PCA降维" class="headerlink" title="机器学习中的PCA降维"></a>机器学习中的PCA降维</h2><p>资料from<a href="http://blog.codinglabs.org/articles/pca-tutorial.html" target="_blank" rel="noopener">PCA的数学原理</a></p>
+<p><img src="/blog_picture/PCA_.jpg" alt="avatar"></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2019/09/01/聚类与降维/">聚类与降维</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2019-09-01, 22:40:06</p>
+        <p><span>最后更新:</span>2019-09-01, 22:43:37</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2019/09/01/聚类与降维/" title="聚类与降维">http://mmyblog.cn/2019/09/01/聚类与降维/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2019/09/01/聚类与降维/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2019/09/01/集成学习与boosting模型/">
+                    集成学习与boosting模型
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2019/09/01/贝叶斯分类器/">
+                    贝叶斯分类器
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#机器学习中的聚类算法"><span class="toc-number">1.</span> <span class="toc-text">机器学习中的聚类算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#距离度量"><span class="toc-number">1.1.</span> <span class="toc-text">距离度量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#性能度量"><span class="toc-number">1.2.</span> <span class="toc-text">性能度量</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#外部指标"><span class="toc-number">1.2.1.</span> <span class="toc-text">外部指标</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#内部指标"><span class="toc-number">1.2.2.</span> <span class="toc-text">内部指标</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原型聚类"><span class="toc-number">1.3.</span> <span class="toc-text">原型聚类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#K-Means"><span class="toc-number">1.3.1.</span> <span class="toc-text">K-Means</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#高斯混合聚类"><span class="toc-number">1.3.2.</span> <span class="toc-text">高斯混合聚类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#密度聚类"><span class="toc-number">1.3.3.</span> <span class="toc-text">密度聚类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#层次聚类"><span class="toc-number">1.3.4.</span> <span class="toc-text">层次聚类</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#机器学习中的PCA降维"><span class="toc-number">2.</span> <span class="toc-text">机器学习中的PCA降维</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"聚类与降维　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2019/09/01/集成学习与boosting模型/" title="上一篇: 集成学习与boosting模型">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2019/09/01/贝叶斯分类器/" title="下一篇: 贝叶斯分类器">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
