@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://mmyblog.cn/"/>
-  <updated>2020-04-24T05:34:48.984Z</updated>
+  <updated>2020-05-08T07:27:37.853Z</updated>
   <id>http://mmyblog.cn/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://mmyblog.cn/2020/04/24/word2vec/"/>
     <id>http://mmyblog.cn/2020/04/24/word2vec/</id>
     <published>2020-04-24T05:29:22.000Z</published>
-    <updated>2020-04-24T05:34:48.984Z</updated>
+    <updated>2020-05-08T07:27:37.853Z</updated>
     
     <content type="html"><![CDATA[<h4 id="word2vec"><a href="#word2vec" class="headerlink" title="word2vec"></a>word2vec</h4><ul><li>有一个很大的词表库</li><li>在词表中的每个词都可以通过向量表征</li><li>有一个中心词c，有一个输出词o</li><li>用词c和o的相似度来计算他们之间同时出现的概率</li><li>调整这个词向量来获得最大输出概率</li></ul>]]></content>
     
