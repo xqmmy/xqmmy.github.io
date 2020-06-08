@@ -190,10 +190,6 @@
                             
                                 <a class="fa GitHub" href="#" title="GitHub"></a>
                             
-                                <a class="fa QQ" href="/878759487" title="QQ"></a>
-                            
-                                <a class="fa 微信" href="/m15937372110" title="微信"></a>
-                            
                         </ul>
                     </nav>
                 </section>
@@ -261,10 +257,6 @@
                                 <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
                             
                                 <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
-                            
-                                <a class="fa QQ" target="_blank" href="/878759487" title="QQ"></a>
-                            
-                                <a class="fa 微信" target="_blank" href="/m15937372110" title="微信"></a>
                             
                         </ul>
             </nav>
@@ -442,7 +434,48 @@
     <script>
         
     </script>
+
+<!-- 添加打赏功能 只在文章详情中显示-->
+
+  
+  <! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+    <div id="donate_guide" class="donate_bar center hidden" >
+        <!-- 方式一： 
+            <img src="/img/Alipay.jpg" alt="支付宝打赏">
+            <img src="/img/WeChatpay.jpg" alt="微信打赏">
+        -->
+        <!-- 方式二；
+            step1：在_config.yml中添加配置
+                Alipay: /img/Alipay.jpg
+                WeChatpay: /img/WeChatpay.jpg
+            step2：此处两张图片的路径分别设置为如下
+                <img src=""
+                <img src=""
+        -->
+        <!-- 支付宝打赏图案 -->
+        <img src="/img/Alipay.jpg" alt="支付宝打赏">
+        <!-- 微信打赏图案 -->
+        <img src="/img/WeChatpay.jpg" alt="微信打赏">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn_donate').onclick = function(){
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+    </script>
 </div>
+<! -- 添加捐赠图标 -->
+  
+  </div>
       <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
 </script>
 <footer id="footer">
