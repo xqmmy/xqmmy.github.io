@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="jieba中文处理和拉丁语系不同，亚洲语言是不用空格分开每个有意义的词的。而当我们进行自然语言处理的时候，大部分情况下，词汇是我们对句子和文章理解的基础，因此需要一个工具去把完整的文本中分解成粒度更细的词。 jieba就是这样一个非常好用的中文工具，是以分词起家的，但是功能比分词要强大很多。 1.基本分词函数与用法jieba.cut 以及 jieba.cut_for_search 返回的结构都是一">
+<meta name="keywords" content="jieba">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jieba中文处理">
+<meta property="og:url" content="http://mmyblog.cn/2019/06/08/jieba中文处理/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="jieba中文处理和拉丁语系不同，亚洲语言是不用空格分开每个有意义的词的。而当我们进行自然语言处理的时候，大部分情况下，词汇是我们对句子和文章理解的基础，因此需要一个工具去把完整的文本中分解成粒度更细的词。 jieba就是这样一个非常好用的中文工具，是以分词起家的，但是功能比分词要强大很多。 1.基本分词函数与用法jieba.cut 以及 jieba.cut_for_search 返回的结构都是一">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-06-08T10:22:56.732Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="jieba中文处理">
+<meta name="twitter:description" content="jieba中文处理和拉丁语系不同，亚洲语言是不用空格分开每个有意义的词的。而当我们进行自然语言处理的时候，大部分情况下，词汇是我们对句子和文章理解的基础，因此需要一个工具去把完整的文本中分解成粒度更细的词。 jieba就是这样一个非常好用的中文工具，是以分词起家的，但是功能比分词要强大很多。 1.基本分词函数与用法jieba.cut 以及 jieba.cut_for_search 返回的结构都是一">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>jieba中文处理 | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Attention/">Attention</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BERT/">BERT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BLUE/">BLUE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Beam-search/">Beam search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CRF/">CRF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ConvNet/">ConvNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ELMo/">ELMo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPT/">GPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GRU/">GRU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradient-Clipping/">Gradient Clipping</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LSTM/">LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linear/">Linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Parsing/">Parsing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PyTorch/">PyTorch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QA/">QA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN/">RNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN-LSTM/">RNN/LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Recursive-Neural-Networks/">Recursive Neural Networks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seq2Seq/">Seq2Seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TorchText/">TorchText</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer/">Transformer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer-XL/">Transformer-XL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/XLNet/">XLNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/inference/">inference</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jiaba/">jiaba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jieba/">jieba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/word-embedding/">word-embedding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wxBot/">wxBot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/中文分词/">中文分词</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图神经网络/">图神经网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/朴素贝叶斯/">朴素贝叶斯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则表达式/">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聊天机器人/">聊天机器人</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言模型/">语言模型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-jieba中文处理" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/06/08/jieba中文处理/" class="article-date">
+      <time datetime="2019-06-08T10:15:37.000Z" itemprop="datePublished">2019-06-08</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      jieba中文处理
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/分词/">分词</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jieba/">jieba</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="jieba中文处理"><a href="#jieba中文处理" class="headerlink" title="jieba中文处理"></a>jieba中文处理</h2><p>和拉丁语系不同，亚洲语言是不用空格分开每个有意义的词的。而当我们进行自然语言处理的时候，大部分情况下，词汇是我们对句子和文章理解的基础，因此需要一个工具去把完整的文本中分解成粒度更细的词。</p>
+<p>jieba就是这样一个非常好用的中文工具，是以分词起家的，但是功能比分词要强大很多。</p>
+<h3 id="1-基本分词函数与用法"><a href="#1-基本分词函数与用法" class="headerlink" title="1.基本分词函数与用法"></a>1.基本分词函数与用法</h3><p>jieba.cut 以及 jieba.cut_for_search 返回的结构都是一个可迭代的 generator，可以使用 for 循环来获得分词后得到的每一个词语(unicode)</p>
+<p><strong>jieba.cut</strong> 方法接受三个输入参数:</p>
+<ul>
+<li>需要分词的字符串</li>
+<li>cut_all 参数用来控制是否采用全模式</li>
+<li>HMM 参数用来控制是否使用 HMM 模型</li>
+</ul>
+<p><strong>jieba.cut_for_search</strong> 方法接受两个参数</p>
+<ul>
+<li>需要分词的字符串</li>
+<li>是否使用 HMM 模型。</li>
+</ul>
+<p>该方法适合用于搜索引擎构建倒排索引的分词，粒度比较细</p>
+<p>In [1]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># encoding=utf-8</span></span><br><span class="line"><span class="keyword">import</span> jieba</span><br><span class="line"></span><br><span class="line">seg_list = jieba.cut(<span class="string">"我在学习自然语言处理"</span>, cut_all=<span class="literal">True</span>)</span><br><span class="line"><span class="keyword">print</span> seg_list</span><br><span class="line">print(<span class="string">"Full Mode: "</span> + <span class="string">"/ "</span>.join(seg_list))  <span class="comment"># 全模式</span></span><br><span class="line"></span><br><span class="line">seg_list = jieba.cut(<span class="string">"我在学习自然语言处理"</span>, cut_all=<span class="literal">False</span>)</span><br><span class="line">print(<span class="string">"Default Mode: "</span> + <span class="string">"/ "</span>.join(seg_list))  <span class="comment"># 精确模式</span></span><br><span class="line"></span><br><span class="line">seg_list = jieba.cut(<span class="string">"他毕业于上海交通大学，在百度深度学习研究院进行研究"</span>)  <span class="comment"># 默认是精确模式</span></span><br><span class="line">print(<span class="string">", "</span>.join(seg_list))</span><br><span class="line"></span><br><span class="line">seg_list = jieba.cut_for_search(<span class="string">"小明硕士毕业于中国科学院计算所，后在哈佛大学深造"</span>)  <span class="comment"># 搜索引擎模式</span></span><br><span class="line">print(<span class="string">", "</span>.join(seg_list))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Building prefix dict from the default dictionary ...</span><br><span class="line">Loading model from cache /var/folders/pn/xp31896922n9rqxgftrqk3l00000gn/T/jieba.cache</span><br><span class="line">Loading model cost 0.496 seconds.</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;generator object cut at 0x10bbd91e0&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Prefix dict has been built succesfully.</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Full Mode: 我/ 在/ 学习/ 自然/ 自然语言/ 语言/ 处理</span><br><span class="line">Default Mode: 我/ 在/ 学习/ 自然语言/ 处理</span><br><span class="line">他, 毕业, 于, 上海交通大学, ，, 在, 百度, 深度, 学习, 研究院, 进行, 研究</span><br><span class="line">小明, 硕士, 毕业, 于, 中国, 科学, 学院, 科学院, 中国科学院, 计算, 计算所, ，, 后, 在, 哈佛, 大学, 哈佛大学, 深造</span><br></pre></td></tr></table></figure>
+
+<p><strong>jieba.lcut</strong>以及<strong>jieba.lcut_for_search</strong>直接返回 list</p>
+<p>In [2]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">result_lcut = jieba.lcut(<span class="string">"小明硕士毕业于中国科学院计算所，后在哈佛大学深造"</span>)</span><br><span class="line"><span class="keyword">print</span> result_lcut</span><br><span class="line"><span class="keyword">print</span> <span class="string">" "</span>.join(result_lcut)</span><br><span class="line"><span class="keyword">print</span> <span class="string">" "</span>.join(jieba.lcut_for_search(<span class="string">"小明硕士毕业于中国科学院计算所，后在哈佛大学深造"</span>))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">u'\u5c0f\u660e'</span>, <span class="string">u'\u7855\u58eb'</span>, <span class="string">u'\u6bd5\u4e1a'</span>, <span class="string">u'\u4e8e'</span>, <span class="string">u'\u4e2d\u56fd\u79d1\u5b66\u9662'</span>, <span class="string">u'\u8ba1\u7b97\u6240'</span>, <span class="string">u'\uff0c'</span>, <span class="string">u'\u540e'</span>, <span class="string">u'\u5728'</span>, <span class="string">u'\u54c8\u4f5b\u5927\u5b66'</span>, <span class="string">u'\u6df1\u9020'</span>]</span><br><span class="line">小明 硕士 毕业 于 中国科学院 计算所 ， 后 在 哈佛大学 深造</span><br><span class="line">小明 硕士 毕业 于 中国 科学 学院 科学院 中国科学院 计算 计算所 ， 后 在 哈佛 大学 哈佛大学 深造</span><br></pre></td></tr></table></figure>
+
+<h4 id="添加用户自定义词典"><a href="#添加用户自定义词典" class="headerlink" title="添加用户自定义词典"></a>添加用户自定义词典</h4><p>很多时候我们需要针对自己的场景进行分词，会有一些领域内的专有词汇。</p>
+<ul>
+<li>1.可以用jieba.load_userdict(file_name)加载用户字典</li>
+<li>2.少量的词汇可以自己用下面方法手动添加：<ul>
+<li>用 add_word(word, freq=None, tag=None) 和 del_word(word) 在程序中动态修改词典</li>
+<li>用 suggest_freq(segment, tune=True) 可调节单个词语的词频，使其能（或不能）被分出来。</li>
+</ul>
+</li>
+</ul>
+<p>In [3]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(&apos;/&apos;.join(jieba.cut(&apos;如果放到旧字典中将出错。&apos;, HMM=False)))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果/放到/旧/字典/中将/出错/。</span><br></pre></td></tr></table></figure>
+
+<p>In [4]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jieba.suggest_freq((&apos;中&apos;, &apos;将&apos;), True)</span><br></pre></td></tr></table></figure>
+
+<p>Out[4]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">494</span><br></pre></td></tr></table></figure>
+
+<p>In [5]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(&apos;/&apos;.join(jieba.cut(&apos;如果放到旧字典中将出错。&apos;, HMM=False)))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">如果/放到/旧/字典/中/将/出错/。</span><br></pre></td></tr></table></figure>
+
+<h3 id="关键词提取"><a href="#关键词提取" class="headerlink" title="关键词提取"></a>关键词提取</h3><h4 id="基于-TF-IDF-算法的关键词抽取"><a href="#基于-TF-IDF-算法的关键词抽取" class="headerlink" title="基于 TF-IDF 算法的关键词抽取"></a>基于 TF-IDF 算法的关键词抽取</h4><p>import jieba.analyse</p>
+<ul>
+<li>jieba.analyse.extract_tags(sentence, topK=20, withWeight=False, allowPOS=())<ul>
+<li>sentence 为待提取的文本</li>
+<li>topK 为返回几个 TF/IDF 权重最大的关键词，默认值为 20</li>
+<li>withWeight 为是否一并返回关键词权重值，默认值为 False</li>
+<li>allowPOS 仅包括指定词性的词，默认值为空，即不筛选</li>
+</ul>
+</li>
+</ul>
+<p>In [6]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">import jieba.analyse as analyse</span><br><span class="line">lines = open(&apos;NBA.txt&apos;).read()</span><br><span class="line">print &quot;  &quot;.join(analyse.extract_tags(lines, topK=20, withWeight=False, allowPOS=()))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">韦少  杜兰特  全明星  全明星赛  MVP  威少  正赛  科尔  投篮  勇士  球员  斯布鲁克  更衣柜  张卫平  三连庄  NBA  西部  指导  雷霆  明星队</span><br></pre></td></tr></table></figure>
+
+<p>In [7]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lines = open(u&apos;西游记.txt&apos;).read()</span><br><span class="line">print &quot;  &quot;.join(analyse.extract_tags(lines, topK=20, withWeight=False, allowPOS=()))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">行者  八戒  师父  三藏  唐僧  大圣  沙僧  妖精  菩萨  和尚  那怪  那里  长老  呆子  徒弟  怎么  不知  老孙  国王  一个</span><br></pre></td></tr></table></figure>
+
+<h4 id="关于TF-IDF-算法的关键词抽取补充"><a href="#关于TF-IDF-算法的关键词抽取补充" class="headerlink" title="关于TF-IDF 算法的关键词抽取补充"></a>关于TF-IDF 算法的关键词抽取补充</h4><ul>
+<li>关键词提取所使用逆向文件频率（IDF）文本语料库可以切换成自定义语料库的路径<ul>
+<li>用法： jieba.analyse.set_idf_path(file_name) # file_name为自定义语料库的路径<ul>
+<li>自定义语料库示例见<a href="https://github.com/fxsjy/jieba/blob/master/extra_dict/idf.txt.big" target="_blank" rel="noopener">这里</a></li>
+<li>用法示例见<a href="https://github.com/fxsjy/jieba/blob/master/test/extract_tags_idfpath.py" target="_blank" rel="noopener">这里</a></li>
+</ul>
+</li>
+<li>关键词提取所使用停止词（Stop Words）文本语料库可以切换成自定义语料库的路径<ul>
+<li>用法： jieba.analyse.set_stop_words(file_name) # file_name为自定义语料库的路径</li>
+<li>自定义语料库示例见<a href="https://github.com/fxsjy/jieba/blob/master/extra_dict/stop_words.txt" target="_blank" rel="noopener">这里</a></li>
+<li>用法示例见<a href="https://github.com/fxsjy/jieba/blob/master/test/extract_tags_stop_words.py" target="_blank" rel="noopener">这里</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>关键词一并返回关键词权重值示例<ul>
+<li>用法示例见<a href="https://github.com/fxsjy/jieba/blob/master/test/extract_tags_with_weight.py" target="_blank" rel="noopener">这里</a></li>
+</ul>
+</li>
+</ul>
+<h4 id="基于-TextRank-算法的关键词抽取"><a href="#基于-TextRank-算法的关键词抽取" class="headerlink" title="基于 TextRank 算法的关键词抽取"></a>基于 TextRank 算法的关键词抽取</h4><ul>
+<li>jieba.analyse.textrank(sentence, topK=20, withWeight=False, allowPOS=(‘ns’, ‘n’, ‘vn’, ‘v’)) 直接使用，接口相同，注意默认过滤词性。</li>
+<li>jieba.analyse.TextRank() 新建自定义 TextRank 实例</li>
+</ul>
+<p>算法论文： <a href="http://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf" target="_blank" rel="noopener">TextRank: Bringing Order into Texts</a></p>
+<p>基本思想:</p>
+<ul>
+<li>将待抽取关键词的文本进行分词</li>
+<li>以固定窗口大小(默认为5，通过span属性调整)，词之间的共现关系，构建图</li>
+<li>计算图中节点的PageRank，注意是无向带权图</li>
+</ul>
+<p>In [8]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jieba.analyse <span class="keyword">as</span> analyse</span><br><span class="line">lines = open(<span class="string">'NBA.txt'</span>).read()</span><br><span class="line"><span class="keyword">print</span> <span class="string">"  "</span>.join(analyse.textrank(lines, topK=<span class="number">20</span>, withWeight=<span class="literal">False</span>, allowPOS=(<span class="string">'ns'</span>, <span class="string">'n'</span>, <span class="string">'vn'</span>, <span class="string">'v'</span>)))</span><br><span class="line"><span class="keyword">print</span> <span class="string">"---------------------我是分割线----------------"</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"  "</span>.join(analyse.textrank(lines, topK=<span class="number">20</span>, withWeight=<span class="literal">False</span>, allowPOS=(<span class="string">'ns'</span>, <span class="string">'n'</span>)))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">全明星赛  勇士  正赛  指导  对方  投篮  球员  没有  出现  时间  威少  认为  看来  结果  相隔  助攻  现场  三连庄  介绍  嘉宾</span><br><span class="line">---------------------我是分割线----------------</span><br><span class="line">勇士  正赛  全明星赛  指导  投篮  玩命  时间  对方  现场  结果  球员  嘉宾  时候  全队  主持人  特点  大伙  肥皂剧  全程  快船队</span><br></pre></td></tr></table></figure>
+
+<p>In [9]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lines = open(u&apos;西游记.txt&apos;).read()</span><br><span class="line">print &quot;  &quot;.join(analyse.textrank(lines, topK=20, withWeight=False, allowPOS=(&apos;ns&apos;, &apos;n&apos;, &apos;vn&apos;, &apos;v&apos;)))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">行者  师父  八戒  三藏  大圣  不知  菩萨  妖精  只见  长老  国王  却说  呆子  徒弟  小妖  出来  不得  不见  不能  师徒</span><br></pre></td></tr></table></figure>
+
+<h3 id="词性标注"><a href="#词性标注" class="headerlink" title="词性标注"></a>词性标注</h3><ul>
+<li>jieba.posseg.POSTokenizer(tokenizer=None) 新建自定义分词器，tokenizer 参数可指定内部使用的 jieba.Tokenizer 分词器。jieba.posseg.dt 为默认词性标注分词器。</li>
+<li>标注句子分词后每个词的词性，采用和 ictclas 兼容的标记法。</li>
+<li>具体的词性对照表参见<a href="http://ictclas.nlpir.org/nlpir/html/readme.htm" target="_blank" rel="noopener">计算所汉语词性标记集</a></li>
+</ul>
+<p>In [10]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jieba.posseg <span class="keyword">as</span> pseg</span><br><span class="line">words = pseg.cut(<span class="string">"我爱自然语言处理"</span>)</span><br><span class="line"><span class="keyword">for</span> word, flag <span class="keyword">in</span> words:</span><br><span class="line">    print(<span class="string">'%s %s'</span> % (word, flag))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">我 r</span><br><span class="line">爱 v</span><br><span class="line">自然语言 l</span><br><span class="line">处理 v</span><br></pre></td></tr></table></figure>
+
+<h3 id="并行分词"><a href="#并行分词" class="headerlink" title="并行分词"></a>并行分词</h3><p>原理：将目标文本按行分隔后，把各行文本分配到多个 Python 进程并行分词，然后归并结果，从而获得分词速度的可观提升 基于 python 自带的 multiprocessing 模块，目前暂不支持 Windows</p>
+<p>用法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jieba.enable_parallel(<span class="number">4</span>) <span class="comment"># 开启并行分词模式，参数为并行进程数</span></span><br><span class="line">jieba.disable_parallel() <span class="comment"># 关闭并行分词模式</span></span><br></pre></td></tr></table></figure>
+
+<p>实验结果：在 4 核 3.4GHz Linux 机器上，对金庸全集进行精确分词，获得了 1MB/s 的速度，是单进程版的 3.3 倍。</p>
+<p>注意：并行分词仅支持默认分词器 jieba.dt 和 jieba.posseg.dt。</p>
+<p>In [11]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> jieba</span><br><span class="line"></span><br><span class="line">jieba.enable_parallel()</span><br><span class="line">content = open(<span class="string">u'西游记.txt'</span>,<span class="string">"r"</span>).read()</span><br><span class="line">t1 = time.time()</span><br><span class="line">words = <span class="string">"/ "</span>.join(jieba.cut(content))</span><br><span class="line">t2 = time.time()</span><br><span class="line">tm_cost = t2-t1</span><br><span class="line">print(<span class="string">'并行分词速度为 %s bytes/second'</span> % (len(content)/tm_cost))</span><br><span class="line"></span><br><span class="line">jieba.disable_parallel()</span><br><span class="line">content = open(<span class="string">u'西游记.txt'</span>,<span class="string">"r"</span>).read()</span><br><span class="line">t1 = time.time()</span><br><span class="line">words = <span class="string">"/ "</span>.join(jieba.cut(content))</span><br><span class="line">t2 = time.time()</span><br><span class="line">tm_cost = t2-t1</span><br><span class="line">print(<span class="string">'非并行分词速度为 %s bytes/second'</span> % (len(content)/tm_cost))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">并行分词速度为 830619.50933 bytes/second</span><br><span class="line">非并行分词速度为 259941.448353 bytes/second</span><br></pre></td></tr></table></figure>
+
+<h3 id="Tokenize：返回词语在原文的起止位置"><a href="#Tokenize：返回词语在原文的起止位置" class="headerlink" title="Tokenize：返回词语在原文的起止位置"></a>Tokenize：返回词语在原文的起止位置</h3><p>注意，输入参数只接受 unicode</p>
+<p>In [12]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> <span class="string">"这是默认模式的tokenize"</span></span><br><span class="line">result = jieba.tokenize(<span class="string">u'自然语言处理非常有用'</span>)</span><br><span class="line"><span class="keyword">for</span> tk <span class="keyword">in</span> result:</span><br><span class="line">    print(<span class="string">"%s\t\t start: %d \t\t end:%d"</span> % (tk[<span class="number">0</span>],tk[<span class="number">1</span>],tk[<span class="number">2</span>]))</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"\n-----------我是神奇的分割线------------\n"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"这是搜索模式的tokenize"</span></span><br><span class="line">result = jieba.tokenize(<span class="string">u'自然语言处理非常有用'</span>, mode=<span class="string">'search'</span>)</span><br><span class="line"><span class="keyword">for</span> tk <span class="keyword">in</span> result:</span><br><span class="line">    print(<span class="string">"%s\t\t start: %d \t\t end:%d"</span> % (tk[<span class="number">0</span>],tk[<span class="number">1</span>],tk[<span class="number">2</span>]))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">这是默认模式的tokenize</span><br><span class="line">自然语言		 start: <span class="number">0</span> 		 end:<span class="number">4</span></span><br><span class="line">处理		 start: <span class="number">4</span> 		 end:<span class="number">6</span></span><br><span class="line">非常		 start: <span class="number">6</span> 		 end:<span class="number">8</span></span><br><span class="line">有用		 start: <span class="number">8</span> 		 end:<span class="number">10</span></span><br><span class="line"></span><br><span class="line">-----------我是神奇的分割线------------</span><br><span class="line"></span><br><span class="line">这是搜索模式的tokenize</span><br><span class="line">自然		 start: <span class="number">0</span> 		 end:<span class="number">2</span></span><br><span class="line">语言		 start: <span class="number">2</span> 		 end:<span class="number">4</span></span><br><span class="line">自然语言		 start: <span class="number">0</span> 		 end:<span class="number">4</span></span><br><span class="line">处理		 start: <span class="number">4</span> 		 end:<span class="number">6</span></span><br><span class="line">非常		 start: <span class="number">6</span> 		 end:<span class="number">8</span></span><br><span class="line">有用		 start: <span class="number">8</span> 		 end:<span class="number">10</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="ChineseAnalyzer-for-Whoosh-搜索引擎"><a href="#ChineseAnalyzer-for-Whoosh-搜索引擎" class="headerlink" title="ChineseAnalyzer for Whoosh 搜索引擎"></a>ChineseAnalyzer for Whoosh 搜索引擎</h3><ul>
+<li><code>from jieba.analyse import ChineseAnalyzer</code></li>
+</ul>
+<p>In [16]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: UTF-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> unicode_literals</span><br><span class="line"><span class="keyword">import</span> sys,os</span><br><span class="line">sys.path.append(<span class="string">"../"</span>)</span><br><span class="line"><span class="keyword">from</span> whoosh.index <span class="keyword">import</span> create_in,open_dir</span><br><span class="line"><span class="keyword">from</span> whoosh.fields <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> whoosh.qparser <span class="keyword">import</span> QueryParser</span><br><span class="line"></span><br><span class="line">analyzer = jieba.analyse.ChineseAnalyzer()</span><br><span class="line">schema = Schema(title=TEXT(stored=<span class="literal">True</span>), path=ID(stored=<span class="literal">True</span>), content=TEXT(stored=<span class="literal">True</span>, analyzer=analyzer))</span><br><span class="line">    </span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(<span class="string">"tmp"</span>):</span><br><span class="line">    os.mkdir(<span class="string">"tmp"</span>)</span><br><span class="line"></span><br><span class="line">ix = create_in(<span class="string">"tmp"</span>, schema) <span class="comment"># for create new index</span></span><br><span class="line"><span class="comment">#ix = open_dir("tmp") # for read only</span></span><br><span class="line">writer = ix.writer()</span><br><span class="line"></span><br><span class="line">writer.add_document(</span><br><span class="line">    title=<span class="string">"document1"</span>,</span><br><span class="line">    path=<span class="string">"/a"</span>,</span><br><span class="line">    content=<span class="string">"This is the first document we’ve added!"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">writer.add_document(</span><br><span class="line">    title=<span class="string">"document2"</span>,</span><br><span class="line">    path=<span class="string">"/b"</span>,</span><br><span class="line">    content=<span class="string">"The second one 你 中文测试中文 is even more interesting! 吃水果"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">writer.add_document(</span><br><span class="line">    title=<span class="string">"document3"</span>,</span><br><span class="line">    path=<span class="string">"/c"</span>,</span><br><span class="line">    content=<span class="string">"买水果然后来世博园。"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">writer.add_document(</span><br><span class="line">    title=<span class="string">"document4"</span>,</span><br><span class="line">    path=<span class="string">"/c"</span>,</span><br><span class="line">    content=<span class="string">"工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">writer.add_document(</span><br><span class="line">    title=<span class="string">"document4"</span>,</span><br><span class="line">    path=<span class="string">"/c"</span>,</span><br><span class="line">    content=<span class="string">"咱俩交换一下吧。"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">writer.commit()</span><br><span class="line">searcher = ix.searcher()</span><br><span class="line">parser = QueryParser(<span class="string">"content"</span>, schema=ix.schema)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> keyword <span class="keyword">in</span> (<span class="string">"水果世博园"</span>,<span class="string">"你"</span>,<span class="string">"first"</span>,<span class="string">"中文"</span>,<span class="string">"交换机"</span>,<span class="string">"交换"</span>):</span><br><span class="line">    print(keyword+<span class="string">"的结果为如下："</span>)</span><br><span class="line">    q = parser.parse(keyword)</span><br><span class="line">    results = searcher.search(q)</span><br><span class="line">    <span class="keyword">for</span> hit <span class="keyword">in</span> results:</span><br><span class="line">        print(hit.highlights(<span class="string">"content"</span>))</span><br><span class="line">    print(<span class="string">"\n--------------我是神奇的分割线--------------\n"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> analyzer(<span class="string">"我的好朋友是李明;我爱北京天安门;IBM和Microsoft; I have a dream. this is intetesting and interested me a lot"</span>):</span><br><span class="line">    print(t.text)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">水果世博园的结果为如下：</span><br><span class="line">买&lt;b class="match term0"&gt;水果&lt;/b&gt;然后来&lt;b class="match term1"&gt;世博园&lt;/b&gt;</span><br><span class="line"></span><br><span class="line">--------------我是神奇的分割线--------------</span><br><span class="line"></span><br><span class="line">你的结果为如下：</span><br><span class="line">second one &lt;b class="match term0"&gt;你&lt;/b&gt; 中文测试中文 is even more interesting</span><br><span class="line"></span><br><span class="line">--------------我是神奇的分割线--------------</span><br><span class="line"></span><br><span class="line">first的结果为如下：</span><br><span class="line">&lt;b class="match term0"&gt;first&lt;/b&gt; document we’ve added</span><br><span class="line"></span><br><span class="line">--------------我是神奇的分割线--------------</span><br><span class="line"></span><br><span class="line">中文的结果为如下：</span><br><span class="line">second one 你 &lt;b class="match term0"&gt;中文&lt;/b&gt;测试&lt;b class="match term0"&gt;中文&lt;/b&gt; is even more interesting</span><br><span class="line"></span><br><span class="line">--------------我是神奇的分割线--------------</span><br><span class="line"></span><br><span class="line">交换机的结果为如下：</span><br><span class="line">干事每月经过下属科室都要亲口交代24口&lt;b class="match term0"&gt;交换机&lt;/b&gt;等技术性器件的安装工作</span><br><span class="line"></span><br><span class="line">--------------我是神奇的分割线--------------</span><br><span class="line"></span><br><span class="line">交换的结果为如下：</span><br><span class="line">咱俩&lt;b class="match term0"&gt;交换&lt;/b&gt;一下吧</span><br><span class="line">干事每月经过下属科室都要亲口交代24口&lt;b class="match term0"&gt;交换&lt;/b&gt;机等技术性器件的安装工作</span><br><span class="line"></span><br><span class="line">--------------我是神奇的分割线--------------</span><br><span class="line"></span><br><span class="line">我</span><br><span class="line">好</span><br><span class="line">朋友</span><br><span class="line">是</span><br><span class="line">李明</span><br><span class="line">我</span><br><span class="line">爱</span><br><span class="line">北京</span><br><span class="line">天安</span><br><span class="line">天安门</span><br><span class="line">ibm</span><br><span class="line">microsoft</span><br><span class="line">dream</span><br><span class="line">intetest</span><br><span class="line">interest</span><br><span class="line">me</span><br><span class="line">lot</span><br></pre></td></tr></table></figure>
+
+<h3 id="命令行分词"><a href="#命令行分词" class="headerlink" title="命令行分词"></a>命令行分词</h3><p>使用示例：<code>python -m jieba news.txt &gt; cut_result.txt</code></p>
+<p>命令行选项（翻译）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">使用: python -m jieba [options] filename</span><br><span class="line"></span><br><span class="line">结巴命令行界面。</span><br><span class="line"></span><br><span class="line">固定参数:</span><br><span class="line">  filename              输入文件</span><br><span class="line"></span><br><span class="line">可选参数:</span><br><span class="line">  -h, --help            显示此帮助信息并退出</span><br><span class="line">  -d [DELIM], --delimiter [DELIM]</span><br><span class="line">                        使用 DELIM 分隔词语，而不是用默认的<span class="string">' / '</span>。</span><br><span class="line">                        若不指定 DELIM，则使用一个空格分隔。</span><br><span class="line">  -p [DELIM], --pos [DELIM]</span><br><span class="line">                        启用词性标注；如果指定 DELIM，词语和词性之间</span><br><span class="line">                        用它分隔，否则用 _ 分隔</span><br><span class="line">  -D DICT, --dict DICT  使用 DICT 代替默认词典</span><br><span class="line">  -u USER_DICT, --user-dict USER_DICT</span><br><span class="line">                        使用 USER_DICT 作为附加词典，与默认词典或自定义词典配合使用</span><br><span class="line">  -a, --cut-all         全模式分词（不支持词性标注）</span><br><span class="line">  -n, --no-hmm          不使用隐含马尔可夫模型</span><br><span class="line">  -q, --quiet           不输出载入信息到 STDERR</span><br><span class="line">  -V, --version         显示版本信息并退出</span><br><span class="line"></span><br><span class="line">如果没有指定文件名，则使用标准输入。</span><br></pre></td></tr></table></figure>
+
+<p><code>--help</code> 选项输出：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">$&gt; python -m jieba --help</span><br><span class="line">Jieba command line interface.</span><br><span class="line"></span><br><span class="line">positional arguments:</span><br><span class="line">  filename              input file</span><br><span class="line"></span><br><span class="line">optional arguments:</span><br><span class="line">  -h, --help            show this help message <span class="keyword">and</span> exit</span><br><span class="line">  -d [DELIM], --delimiter [DELIM]</span><br><span class="line">                        use DELIM instead of <span class="string">' / '</span> <span class="keyword">for</span> word delimiter; <span class="keyword">or</span> a</span><br><span class="line">                        space <span class="keyword">if</span> it <span class="keyword">is</span> used without DELIM</span><br><span class="line">  -p [DELIM], --pos [DELIM]</span><br><span class="line">                        enable POS tagging; <span class="keyword">if</span> DELIM <span class="keyword">is</span> specified, use DELIM</span><br><span class="line">                        instead of <span class="string">'_'</span> <span class="keyword">for</span> POS delimiter</span><br><span class="line">  -D DICT, --dict DICT  use DICT <span class="keyword">as</span> dictionary</span><br><span class="line">  -u USER_DICT, --user-dict USER_DICT</span><br><span class="line">                        use USER_DICT together <span class="keyword">with</span> the default dictionary <span class="keyword">or</span></span><br><span class="line">                        DICT (<span class="keyword">if</span> specified)</span><br><span class="line">  -a, --cut-all         full pattern cutting (ignored <span class="keyword">with</span> POS tagging)</span><br><span class="line">  -n, --no-hmm          don<span class="string">'t use the Hidden Markov Model</span></span><br><span class="line"><span class="string">  -q, --quiet           don'</span>t <span class="keyword">print</span> loading messages to stderr</span><br><span class="line">  -V, --version         show program<span class="string">'s version number and exit</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">If no filename specified, use STDIN instead.</span></span><br></pre></td></tr></table></figure>
+
+<p>In [ ]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> </span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2019/06/08/jieba中文处理/">jieba中文处理</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2019-06-08, 18:15:37</p>
+        <p><span>最后更新:</span>2020-06-08, 18:22:56</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2019/06/08/jieba中文处理/" title="jieba中文处理">http://mmyblog.cn/2019/06/08/jieba中文处理/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2019/06/08/jieba中文处理/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2019/07/08/python正则表达式/">
+                    python正则表达式
+                </a>
+            </div>
+        
+        
+    </nav>
+
+  
+  
+    <! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+    <div id="donate_guide" class="donate_bar center hidden" >
+        
+            <!-- <img src="/img/Alipay.jpg" alt="支付宝打赏">
+            <img src="/img/WeChatpay.jpg" alt="微信打赏"> -->
+       
+        <!-- 方式二；
+            step1：在_config.yml中添加配置
+                Alipay: /img/Alipay.jpg
+                WeChatpay: /img/WeChatpay.jpg
+            step2：此处两张图片的路径分别设置为如下
+                <img src=""
+                <img src=""
+        -->
+        <!-- 支付宝打赏图案 -->
+        <img src="/img/Alipay.jpg" alt="支付宝打赏">
+        <!-- 微信打赏图案 -->
+        <img src="/img//WeChatpay.jpg" alt="微信打赏">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn_donate').onclick = function(){
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+    </script>
+</div>
+<! -- 添加捐赠图标 -->
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jieba中文处理"><span class="toc-number">1.</span> <span class="toc-text">jieba中文处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-基本分词函数与用法"><span class="toc-number">1.1.</span> <span class="toc-text">1.基本分词函数与用法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#添加用户自定义词典"><span class="toc-number">1.1.1.</span> <span class="toc-text">添加用户自定义词典</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关键词提取"><span class="toc-number">1.2.</span> <span class="toc-text">关键词提取</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#基于-TF-IDF-算法的关键词抽取"><span class="toc-number">1.2.1.</span> <span class="toc-text">基于 TF-IDF 算法的关键词抽取</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#关于TF-IDF-算法的关键词抽取补充"><span class="toc-number">1.2.2.</span> <span class="toc-text">关于TF-IDF 算法的关键词抽取补充</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#基于-TextRank-算法的关键词抽取"><span class="toc-number">1.2.3.</span> <span class="toc-text">基于 TextRank 算法的关键词抽取</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#词性标注"><span class="toc-number">1.3.</span> <span class="toc-text">词性标注</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#并行分词"><span class="toc-number">1.4.</span> <span class="toc-text">并行分词</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tokenize：返回词语在原文的起止位置"><span class="toc-number">1.5.</span> <span class="toc-text">Tokenize：返回词语在原文的起止位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ChineseAnalyzer-for-Whoosh-搜索引擎"><span class="toc-number">1.6.</span> <span class="toc-text">ChineseAnalyzer for Whoosh 搜索引擎</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命令行分词"><span class="toc-number">1.7.</span> <span class="toc-text">命令行分词</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"jieba中文处理　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2019/07/08/python正则表达式/" title="上一篇: python正则表达式">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/扩展内容/">扩展内容</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/XLNet/">XLNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/PyTorch/">PyTorch</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/朴素贝叶斯/">朴素贝叶斯</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/GPT模型/">GPT模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/BERT系列预训练模型/">BERT系列预训练模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/19/阅读理解/">阅读理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/18/Transformer模型解读/">Transformer模型解读</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/16/Transformer-XL/">Transformer-XL</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/英文书籍word级别的文本生成代码注释/">英文书籍word级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/文本生成任务/">文本生成任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/09/常见预训练模型/">BERT&ELMo&co</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/01/大规模无监督预训练语言模型与应用上/">大规模无监督预训练语言模型与应用上</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/18/语言模型/">语言模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/15/NLP中的ConvNet/">NLP中的ConvNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/13/seq2seq/">seq2seq</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/09/机器翻译与文本摘要/">机器翻译与文本摘要</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/sentiment情感分析代码注释/">sentiment情感分析代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/11/聊天机器人二/">聊天机器人二</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/10/聊天机器人一/">聊天机器人一</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/09/结构化预测/">结构化预测</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/word-embedding/">word-embedding</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/酒店评价情感分类与CNN模型/">酒店评价情感分类与CNN模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/28/NLP技术基础整理/">NLP技术基础整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/18/CNN-Image-Classification/">CNN-Image-Classification</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/丘吉尔的人物传记char级别的文本生成代码注释/">丘吉尔的人物传记char级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/用朴素贝叶斯完成语种检测/">用朴素贝叶斯完成语种检测</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/24/文本分类问题/">文本分类问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/08/python正则表达式/">python正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/08/jieba中文处理/">jieba中文处理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

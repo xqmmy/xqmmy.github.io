@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="情感分析第一步：导入豆瓣电影数据集，只有训练集和测试集 TorchText中的一个重要概念是Field。Field决定了你的数据会被怎样处理。在我们的情感分类任务中，我们所需要接触到的数据有文本字符串和两种情感，”pos”或者”neg”。  Field的参数制定了数据会被怎样处理。  我们使用TEXT field来定义如何处理电影评论，使用LABEL field来处理两个情感类别。  我们的TEX">
+<meta name="keywords" content="TorchText">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sentiment情感分析代码注释">
+<meta property="og:url" content="http://mmyblog.cn/2020/03/28/sentiment情感分析代码注释/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="情感分析第一步：导入豆瓣电影数据集，只有训练集和测试集 TorchText中的一个重要概念是Field。Field决定了你的数据会被怎样处理。在我们的情感分类任务中，我们所需要接触到的数据有文本字符串和两种情感，”pos”或者”neg”。  Field的参数制定了数据会被怎样处理。  我们使用TEXT field来定义如何处理电影评论，使用LABEL field来处理两个情感类别。  我们的TEX">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="file:///Users/mmy/Downloads/assets/sentiment5.png">
+<meta property="og:image" content="file:///Users/mmy/Downloads/assets/sentiment8.png">
+<meta property="og:image" content="file:///Users/mmy/Downloads/assets/sentiment9.png">
+<meta property="og:image" content="file:///Users/mmy/Downloads/assets/sentiment10.png">
+<meta property="og:image" content="file:///Users/mmy/Downloads/assets/sentiment11.png">
+<meta property="og:updated_time" content="2020-06-09T01:28:41.783Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="sentiment情感分析代码注释">
+<meta name="twitter:description" content="情感分析第一步：导入豆瓣电影数据集，只有训练集和测试集 TorchText中的一个重要概念是Field。Field决定了你的数据会被怎样处理。在我们的情感分类任务中，我们所需要接触到的数据有文本字符串和两种情感，”pos”或者”neg”。  Field的参数制定了数据会被怎样处理。  我们使用TEXT field来定义如何处理电影评论，使用LABEL field来处理两个情感类别。  我们的TEX">
+<meta name="twitter:image" content="file:///Users/mmy/Downloads/assets/sentiment5.png">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>sentiment情感分析代码注释 | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Attention/">Attention</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BERT/">BERT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BLUE/">BLUE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Beam-search/">Beam search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CRF/">CRF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ConvNet/">ConvNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ELMo/">ELMo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPT/">GPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GRU/">GRU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradient-Clipping/">Gradient Clipping</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LSTM/">LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linear/">Linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Parsing/">Parsing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PyTorch/">PyTorch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QA/">QA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN/">RNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN-LSTM/">RNN/LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Recursive-Neural-Networks/">Recursive Neural Networks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seq2Seq/">Seq2Seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TorchText/">TorchText</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer/">Transformer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer-XL/">Transformer-XL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/XLNet/">XLNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/inference/">inference</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jiaba/">jiaba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jieba/">jieba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/word-embedding/">word-embedding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wxBot/">wxBot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/中文分词/">中文分词</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图神经网络/">图神经网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/朴素贝叶斯/">朴素贝叶斯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则表达式/">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聊天机器人/">聊天机器人</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言模型/">语言模型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-sentiment情感分析代码注释" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/03/28/sentiment情感分析代码注释/" class="article-date">
+      <time datetime="2020-03-28T11:04:14.000Z" itemprop="datePublished">2020-03-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      sentiment情感分析代码注释
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/NLP/">NLP</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TorchText/">TorchText</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="情感分析"><a href="#情感分析" class="headerlink" title="情感分析"></a>情感分析</h2><h3 id="第一步：导入豆瓣电影数据集，只有训练集和测试集"><a href="#第一步：导入豆瓣电影数据集，只有训练集和测试集" class="headerlink" title="第一步：导入豆瓣电影数据集，只有训练集和测试集"></a>第一步：导入豆瓣电影数据集，只有训练集和测试集</h3><ul>
+<li><p>TorchText中的一个重要概念是<code>Field</code>。<code>Field</code>决定了你的数据会被怎样处理。在我们的情感分类任务中，我们所需要接触到的数据有文本字符串和两种情感，”pos”或者”neg”。</p>
+</li>
+<li><p><code>Field</code>的参数制定了数据会被怎样处理。</p>
+</li>
+<li><p>我们使用<code>TEXT</code> field来定义如何处理电影评论，使用<code>LABEL</code> field来处理两个情感类别。</p>
+</li>
+<li><p>我们的<code>TEXT</code> field带有<code>tokenize=&#39;spacy&#39;</code>，这表示我们会用<a href="https://spacy.io/" target="_blank" rel="noopener">spaCy</a> tokenizer来tokenize英文句子。如果我们不特别声明<code>tokenize</code>这个参数，那么默认的分词方法是使用空格。</p>
+</li>
+<li><p>安装spaCy</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install -U spacy</span><br><span class="line">python -m spacy download en</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>LABEL</code>由<code>LabelField</code>定义。这是一种特别的用来处理label的<code>Field</code>。我们后面会解释dtype。</p>
+</li>
+<li><p>更多关于<code>Fields</code>，参见<a href="https://github.com/pytorch/text/blob/master/torchtext/data/field.py" target="_blank" rel="noopener">https://github.com/pytorch/text/blob/master/torchtext/data/field.py</a></p>
+</li>
+<li><p>和之前一样，我们会设定random seeds使实验可以复现。</p>
+</li>
+<li><p>TorchText支持很多常见的自然语言处理数据集。</p>
+</li>
+<li><p>下面的代码会自动下载IMDb数据集，然后分成train/test两个<code>torchtext.datasets</code>类别。数据被前面的<code>Fields</code>处理。IMDb数据集一共有50000电影评论，每个评论都被标注为正面的或负面的。</p>
+</li>
+</ul>
+<p><strong>先了解下Spacy库：<a href="https://juejin.im/post/5971a4b9f265da6c42353332?utm_source=gold_browser_extension%5D" target="_blank" rel="noopener">spaCy介绍和使用教程</a></strong><br><strong>再了解下torchtext库：<a href="https://blog.csdn.net/u012436149/article/details/79310176" target="_blank" rel="noopener">torchtext介绍和使用教程</a>：这个新手必看，不看下面代码听不懂</strong></p>
+<p>In [ ]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">!ls</span><br></pre></td></tr></table></figure>
+
+<p>In [4]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torchtext <span class="keyword">import</span> data</span><br><span class="line"></span><br><span class="line">SEED = <span class="number">1234</span></span><br><span class="line"></span><br><span class="line">torch.manual_seed(SEED) <span class="comment">#为CPU设置随机种子</span></span><br><span class="line">torch.cuda.manual_seed(SEED)<span class="comment">#为GPU设置随机种子</span></span><br><span class="line">torch.backends.cudnn.deterministic = <span class="literal">True</span>  <span class="comment">#在程序刚开始加这条语句可以提升一点训练速度，没什么额外开销。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#首先，我们要创建两个Field 对象：这两个对象包含了我们打算如何预处理文本数据的信息。</span></span><br><span class="line">TEXT = data.Field(tokenize=<span class="string">'spacy'</span>)</span><br><span class="line"><span class="comment">#torchtext.data.Field : 用来定义字段的处理方法（文本字段，标签字段）</span></span><br><span class="line"><span class="comment"># spaCy:英语分词器,类似于NLTK库，如果没有传递tokenize参数，则默认只是在空格上拆分字符串。</span></span><br><span class="line">LABEL = data.LabelField(dtype=torch.float)</span><br><span class="line"><span class="comment">#LabelField是Field类的一个特殊子集，专门用于处理标签。</span></span><br></pre></td></tr></table></figure>
+
+<p>In [2]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torchtext <span class="keyword">import</span> datasets</span><br><span class="line">train_data, test_data = datasets.IMDB.splits(TEXT, LABEL)</span><br><span class="line"><span class="comment"># 加载豆瓣电影评论数据集</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">downloading aclImdb_v1.tar.gz</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aclImdb_v1.tar.gz: <span class="number">100</span>%|██████████| <span class="number">84.1</span>M/<span class="number">84.1</span>M [<span class="number">00</span>:<span class="number">03</span>&lt;<span class="number">00</span>:<span class="number">00</span>, <span class="number">22.8</span>MB/s]</span><br></pre></td></tr></table></figure>
+
+<p>In [3]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(vars(train_data.examples[<span class="number">0</span>])) <span class="comment">#可以查看数据集长啥样子</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&apos;text&apos;: [&apos;This&apos;, &apos;movie&apos;, &apos;is&apos;, &apos;visually&apos;, &apos;stunning&apos;, &apos;.&apos;, &apos;Who&apos;, &apos;cares&apos;, &apos;if&apos;, &apos;she&apos;, &apos;can&apos;, &apos;act&apos;, &apos;or&apos;, &apos;not&apos;, &apos;.&apos;, &apos;Each&apos;, &apos;scene&apos;, &apos;is&apos;, &apos;a&apos;, &apos;work&apos;, &apos;of&apos;, &apos;art&apos;, &apos;composed&apos;, &apos;and&apos;, &apos;captured&apos;, &apos;by&apos;, &apos;John&apos;, &apos;Derek&apos;, &apos;.&apos;, &apos;The&apos;, &apos;locations&apos;, &apos;,&apos;, &apos;set&apos;, &apos;designs&apos;, &apos;,&apos;, &apos;and&apos;, &apos;costumes&apos;, &apos;function&apos;, &apos;perfectly&apos;, &apos;to&apos;, &apos;convey&apos;, &apos;what&apos;, &apos;is&apos;, &apos;found&apos;, &apos;in&apos;, &apos;a&apos;, &apos;love&apos;, &apos;story&apos;, &apos;comprised&apos;, &apos;of&apos;, &apos;beauty&apos;, &apos;,&apos;, &apos;youth&apos;, &apos;and&apos;, &apos;wealth&apos;, &apos;.&apos;, &apos;In&apos;, &apos;some&apos;, &apos;ways&apos;, &apos;I&apos;, &apos;would&apos;, &apos;like&apos;, &apos;to&apos;, &apos;see&apos;, &apos;this&apos;, &apos;movie&apos;, &apos;as&apos;, &apos;a&apos;, &apos;tribute&apos;, &apos;to&apos;, &apos;John&apos;, &apos;and&apos;, &apos;Bo&apos;, &apos;Derek&apos;, &quot;&apos;s&quot;, &apos;story&apos;, &apos;.&apos;, &apos;And&apos;, &apos;...&apos;, &apos;this&apos;, &apos;commentary&apos;, &apos;would&apos;, &apos;not&apos;, &apos;be&apos;, &apos;complete&apos;, &apos;without&apos;, &apos;mentioning&apos;, &apos;Anthony&apos;, &apos;Quinn&apos;, &quot;&apos;s&quot;, &apos;role&apos;, &apos;as&apos;, &apos;father&apos;, &apos;,&apos;, &apos;mentor&apos;, &apos;,&apos;, &apos;lover&apos;, &apos;,&apos;, &apos;and&apos;, &apos;his&apos;, &apos;portrayal&apos;, &apos;of&apos;, &apos;a&apos;, &apos;man&apos;, &apos;,&apos;, &apos;of&apos;, &apos;men&apos;, &apos;,&apos;, &apos;lost&apos;, &apos;to&apos;, &apos;a&apos;, &apos;bygone&apos;, &apos;era&apos;, &apos;when&apos;, &apos;men&apos;, &apos;were&apos;, &apos;men&apos;, &apos;.&apos;, &apos;There&apos;, &apos;are&apos;, &apos;some&apos;, &apos;of&apos;, &apos;us&apos;, &apos;who&apos;, &apos;find&apos;, &apos;value&apos;, &apos;in&apos;, &apos;strength&apos;, &apos;and&apos;, &apos;direction&apos;, &apos;wrapped&apos;, &apos;in&apos;, &apos;a&apos;, &apos;confidence&apos;, &apos;that&apos;, &apos;contributes&apos;, &apos;to&apos;, &apos;a&apos;, &apos;sense&apos;, &apos;of&apos;, &apos;confidence&apos;, &apos;,&apos;, &apos;containment&apos;, &apos;,&apos;, &apos;and&apos;, &apos;security&apos;, &apos;.&apos;, &apos;Yes&apos;, &apos;,&apos;, &apos;they&apos;, &apos;do&apos;, &apos;not&apos;, &apos;make&apos;, &apos;men&apos;, &apos;like&apos;, &apos;that&apos;, &apos;anymore&apos;, &apos;!&apos;, &apos;But&apos;, &apos;,&apos;, &apos;then&apos;, &apos;how&apos;, &apos;often&apos;, &apos;do&apos;, &apos;you&apos;, &apos;find&apos;, &apos;women&apos;, &apos;who&apos;, &apos;are&apos;, &apos;made&apos;, &apos;like&apos;, &apos;Bo&apos;, &apos;Derek&apos;, &apos;.&apos;], &apos;label&apos;: &apos;pos&apos;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="第二步：训练集划分为训练集和验证集"><a href="#第二步：训练集划分为训练集和验证集" class="headerlink" title="第二步：训练集划分为训练集和验证集"></a>第二步：训练集划分为训练集和验证集</h2><ul>
+<li>由于我们现在只有train/test这两个分类，所以我们需要创建一个新的validation set。我们可以使用<code>.split()</code>创建新的分类。</li>
+<li>默认的数据分割是 70、30，如果我们声明<code>split_ratio</code>，可以改变split之间的比例，<code>split_ratio=0.8</code>表示80%的数据是训练集，20%是验证集。</li>
+<li>我们还声明<code>random_state</code>这个参数，确保我们每次分割的数据集都是一样的。</li>
+</ul>
+<p>In [4]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line">train_data, valid_data = train_data.split(random_state=random.seed(SEED)) <span class="comment">#默认split_ratio=0.7</span></span><br></pre></td></tr></table></figure>
+
+<p>In [5]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">f'Number of training examples: <span class="subst">&#123;len(train_data)&#125;</span>'</span>)</span><br><span class="line">print(<span class="string">f'Number of validation examples: <span class="subst">&#123;len(valid_data)&#125;</span>'</span>)</span><br><span class="line">print(<span class="string">f'Number of testing examples: <span class="subst">&#123;len(test_data)&#125;</span>'</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Number of training examples: <span class="number">17500</span></span><br><span class="line">Number of validation examples: <span class="number">7500</span></span><br><span class="line">Number of testing examples: <span class="number">25000</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="第三步：用训练集建立vocabulary，就是把每个单词一一映射到一个数字。"><a href="#第三步：用训练集建立vocabulary，就是把每个单词一一映射到一个数字。" class="headerlink" title="第三步：用训练集建立vocabulary，就是把每个单词一一映射到一个数字。"></a>第三步：用训练集建立vocabulary，就是把每个单词一一映射到一个数字。</h2><ul>
+<li>下一步我们需要创建 <em>vocabulary</em> 。<em>vocabulary</em> 就是把每个单词一一映射到一个数字。<img src="file:///Users/mmy/Downloads/assets/sentiment5.png" alt="img"></li>
+<li>我们使用最常见的25k个单词来构建我们的单词表，用<code>max_size</code>这个参数可以做到这一点。</li>
+<li>所有其他的单词都用<code>&lt;unk&gt;</code>来表示。</li>
+</ul>
+<p>In [6]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># TEXT.build_vocab(train_data, max_size=25000)</span></span><br><span class="line"><span class="comment"># LABEL.build_vocab(train_data)</span></span><br><span class="line">TEXT.build_vocab(train_data, max_size=<span class="number">25000</span>, vectors=<span class="string">"glove.6B.100d"</span>, unk_init=torch.Tensor.normal_)</span><br><span class="line"><span class="comment">#从预训练的词向量（vectors） 中，将当前(corpus语料库)词汇表的词向量抽取出来，构成当前 corpus 的 Vocab（词汇表）。</span></span><br><span class="line"><span class="comment">#预训练的 vectors 来自glove模型，每个单词有100维。glove模型训练的词向量参数来自很大的语料库，</span></span><br><span class="line"><span class="comment">#而我们的电影评论的语料库小一点，所以词向量需要更新，glove的词向量适合用做初始化参数。</span></span><br><span class="line">LABEL.build_vocab(train_data)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.vector_cache/glove<span class="number">.6</span>B.zip: <span class="number">862</span>MB [<span class="number">00</span>:<span class="number">23</span>, <span class="number">36.0</span>MB/s]                               </span><br><span class="line"><span class="number">100</span>%|█████████▉| <span class="number">399597</span>/<span class="number">400000</span> [<span class="number">00</span>:<span class="number">25</span>&lt;<span class="number">00</span>:<span class="number">00</span>, <span class="number">16569.01</span>it/s]</span><br></pre></td></tr></table></figure>
+
+<p>In [7]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">f"Unique tokens in TEXT vocabulary: <span class="subst">&#123;len(TEXT.vocab)&#125;</span>"</span>)</span><br><span class="line">print(<span class="string">f"Unique tokens in LABEL vocabulary: <span class="subst">&#123;len(LABEL.vocab)&#125;</span>"</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Unique tokens in TEXT vocabulary: 25002</span><br><span class="line">Unique tokens in LABEL vocabulary: 2</span><br></pre></td></tr></table></figure>
+
+<p>In [8]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">print(list(LABEL.vocab.stoi.items())) <span class="comment"># 只有两个类别值</span></span><br><span class="line">print(list(TEXT.vocab.stoi.items())[:<span class="number">20</span>])</span><br><span class="line"><span class="comment">#语料库单词频率越高，索引越靠前。前两个默认为unk和pad。</span></span><br><span class="line">print(<span class="string">"------"</span>*<span class="number">10</span>)</span><br><span class="line">print(TEXT.vocab.freqs.most_common(<span class="number">20</span>))</span><br><span class="line"><span class="comment"># 这里可以看到unk和pad没有计数</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[(&apos;neg&apos;, 0), (&apos;pos&apos;, 1)]</span><br><span class="line">[(&apos;&lt;unk&gt;&apos;, 0), (&apos;&lt;pad&gt;&apos;, 1), (&apos;the&apos;, 2), (&apos;,&apos;, 3), (&apos;.&apos;, 4), (&apos;a&apos;, 5), (&apos;and&apos;, 6), (&apos;of&apos;, 7), (&apos;to&apos;, 8), (&apos;is&apos;, 9), (&apos;in&apos;, 10), (&apos;I&apos;, 11), (&apos;it&apos;, 12), (&apos;that&apos;, 13), (&apos;&quot;&apos;, 14), (&quot;&apos;s&quot;, 15), (&apos;this&apos;, 16), (&apos;-&apos;, 17), (&apos;/&gt;&lt;br&apos;, 18), (&apos;was&apos;, 19)]</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[(&apos;the&apos;, 201815), (&apos;,&apos;, 192511), (&apos;.&apos;, 165127), (&apos;a&apos;, 109096), (&apos;and&apos;, 108875), (&apos;of&apos;, 100402), (&apos;to&apos;, 93905), (&apos;is&apos;, 76001), (&apos;in&apos;, 61097), (&apos;I&apos;, 54439), (&apos;it&apos;, 53649), (&apos;that&apos;, 49325), (&apos;&quot;&apos;, 44431), (&quot;&apos;s&quot;, 43359), (&apos;this&apos;, 42423), (&apos;-&apos;, 37142), (&apos;/&gt;&lt;br&apos;, 35613), (&apos;was&apos;, 34947), (&apos;as&apos;, 30412), (&apos;movie&apos;, 29873)]</span><br></pre></td></tr></table></figure>
+
+<p>In [9]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(TEXT.vocab.itos[:10]) #查看TEXT单词表</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&apos;&lt;unk&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;the&apos;, &apos;,&apos;, &apos;.&apos;, &apos;a&apos;, &apos;and&apos;, &apos;of&apos;, &apos;to&apos;, &apos;is&apos;]</span><br></pre></td></tr></table></figure>
+
+<h2 id="第四步：创建iterators，每个itartion都会返回一个batch的样本。"><a href="#第四步：创建iterators，每个itartion都会返回一个batch的样本。" class="headerlink" title="第四步：创建iterators，每个itartion都会返回一个batch的样本。"></a>第四步：创建iterators，每个itartion都会返回一个batch的样本。</h2><ul>
+<li>最后一步数据的准备是创建iterators。每个itartion都会返回一个batch的examples。</li>
+<li>我们会使用<code>BucketIterator</code>。<code>BucketIterator</code>会把长度差不多的句子放到同一个batch中，确保每个batch中不出现太多的padding。</li>
+<li>严格来说，我们这份notebook中的模型代码都有一个问题，也就是我们把<code>&lt;pad&gt;</code>也当做了模型的输入进行训练。更好的做法是在模型中把由<code>&lt;pad&gt;</code>产生的输出给消除掉。在这节课中我们简单处理，直接把<code>&lt;pad&gt;</code>也用作模型输入了。由于<code>&lt;pad&gt;</code>数量不多，模型的效果也不差。</li>
+<li>如果我们有GPU，还可以指定每个iteration返回的tensor都在GPU上。</li>
+</ul>
+<p>In [11]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">BATCH_SIZE = <span class="number">64</span></span><br><span class="line"></span><br><span class="line">device = torch.device(<span class="string">'cuda'</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">'cpu'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#相当于把样本划分batch，把相等长度的单词尽可能的划分到一个batch，不够长的就用padding。</span></span><br><span class="line">train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits(</span><br><span class="line">    (train_data, valid_data, test_data), </span><br><span class="line">    batch_size=BATCH_SIZE,</span><br><span class="line">    device=device)</span><br><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">Iterator：标准迭代器</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">BucketIerator：相比于标准迭代器，会将类似长度的样本当做一批来处理，</span></span><br><span class="line"><span class="string">因为在文本处理中经常会需要将每一批样本长度补齐为当前批中最长序列的长度，</span></span><br><span class="line"><span class="string">因此当样本长度差别较大时，使用BucketIerator可以带来填充效率的提高。</span></span><br><span class="line"><span class="string">除此之外，我们还可以在Field中通过fix_length参数来对样本进行截断补齐操作。</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">BPTTIterator: 基于BPTT(基于时间的反向传播算法)的迭代器，一般用于语言模型中。</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></table></figure>
+
+<p>Out[11]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&apos;\nIterator：标准迭代器\n\nBucketIerator：相比于标准迭代器，会将类似长度的样本当做一批来处理，\n因为在文本处理中经常会需要将每一批样本长度补齐为当前批中最长序列的长度，\n因此当样本长度差别较大时，使用BucketIerator可以带来填充效率的提高。\n除此之外，我们还可以在Field中通过fix_length参数来对样本进行截断补齐操作。\n\nBPTTIterator: 基于BPTT(基于时间的反向传播算法)的迭代器，一般用于语言模型中。\n&apos;</span><br></pre></td></tr></table></figure>
+
+<p>In [12]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">print(next(iter(train_iterator)).label.shape)</span><br><span class="line">print(next(iter(train_iterator)).text.shape)<span class="comment"># </span></span><br><span class="line"><span class="comment"># 多运行一次可以发现一条评论的单词长度会变</span></span><br><span class="line"><span class="comment"># 下面text的维度983*64，983为一条评论的单词长度</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">torch.Size([<span class="number">64</span>])</span><br><span class="line">torch.Size([<span class="number">983</span>, <span class="number">64</span>])</span><br></pre></td></tr></table></figure>
+
+<p>In [13]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 取出一句评论</span></span><br><span class="line">batch = next(iter(train_iterator))</span><br><span class="line">print(batch.text.shape) </span><br><span class="line">print([TEXT.vocab.itos[i] <span class="keyword">for</span> i <span class="keyword">in</span> batch.text[:,<span class="number">0</span>]])</span><br><span class="line"><span class="comment"># 可以看到这句话的长度是1077，最后面有很多pad</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">torch.Size([1077, 64])</span><br><span class="line">[&apos;It&apos;, &apos;was&apos;, &apos;interesting&apos;, &apos;to&apos;, &apos;see&apos;, &apos;how&apos;, &apos;accurate&apos;, &apos;the&apos;, &apos;writing&apos;, &apos;was&apos;, &apos;on&apos;, &apos;the&apos;, &apos;geek&apos;, &apos;buzz&apos;, &apos;words&apos;, &apos;,&apos;, &apos;yet&apos;, &apos;very&apos;, &apos;naive&apos;, &apos;on&apos;, &apos;the&apos;, &apos;corporate&apos;, &apos;world&apos;, &apos;.&apos;, &apos;The&apos;, &apos;Justice&apos;, &apos;Department&apos;, &apos;would&apos;, &apos;catch&apos;, &apos;more&apos;, &apos;of&apos;, &apos;the&apos;, &apos;big&apos;, &apos;&lt;unk&gt;&apos;, &apos;giants&apos;, &apos;if&apos;, &apos;they&apos;, &apos;did&apos;, &apos;such&apos;, &apos;naive&apos;, &apos;things&apos;, &apos;to&apos;, &apos;win&apos;, &apos;.&apos;, &apos;The&apos;, &apos;real&apos;, &apos;corporate&apos;, &apos;world&apos;, &apos;is&apos;, &apos;much&apos;, &apos;more&apos;, &apos;subtle&apos;, &apos;and&apos;, &apos;interesting&apos;, &apos;,&apos;, &apos;yet&apos;, &apos;every&apos;, &apos;bit&apos;, &apos;as&apos;, &apos;sinister&apos;, &apos;.&apos;, &apos;I&apos;, &apos;seriously&apos;, &apos;doubt&apos;, &apos;ANY&apos;, &apos;&lt;unk&gt;&apos;, &apos;would&apos;, &apos;actually&apos;, &apos;kill&apos;, &apos;someone&apos;, &apos;directly&apos;, &apos;;&apos;, &apos;even&apos;, &apos;the&apos;, &apos;&lt;unk&gt;&apos;, &apos;is&apos;, &apos;more&apos;, &apos;&lt;unk&gt;&apos;, &apos;these&apos;, &apos;days&apos;, &apos;.&apos;, &apos;In&apos;, &apos;the&apos;, &apos;real&apos;, &apos;world&apos;, &apos;,&apos;, &apos;they&apos;, &apos;do&apos;, &apos;kill&apos;, &apos;people&apos;, &apos;with&apos;, &apos;&lt;unk&gt;&apos;, &apos;,&apos;, &apos;pollution&apos;, &apos;,&apos;, &apos;&lt;unk&gt;&apos;, &apos;,&apos;, &apos;&lt;unk&gt;&apos;, &apos;,&apos;, &apos;etc&apos;, &apos;.&apos;, &apos;This&apos;, &apos;movie&apos;, &apos;must&apos;, &apos;have&apos;, &apos;been&apos;, &apos;developed&apos;, &apos;by&apos;, &apos;some&apos;, &apos;garage&apos;, &apos;geeks&apos;, &apos;,&apos;, &apos;I&apos;, &apos;think&apos;, &apos;,&apos;, &apos;and&apos;, &apos;the&apos;, &apos;studios&apos;, &apos;did&apos;, &quot;n&apos;t&quot;, &apos;know&apos;, &apos;the&apos;, &apos;difference&apos;, &apos;.&apos;, &apos;They&apos;, &apos;just&apos;, &apos;wanted&apos;, &apos;something&apos;, &apos;to&apos;, &apos;capitalize&apos;, &apos;on&apos;, &apos;the&apos;, &apos;Microsoft&apos;, &apos;&lt;unk&gt;&apos;, &apos;case&apos;, &apos;in&apos;, &apos;the&apos;, &apos;news&apos;, &apos;.&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;&lt;pad&gt;&apos;]</span><br></pre></td></tr></table></figure>
+
+<p>In [ ]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="第五步：创建Word-Averaging模型"><a href="#第五步：创建Word-Averaging模型" class="headerlink" title="第五步：创建Word Averaging模型"></a>第五步：创建Word Averaging模型</h2><h3 id="Word-Averaging模型"><a href="#Word-Averaging模型" class="headerlink" title="Word Averaging模型"></a>Word Averaging模型</h3><ul>
+<li>我们首先介绍一个简单的Word Averaging模型。这个模型非常简单，我们把每个单词都通过<code>Embedding</code>层投射成word embedding vector，然后把一句话中的所有word vector做个平均，就是整个句子的vector表示了。接下来把这个sentence vector传入一个<code>Linear</code>层，做分类即可。</li>
+</ul>
+<p><img src="file:///Users/mmy/Downloads/assets/sentiment8.png" alt="img"></p>
+<ul>
+<li>我们使用<a href="https://pytorch.org/docs/stable/nn.html?highlight=avg_pool2d#torch.nn.functional.avg_pool2d" target="_blank" rel="noopener"><code>avg_pool2d</code></a>来做average pooling。我们的目标是把sentence length那个维度平均成1，然后保留embedding这个维度。</li>
+</ul>
+<p><img src="file:///Users/mmy/Downloads/assets/sentiment9.png" alt="img"></p>
+<ul>
+<li><code>avg_pool2d</code>的kernel size是 (<code>embedded.shape[1]</code>, 1)，所以句子长度的那个维度会被压扁。</li>
+</ul>
+<p><img src="file:///Users/mmy/Downloads/assets/sentiment10.png" alt="img"></p>
+<p><img src="file:///Users/mmy/Downloads/assets/sentiment11.png" alt="img"></p>
+<p>In [5]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WordAVGModel</span><span class="params">(nn.Module)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, vocab_size, embedding_dim, output_dim, pad_idx)</span>:</span></span><br><span class="line">        <span class="comment">#初始化参数，</span></span><br><span class="line">        super().__init__()</span><br><span class="line">        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=pad_idx)</span><br><span class="line">        <span class="comment">#vocab_size=词汇表长度=25002，embedding_dim=每个单词的维度=100</span></span><br><span class="line">        <span class="comment">#padding_idx：如果提供的话，这里如果遇到padding的单词就用0填充。</span></span><br><span class="line">        </span><br><span class="line">        self.fc = nn.Linear(embedding_dim, output_dim)</span><br><span class="line">        <span class="comment">#output_dim输出的维度，一个数就可以了，=1</span></span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, text)</span>:</span></span><br><span class="line">        <span class="comment"># text.shape = (seq_len,batch_size)</span></span><br><span class="line">        <span class="comment"># text下面会指定，为一个batch的数据，seq_len为一条评论的单词长度</span></span><br><span class="line">        embedded = self.embedding(text) </span><br><span class="line">        <span class="comment"># embedded = [seq_len, batch_size, embedding_dim] </span></span><br><span class="line">        embedded = embedded.permute(<span class="number">1</span>, <span class="number">0</span>, <span class="number">2</span>) </span><br><span class="line">        <span class="comment"># [batch_size, seq_len, embedding_dim]更换顺序</span></span><br><span class="line">        </span><br><span class="line">        pooled = F.avg_pool2d(embedded, (embedded.shape[<span class="number">1</span>], <span class="number">1</span>)).squeeze(<span class="number">1</span>) </span><br><span class="line">        <span class="comment"># [batch size, embedding_dim] 把单词长度的维度压扁为1，并降维</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> self.fc(pooled)  </span><br><span class="line">        <span class="comment">#（batch size, embedding_dim）*（embedding_dim, output_dim）=（batch size,output_dim）</span></span><br></pre></td></tr></table></figure>
+
+<p>In [6]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">INPUT_DIM = len(TEXT.vocab) <span class="comment">#25002</span></span><br><span class="line">EMBEDDING_DIM = <span class="number">100</span></span><br><span class="line">OUTPUT_DIM = <span class="number">1</span> <span class="comment"># 大于某个值是正，小于是负</span></span><br><span class="line">PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token] </span><br><span class="line"><span class="comment"># TEXT.pad_token = pad</span></span><br><span class="line"><span class="comment"># PAD_IDX = 1 为pad的索引</span></span><br><span class="line"></span><br><span class="line">model = WordAVGModel(INPUT_DIM, EMBEDDING_DIM, OUTPUT_DIM, PAD_IDX)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">---------------------------------------------------------------------------</span><br><span class="line">AttributeError                            Traceback (most recent call last)</span><br><span class="line">&lt;ipython-input<span class="number">-6</span>-d9889c88c56d&gt; <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">----&gt; 1 INPUT_DIM = len(TEXT.vocab) #25002</span><br><span class="line">      <span class="number">2</span> EMBEDDING_DIM = <span class="number">100</span></span><br><span class="line">      <span class="number">3</span> OUTPUT_DIM = <span class="number">1</span> <span class="comment"># 大于某个值是正，小于是负</span></span><br><span class="line">      <span class="number">4</span> PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token]</span><br><span class="line">      <span class="number">5</span> <span class="comment"># TEXT.pad_token = pad</span></span><br><span class="line"></span><br><span class="line">AttributeError: <span class="string">'Field'</span> object has no attribute <span class="string">'vocab'</span></span><br></pre></td></tr></table></figure>
+
+<p>In [16]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TEXT.pad_token</span><br></pre></td></tr></table></figure>
+
+<p>Out[16]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&apos;&lt;pad&gt;&apos;</span><br></pre></td></tr></table></figure>
+
+<p>In [17]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">count_parameters</span><span class="params">(model)</span>:</span> <span class="comment">#统计参数，可以不用管</span></span><br><span class="line">    <span class="keyword">return</span> sum(p.numel() <span class="keyword">for</span> p <span class="keyword">in</span> model.parameters() <span class="keyword">if</span> p.requires_grad)</span><br><span class="line"></span><br><span class="line">print(<span class="string">f'The model has <span class="subst">&#123;count_parameters(model):,&#125;</span> trainable parameters'</span>)</span><br><span class="line"><span class="comment"># &#123;&#125;大括号里调用了函数</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">The model has 2,500,301 trainable parameters</span><br></pre></td></tr></table></figure>
+
+<h2 id="第六步：初始化参数"><a href="#第六步：初始化参数" class="headerlink" title="第六步：初始化参数"></a>第六步：初始化参数</h2><p>In [18]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 把模型参数初始化成glove的向量参数</span></span><br><span class="line">pretrained_embeddings = TEXT.vocab.vectors  <span class="comment"># 取出glove embedding词向量的参数</span></span><br><span class="line">model.embedding.weight.data.copy_(pretrained_embeddings) <span class="comment">#遇到_的语句直接替换，不需要另外赋值=</span></span><br><span class="line"><span class="comment">#把上面vectors="glove.6B.100d"取出的词向量作为初始化参数，数量为25000*100个参数</span></span><br></pre></td></tr></table></figure>
+
+<p>Out[18]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tensor([[-0.1117, -0.4966,  0.1631,  ...,  1.2647, -0.2753, -0.1325],</span><br><span class="line">        [-0.8555, -0.7208,  1.3755,  ...,  0.0825, -1.1314,  0.3997],</span><br><span class="line">        [-0.0382, -0.2449,  0.7281,  ..., -0.1459,  0.8278,  0.2706],</span><br><span class="line">        ...,</span><br><span class="line">        [-0.1419,  0.0282,  0.2185,  ..., -0.1100, -0.1250,  0.0282],</span><br><span class="line">        [-0.3326, -0.9215,  0.9239,  ...,  0.5057, -1.2898,  0.1782],</span><br><span class="line">        [-0.8304,  0.3732,  0.0726,  ..., -0.0122,  0.2313, -0.2783]])</span><br></pre></td></tr></table></figure>
+
+<p>In [19]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">UNK_IDX = TEXT.vocab.stoi[TEXT.unk_token] <span class="comment"># UNK_IDX=0</span></span><br><span class="line"></span><br><span class="line">model.embedding.weight.data[UNK_IDX] = torch.zeros(EMBEDDING_DIM) <span class="comment">#</span></span><br><span class="line">model.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)</span><br><span class="line"><span class="comment">#词汇表25002个单词，前两个unk和pad也需要初始化成EMBEDDING_DIM维的向量</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="第七步：训练模型"><a href="#第七步：训练模型" class="headerlink" title="第七步：训练模型"></a>第七步：训练模型</h2><p>In [20]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.optim <span class="keyword">as</span> optim</span><br><span class="line"></span><br><span class="line">optimizer = optim.Adam(model.parameters()) <span class="comment">#定义优化器</span></span><br><span class="line">criterion = nn.BCEWithLogitsLoss()  <span class="comment">#定义损失函数，这个BCEWithLogitsLoss特殊情况，二分类损失函数</span></span><br><span class="line"><span class="comment"># nn.BCEWithLogitsLoss()看这个：https://blog.csdn.net/qq_22210253/article/details/85222093</span></span><br><span class="line">model = model.to(device) <span class="comment">#送到gpu上去</span></span><br><span class="line">criterion = criterion.to(device) <span class="comment">#送到gpu上去</span></span><br></pre></td></tr></table></figure>
+
+<p>计算预测的准确率</p>
+<p>In [21]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">binary_accuracy</span><span class="params">(preds, y)</span>:</span> <span class="comment">#计算准确率</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Returns accuracy per batch, i.e. if you get 8/10 right, this returns 0.8, NOT 8</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#round predictions to the closest integer</span></span><br><span class="line">    rounded_preds = torch.round(torch.sigmoid(preds))</span><br><span class="line">    <span class="comment">#.round函数：四舍五入</span></span><br><span class="line">    </span><br><span class="line">    correct = (rounded_preds == y).float() <span class="comment">#convert into float for division </span></span><br><span class="line">    acc = correct.sum()/len(correct)</span><br><span class="line">    <span class="keyword">return</span> acc</span><br></pre></td></tr></table></figure>
+
+<p>In [22]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">train</span><span class="params">(model, iterator, optimizer, criterion)</span>:</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    epoch_loss = <span class="number">0</span></span><br><span class="line">    epoch_acc = <span class="number">0</span></span><br><span class="line">    total_len = <span class="number">0</span></span><br><span class="line">    model.train() <span class="comment">#model.train()代表了训练模式</span></span><br><span class="line">    <span class="comment">#这步一定要加，是为了区分model训练和测试的模式的。</span></span><br><span class="line">    <span class="comment">#有时候训练时会用到dropout、归一化等方法，但是测试的时候不能用dropout等方法。</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> batch <span class="keyword">in</span> iterator: <span class="comment">#iterator为train_iterator</span></span><br><span class="line">        optimizer.zero_grad() <span class="comment">#加这步防止梯度叠加</span></span><br><span class="line">        </span><br><span class="line">        predictions = model(batch.text).squeeze(<span class="number">1</span>)</span><br><span class="line">        <span class="comment">#batch.text 就是上面forward函数的参数text</span></span><br><span class="line">        <span class="comment"># squeeze(1)压缩维度，不然跟batch.label维度对不上</span></span><br><span class="line">        </span><br><span class="line">        loss = criterion(predictions, batch.label)</span><br><span class="line">        acc = binary_accuracy(predictions, batch.label)</span><br><span class="line">        <span class="comment"># 每次迭代都计算一边准确率</span></span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        loss.backward() <span class="comment">#反向传播</span></span><br><span class="line">        optimizer.step() <span class="comment">#梯度下降</span></span><br><span class="line">        </span><br><span class="line">        epoch_loss += loss.item() * len(batch.label)</span><br><span class="line">        <span class="comment">#二分类损失函数loss因为已经平均化了，这里需要乘以len(batch.label)，</span></span><br><span class="line">        <span class="comment">#得到一个batch的损失，累加得到所有样本损失。</span></span><br><span class="line">        </span><br><span class="line">        epoch_acc += acc.item() * len(batch.label)</span><br><span class="line">        <span class="comment">#（acc.item()：一个batch的正确率） *batch数 = 正确数</span></span><br><span class="line">        <span class="comment"># 累加得到所有训练样本正确数。</span></span><br><span class="line">        </span><br><span class="line">        total_len += len(batch.label)</span><br><span class="line">        <span class="comment">#计算train_iterator所有样本的数量，不出意外应该是17500</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> epoch_loss / total_len, epoch_acc / total_len</span><br><span class="line">    <span class="comment">#epoch_loss / total_len ：train_iterator所有batch的平均损失</span></span><br><span class="line">    <span class="comment">#epoch_acc / total_len ：train_iterator所有batch的平均正确率</span></span><br></pre></td></tr></table></figure>
+
+<p>In [23]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate</span><span class="params">(model, iterator, criterion)</span>:</span></span><br><span class="line">     </span><br><span class="line">    </span><br><span class="line">    epoch_loss = <span class="number">0</span></span><br><span class="line">    epoch_acc = <span class="number">0</span></span><br><span class="line">    total_len = <span class="number">0</span></span><br><span class="line">    </span><br><span class="line">    model.eval()</span><br><span class="line">    <span class="comment">#转换成测试模式，冻结dropout层或其他层。</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        <span class="keyword">for</span> batch <span class="keyword">in</span> iterator: </span><br><span class="line">            <span class="comment">#iterator为valid_iterator</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">#没有反向传播和梯度下降</span></span><br><span class="line">            predictions = model(batch.text).squeeze(<span class="number">1</span>)</span><br><span class="line">            loss = criterion(predictions, batch.label)</span><br><span class="line">            acc = binary_accuracy(predictions, batch.label)</span><br><span class="line">            </span><br><span class="line">            </span><br><span class="line">            epoch_loss += loss.item() * len(batch.label)</span><br><span class="line">            epoch_acc += acc.item() * len(batch.label)</span><br><span class="line">            total_len += len(batch.label)</span><br><span class="line">    model.train() <span class="comment">#调回训练模式   </span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> epoch_loss / total_len, epoch_acc / total_len</span><br></pre></td></tr></table></figure>
+
+<p>In [24]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">epoch_time</span><span class="params">(start_time, end_time)</span>:</span>  <span class="comment">#查看每个epoch的时间</span></span><br><span class="line">    elapsed_time = end_time - start_time</span><br><span class="line">    elapsed_mins = int(elapsed_time / <span class="number">60</span>)</span><br><span class="line">    elapsed_secs = int(elapsed_time - (elapsed_mins * <span class="number">60</span>))</span><br><span class="line">    <span class="keyword">return</span> elapsed_mins, elapsed_secs</span><br></pre></td></tr></table></figure>
+
+<h2 id="第八步：查看模型运行结果"><a href="#第八步：查看模型运行结果" class="headerlink" title="第八步：查看模型运行结果"></a>第八步：查看模型运行结果</h2><p>In [25]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 同上，这里用的kaggleGPU跑的，花了2分钟。</span></span><br><span class="line">N_EPOCHS = <span class="number">20</span></span><br><span class="line"></span><br><span class="line">best_valid_loss = float(<span class="string">'inf'</span>) <span class="comment">#无穷大</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> range(N_EPOCHS):</span><br><span class="line"></span><br><span class="line">    start_time = time.time()</span><br><span class="line">    </span><br><span class="line">    train_loss, train_acc = train(model, train_iterator, optimizer, criterion)</span><br><span class="line">    <span class="comment"># 得到训练集每个epoch的平均损失和准确率</span></span><br><span class="line">    valid_loss, valid_acc = evaluate(model, valid_iterator, criterion)</span><br><span class="line">    <span class="comment"># 得到验证集每个epoch的平均损失和准确率，这个model里传入的参数是训练完的参数</span></span><br><span class="line">    </span><br><span class="line">    end_time = time.time()</span><br><span class="line"></span><br><span class="line">    epoch_mins, epoch_secs = epoch_time(start_time, end_time)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> valid_loss &lt; best_valid_loss: <span class="comment">#只要模型效果变好，就存模型</span></span><br><span class="line">        best_valid_loss = valid_loss</span><br><span class="line">        torch.save(model.state_dict(), <span class="string">'wordavg-model.pt'</span>)</span><br><span class="line">    </span><br><span class="line">    print(<span class="string">f'Epoch: <span class="subst">&#123;epoch+<span class="number">1</span>:<span class="number">02</span>&#125;</span> | Epoch Time: <span class="subst">&#123;epoch_mins&#125;</span>m <span class="subst">&#123;epoch_secs&#125;</span>s'</span>)</span><br><span class="line">    print(<span class="string">f'\tTrain Loss: <span class="subst">&#123;train_loss:<span class="number">.3</span>f&#125;</span> | Train Acc: <span class="subst">&#123;train_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br><span class="line">    print(<span class="string">f'\t Val. Loss: <span class="subst">&#123;valid_loss:<span class="number">.3</span>f&#125;</span> |  Val. Acc: <span class="subst">&#123;valid_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">Epoch: 01 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.684 | Train Acc: 58.78%</span><br><span class="line">	 Val. Loss: 0.617 |  Val. Acc: 72.51%</span><br><span class="line">Epoch: 02 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.642 | Train Acc: 72.62%</span><br><span class="line">	 Val. Loss: 0.504 |  Val. Acc: 76.65%</span><br><span class="line">Epoch: 03 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.569 | Train Acc: 78.81%</span><br><span class="line">	 Val. Loss: 0.439 |  Val. Acc: 81.07%</span><br><span class="line">Epoch: 04 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.497 | Train Acc: 82.97%</span><br><span class="line">	 Val. Loss: 0.404 |  Val. Acc: 84.03%</span><br><span class="line">Epoch: 05 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.435 | Train Acc: 85.95%</span><br><span class="line">	 Val. Loss: 0.400 |  Val. Acc: 85.69%</span><br><span class="line">Epoch: 06 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.388 | Train Acc: 87.73%</span><br><span class="line">	 Val. Loss: 0.412 |  Val. Acc: 86.80%</span><br><span class="line">Epoch: 07 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.349 | Train Acc: 88.83%</span><br><span class="line">	 Val. Loss: 0.425 |  Val. Acc: 87.64%</span><br><span class="line">Epoch: 08 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.319 | Train Acc: 89.84%</span><br><span class="line">	 Val. Loss: 0.446 |  Val. Acc: 87.83%</span><br><span class="line">Epoch: 09 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.293 | Train Acc: 90.54%</span><br><span class="line">	 Val. Loss: 0.464 |  Val. Acc: 88.25%</span><br><span class="line">Epoch: 10 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.272 | Train Acc: 91.19%</span><br><span class="line">	 Val. Loss: 0.480 |  Val. Acc: 88.68%</span><br><span class="line">Epoch: 11 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.254 | Train Acc: 91.82%</span><br><span class="line">	 Val. Loss: 0.498 |  Val. Acc: 88.87%</span><br><span class="line">Epoch: 12 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.238 | Train Acc: 92.53%</span><br><span class="line">	 Val. Loss: 0.517 |  Val. Acc: 89.01%</span><br><span class="line">Epoch: 13 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.222 | Train Acc: 93.03%</span><br><span class="line">	 Val. Loss: 0.532 |  Val. Acc: 89.25%</span><br><span class="line">Epoch: 14 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.210 | Train Acc: 93.47%</span><br><span class="line">	 Val. Loss: 0.547 |  Val. Acc: 89.44%</span><br><span class="line">Epoch: 15 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.198 | Train Acc: 93.95%</span><br><span class="line">	 Val. Loss: 0.564 |  Val. Acc: 89.49%</span><br><span class="line">Epoch: 16 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.186 | Train Acc: 94.31%</span><br><span class="line">	 Val. Loss: 0.582 |  Val. Acc: 89.68%</span><br><span class="line">Epoch: 17 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.175 | Train Acc: 94.74%</span><br><span class="line">	 Val. Loss: 0.596 |  Val. Acc: 89.69%</span><br><span class="line">Epoch: 18 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.166 | Train Acc: 95.09%</span><br><span class="line">	 Val. Loss: 0.615 |  Val. Acc: 89.95%</span><br><span class="line">Epoch: 19 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.156 | Train Acc: 95.36%</span><br><span class="line">	 Val. Loss: 0.631 |  Val. Acc: 89.91%</span><br><span class="line">Epoch: 20 | Epoch Time: 0m 5s</span><br><span class="line">	Train Loss: 0.147 | Train Acc: 95.75%</span><br><span class="line">	 Val. Loss: 0.647 |  Val. Acc: 90.07%</span><br></pre></td></tr></table></figure>
+
+<h2 id="第九步：预测结果"><a href="#第九步：预测结果" class="headerlink" title="第九步：预测结果"></a>第九步：预测结果</h2><p>In [26]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">!ls</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__notebook_source__.ipynb  wordavg-model.pt</span><br></pre></td></tr></table></figure>
+
+<p>In [55]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># kaggle上下载模型文件到本地，运行下面代码，点击输出的链接就行</span></span><br><span class="line"><span class="keyword">from</span> IPython.display <span class="keyword">import</span> HTML</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_download_link</span><span class="params">(title = <span class="string">"Download model file"</span>, filename = <span class="string">"CNN-model.pt"</span>)</span>:</span>  </span><br><span class="line">    html = <span class="string">'&lt;a href=&#123;filename&#125;&gt;&#123;title&#125;&lt;/a&gt;'</span></span><br><span class="line">    html = html.format(title=title,filename=filename)</span><br><span class="line">    <span class="keyword">return</span> HTML(html)</span><br><span class="line"></span><br><span class="line"><span class="comment"># create a link to download the dataframe which was saved with .to_csv method</span></span><br><span class="line">create_download_link(filename=<span class="string">'wordavg-model.pt'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>Out[55]:</p>
+<p><a href="file:///Users/mmy/Downloads/wordavg-model.pt" target="_blank" rel="noopener">Download model file</a></p>
+<p>In [1]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">model.load_state_dict(torch.load(&quot;wordavg-model.pt&quot;))</span><br><span class="line">#用保存的模型参数预测数据</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">---------------------------------------------------------------------------</span><br><span class="line">NameError                                 Traceback (most recent call last)</span><br><span class="line">&lt;ipython-input-1-f795a3e78d6a&gt; in &lt;module&gt;</span><br><span class="line">----&gt; 1 model.load_state_dict(torch.load(&quot;wordavg-model.pt&quot;))</span><br><span class="line">      2 #用保存的模型参数预测数据</span><br><span class="line"></span><br><span class="line">NameError: name &apos;model&apos; is not defined</span><br></pre></td></tr></table></figure>
+
+<p>In [28]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> spacy  <span class="comment">#分词工具，跟NLTK类似</span></span><br><span class="line">nlp = spacy.load(<span class="string">'en'</span>) </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">predict_sentiment</span><span class="params">(sentence)</span>:</span> <span class="comment"># 传入预测的句子I love This film bad </span></span><br><span class="line">    tokenized = [tok.text <span class="keyword">for</span> tok <span class="keyword">in</span> nlp.tokenizer(sentence)] <span class="comment">#分词</span></span><br><span class="line">    <span class="comment"># print(tokenized) = ['I', 'love', 'This', 'film', 'bad']</span></span><br><span class="line">    indexed = [TEXT.vocab.stoi[t] <span class="keyword">for</span> t <span class="keyword">in</span> tokenized] </span><br><span class="line">    <span class="comment">#sentence的在25002中的索引</span></span><br><span class="line">    </span><br><span class="line">    tensor = torch.LongTensor(indexed).to(device) <span class="comment">#seq_len</span></span><br><span class="line">    <span class="comment"># 所有词向量都应该变成LongTensor</span></span><br><span class="line">    </span><br><span class="line">    tensor = tensor.unsqueeze(<span class="number">1</span>) </span><br><span class="line">    <span class="comment">#模型的输入是默认有batch_size的,需要升维，seq_len * batch_size（1）</span></span><br><span class="line">    </span><br><span class="line">    prediction = torch.sigmoid(model(tensor))</span><br><span class="line">    <span class="comment"># 预测准确率，在0，1之间，需要sigmoid下</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> prediction.item()</span><br></pre></td></tr></table></figure>
+
+<p>In [29]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(&quot;I love This film bad&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[29]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.9373546242713928</span><br></pre></td></tr></table></figure>
+
+<p>In [30]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(&quot;This film is great&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[30]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1.0</span><br></pre></td></tr></table></figure>
+
+<h2 id="RNN模型"><a href="#RNN模型" class="headerlink" title="RNN模型"></a>RNN模型</h2><ul>
+<li><p>下面我们尝试把模型换成一个</p>
+<p>recurrent neural network</p>
+</li>
+</ul>
+<p>  (RNN)。RNN经常会被用来encode一个sequence</p>
+<p>  ℎ𝑡=RNN(𝑥𝑡,ℎ𝑡−1)ht=RNN(xt,ht−1)</p>
+<ul>
+<li><p>我们使用最后一个hidden state ℎ𝑇hT来表示整个句子。</p>
+</li>
+<li><p>然后我们把ℎ𝑇hT通过一个线性变换𝑓f，然后用来预测句子的情感。</p>
+</li>
+</ul>
+<p>In [ ]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>In [32]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RNN</span><span class="params">(nn.Module)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, vocab_size, embedding_dim, hidden_dim, output_dim, </span></span></span><br><span class="line"><span class="function"><span class="params">                 n_layers, bidirectional, dropout, pad_idx)</span>:</span></span><br><span class="line">        super().__init__()</span><br><span class="line">        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=pad_idx)</span><br><span class="line">        self.rnn = nn.LSTM(embedding_dim, hidden_dim, num_layers=n_layers, </span><br><span class="line">                           bidirectional=bidirectional, dropout=dropout)</span><br><span class="line">        <span class="comment">#embedding_dim：每个单词维度</span></span><br><span class="line">        <span class="comment">#hidden_dim：隐藏层维度</span></span><br><span class="line">        <span class="comment">#num_layers：神经网络深度，纵向深度</span></span><br><span class="line">        <span class="comment">#bidirectional：是否双向循环RNN</span></span><br><span class="line">        <span class="comment">#这个自己先得理解LSTM各个维度，不然容易晕，双向RNN网络图示看上面，可以借鉴下</span></span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        self.fc = nn.Linear(hidden_dim*<span class="number">2</span>, output_dim)</span><br><span class="line">        <span class="comment"># 这里hidden_dim乘以2是因为是双向，需要拼接两个方向，跟n_layers的层数无关。</span></span><br><span class="line"></span><br><span class="line">        self.dropout = nn.Dropout(dropout)</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, text)</span>:</span></span><br><span class="line">        <span class="comment"># text.shape=[seq_len, batch_size]</span></span><br><span class="line">        embedded = self.dropout(self.embedding(text)) <span class="comment">#[seq_len, batch_size, emb_dim]</span></span><br><span class="line">        output, (hidden, cell) = self.rnn(embedded)</span><br><span class="line">        <span class="comment"># output = [seq_len, batch size, hid_dim * num directions]</span></span><br><span class="line">        <span class="comment"># hidden = [num layers * num directions, batch_size, hid_dim]</span></span><br><span class="line">        <span class="comment"># cell = [num layers * num directions, batch_size, hid_dim]</span></span><br><span class="line">        <span class="comment"># 这里的num layers * num directions可以看上面图，上面图除掉输入输出层只有两层双向网络。</span></span><br><span class="line">        <span class="comment"># num layers = 2表示需要纵向上在加两层双向，总共有4层神经元。</span></span><br><span class="line">        <span class="comment"># 对于LSTM模型的任意一个时间序列t，h层的输出维度</span></span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        <span class="comment">#concat the final forward (hidden[-2,:,:]) and backward (hidden[-1,:,:]) hidden layers</span></span><br><span class="line">        <span class="comment">#and apply dropout</span></span><br><span class="line">        hidden = self.dropout(torch.cat((hidden[<span class="number">-2</span>,:,:], hidden[<span class="number">-1</span>,:,:]), dim=<span class="number">1</span>)) </span><br><span class="line">        <span class="comment"># hidden = [batch size, hid dim * num directions]，</span></span><br><span class="line">        <span class="comment"># 看下上面图示，最后前向和后向输出的隐藏层会concat到输出层，4层神经元最后两层作为最终的输出。</span></span><br><span class="line">        <span class="comment"># 这里因为我们只需要得到最后一个时间序列的输出，所以最终输出的hidden跟seq_len无关。</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> self.fc(hidden.squeeze(<span class="number">0</span>)) <span class="comment"># 在接一个全连接层，最终输出[batch size, output_dim]</span></span><br></pre></td></tr></table></figure>
+
+<p>In [ ]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>In [36]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">INPUT_DIM = len(TEXT.vocab)</span><br><span class="line">EMBEDDING_DIM = <span class="number">100</span></span><br><span class="line">HIDDEN_DIM = <span class="number">256</span></span><br><span class="line">OUTPUT_DIM = <span class="number">1</span></span><br><span class="line">N_LAYERS = <span class="number">2</span></span><br><span class="line">BIDIRECTIONAL = <span class="literal">True</span></span><br><span class="line">DROPOUT = <span class="number">0.5</span></span><br><span class="line">PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token]</span><br><span class="line"></span><br><span class="line">model = RNN(INPUT_DIM, EMBEDDING_DIM, HIDDEN_DIM, OUTPUT_DIM, </span><br><span class="line">            N_LAYERS, BIDIRECTIONAL, DROPOUT, PAD_IDX)</span><br><span class="line">model</span><br></pre></td></tr></table></figure>
+
+<p>Out[36]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">RNN(</span><br><span class="line">  (embedding): Embedding(<span class="number">25002</span>, <span class="number">100</span>, padding_idx=<span class="number">1</span>)</span><br><span class="line">  (rnn): LSTM(<span class="number">100</span>, <span class="number">256</span>, num_layers=<span class="number">2</span>, dropout=<span class="number">0.5</span>, bidirectional=<span class="literal">True</span>)</span><br><span class="line">  (fc): Linear(in_features=<span class="number">512</span>, out_features=<span class="number">1</span>, bias=<span class="literal">True</span>)</span><br><span class="line">  (dropout): Dropout(p=<span class="number">0.5</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>In [34]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">f'The model has <span class="subst">&#123;count_parameters(model):,&#125;</span> trainable parameters'</span>)</span><br><span class="line"><span class="comment"># 比averge model模型多了一倍的参数</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">The model has 4,810,857 trainable parameters</span><br></pre></td></tr></table></figure>
+
+<p>In [37]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 同上初始化</span></span><br><span class="line">model.embedding.weight.data.copy_(pretrained_embeddings)</span><br><span class="line">UNK_IDX = TEXT.vocab.stoi[TEXT.unk_token]</span><br><span class="line"></span><br><span class="line">model.embedding.weight.data[UNK_IDX] = torch.zeros(EMBEDDING_DIM)</span><br><span class="line">model.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)</span><br><span class="line"></span><br><span class="line">print(model.embedding.weight.data)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tensor([[ 0.0000,  0.0000,  0.0000,  ...,  0.0000,  0.0000,  0.0000],</span><br><span class="line">        [ 0.0000,  0.0000,  0.0000,  ...,  0.0000,  0.0000,  0.0000],</span><br><span class="line">        [-0.0382, -0.2449,  0.7281,  ..., -0.1459,  0.8278,  0.2706],</span><br><span class="line">        ...,</span><br><span class="line">        [-0.1419,  0.0282,  0.2185,  ..., -0.1100, -0.1250,  0.0282],</span><br><span class="line">        [-0.3326, -0.9215,  0.9239,  ...,  0.5057, -1.2898,  0.1782],</span><br><span class="line">        [-0.8304,  0.3732,  0.0726,  ..., -0.0122,  0.2313, -0.2783]])</span><br></pre></td></tr></table></figure>
+
+<h2 id="训练RNN模型"><a href="#训练RNN模型" class="headerlink" title="训练RNN模型"></a>训练RNN模型</h2><p>In [38]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">optimizer = optim.Adam(model.parameters())</span><br><span class="line">model = model.to(device)</span><br></pre></td></tr></table></figure>
+
+<p>In [39]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 同上，这里用的kaggleGPU跑的，花了40分钟。</span></span><br><span class="line">N_EPOCHS = <span class="number">20</span></span><br><span class="line">best_valid_loss = float(<span class="string">'inf'</span>)</span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> range(N_EPOCHS):</span><br><span class="line">    start_time = time.time()</span><br><span class="line">    train_loss, train_acc = train(model, train_iterator, optimizer, criterion)</span><br><span class="line">    valid_loss, valid_acc = evaluate(model, valid_iterator, criterion)</span><br><span class="line">    </span><br><span class="line">    end_time = time.time()</span><br><span class="line"></span><br><span class="line">    epoch_mins, epoch_secs = epoch_time(start_time, end_time)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> valid_loss &lt; best_valid_loss:</span><br><span class="line">        best_valid_loss = valid_loss</span><br><span class="line">        torch.save(model.state_dict(), <span class="string">'lstm-model.pt'</span>)</span><br><span class="line">    </span><br><span class="line">    print(<span class="string">f'Epoch: <span class="subst">&#123;epoch+<span class="number">1</span>:<span class="number">02</span>&#125;</span> | Epoch Time: <span class="subst">&#123;epoch_mins&#125;</span>m <span class="subst">&#123;epoch_secs&#125;</span>s'</span>)</span><br><span class="line">    print(<span class="string">f'\tTrain Loss: <span class="subst">&#123;train_loss:<span class="number">.3</span>f&#125;</span> | Train Acc: <span class="subst">&#123;train_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br><span class="line">    print(<span class="string">f'\t Val. Loss: <span class="subst">&#123;valid_loss:<span class="number">.3</span>f&#125;</span> |  Val. Acc: <span class="subst">&#123;valid_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">Epoch: 01 | Epoch Time: 2m 1s</span><br><span class="line">	Train Loss: 0.667 | Train Acc: 59.09%</span><br><span class="line">	 Val. Loss: 0.633 |  Val. Acc: 64.67%</span><br><span class="line">Epoch: 02 | Epoch Time: 2m 1s</span><br><span class="line">	Train Loss: 0.663 | Train Acc: 60.33%</span><br><span class="line">	 Val. Loss: 0.669 |  Val. Acc: 69.21%</span><br><span class="line">Epoch: 03 | Epoch Time: 2m 2s</span><br><span class="line">	Train Loss: 0.650 | Train Acc: 61.06%</span><br><span class="line">	 Val. Loss: 0.579 |  Val. Acc: 70.55%</span><br><span class="line">Epoch: 04 | Epoch Time: 2m 2s</span><br><span class="line">	Train Loss: 0.493 | Train Acc: 77.43%</span><br><span class="line">	 Val. Loss: 0.382 |  Val. Acc: 83.43%</span><br><span class="line">Epoch: 05 | Epoch Time: 2m 2s</span><br><span class="line">	Train Loss: 0.394 | Train Acc: 83.71%</span><br><span class="line">	 Val. Loss: 0.338 |  Val. Acc: 85.97%</span><br><span class="line">Epoch: 06 | Epoch Time: 2m 3s</span><br><span class="line">	Train Loss: 0.338 | Train Acc: 86.26%</span><br><span class="line">	 Val. Loss: 0.309 |  Val. Acc: 87.21%</span><br><span class="line">Epoch: 07 | Epoch Time: 2m 2s</span><br><span class="line">	Train Loss: 0.292 | Train Acc: 88.37%</span><br><span class="line">	 Val. Loss: 0.295 |  Val. Acc: 88.73%</span><br><span class="line">Epoch: 08 | Epoch Time: 2m 3s</span><br><span class="line">	Train Loss: 0.252 | Train Acc: 90.26%</span><br><span class="line">	 Val. Loss: 0.300 |  Val. Acc: 89.31%</span><br><span class="line">Epoch: 09 | Epoch Time: 2m 2s</span><br><span class="line">	Train Loss: 0.246 | Train Acc: 90.51%</span><br><span class="line">	 Val. Loss: 0.282 |  Val. Acc: 88.76%</span><br><span class="line">Epoch: 10 | Epoch Time: 2m 3s</span><br><span class="line">	Train Loss: 0.205 | Train Acc: 92.37%</span><br><span class="line">	 Val. Loss: 0.295 |  Val. Acc: 88.31%</span><br><span class="line">Epoch: 11 | Epoch Time: 2m 1s</span><br><span class="line">	Train Loss: 0.203 | Train Acc: 92.46%</span><br><span class="line">	 Val. Loss: 0.289 |  Val. Acc: 89.25%</span><br><span class="line">Epoch: 12 | Epoch Time: 2m 3s</span><br><span class="line">	Train Loss: 0.178 | Train Acc: 93.58%</span><br><span class="line">	 Val. Loss: 0.301 |  Val. Acc: 89.41%</span><br><span class="line">Epoch: 13 | Epoch Time: 2m 3s</span><br><span class="line">	Train Loss: 0.158 | Train Acc: 94.43%</span><br><span class="line">	 Val. Loss: 0.301 |  Val. Acc: 89.51%</span><br><span class="line">Epoch: 14 | Epoch Time: 2m 2s</span><br><span class="line">	Train Loss: 0.158 | Train Acc: 94.63%</span><br><span class="line">	 Val. Loss: 0.289 |  Val. Acc: 89.95%</span><br><span class="line">Epoch: 15 | Epoch Time: 2m 2s</span><br><span class="line">	Train Loss: 0.142 | Train Acc: 95.00%</span><br><span class="line">	 Val. Loss: 0.314 |  Val. Acc: 89.59%</span><br><span class="line">Epoch: 16 | Epoch Time: 2m 2s</span><br><span class="line">	Train Loss: 0.123 | Train Acc: 95.62%</span><br><span class="line">	 Val. Loss: 0.329 |  Val. Acc: 89.99%</span><br><span class="line">Epoch: 17 | Epoch Time: 2m 4s</span><br><span class="line">	Train Loss: 0.107 | Train Acc: 96.16%</span><br><span class="line">	 Val. Loss: 0.325 |  Val. Acc: 89.75%</span><br><span class="line">Epoch: 18 | Epoch Time: 2m 4s</span><br><span class="line">	Train Loss: 0.100 | Train Acc: 96.66%</span><br><span class="line">	 Val. Loss: 0.341 |  Val. Acc: 89.49%</span><br><span class="line">Epoch: 19 | Epoch Time: 2m 3s</span><br><span class="line">	Train Loss: 0.096 | Train Acc: 96.63%</span><br><span class="line">	 Val. Loss: 0.340 |  Val. Acc: 89.79%</span><br><span class="line">Epoch: 20 | Epoch Time: 2m 3s</span><br><span class="line">	Train Loss: 0.080 | Train Acc: 97.31%</span><br><span class="line">	 Val. Loss: 0.380 |  Val. Acc: 89.83%</span><br></pre></td></tr></table></figure>
+
+<p>You may have noticed the loss is not really decreasing and the accuracy is poor. This is due to several issues with the model which we’ll improve in the next notebook.</p>
+<p>Finally, the metric we actually care about, the test loss and accuracy, which we get from our parameters that gave us the best validation loss.</p>
+<p>In [40]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载文件到本地</span></span><br><span class="line"><span class="keyword">from</span> IPython.display <span class="keyword">import</span> HTML</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_download_link</span><span class="params">(title = <span class="string">"Download model file"</span>, filename = <span class="string">"wordavg-model.pt"</span>)</span>:</span>  </span><br><span class="line">    html = <span class="string">'&lt;a href=&#123;filename&#125;&gt;&#123;title&#125;&lt;/a&gt;'</span></span><br><span class="line">    html = html.format(title=title,filename=filename)</span><br><span class="line">    <span class="keyword">return</span> HTML(html)</span><br><span class="line"></span><br><span class="line"><span class="comment"># create a link to download the dataframe which was saved with .to_csv method</span></span><br><span class="line">create_download_link(filename=<span class="string">'lstm-model.pt'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>Out[40]:</p>
+<p><a href="file:///Users/mmy/Downloads/lstm-model.pt" target="_blank" rel="noopener">Download model file</a></p>
+<p>In [41]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">model.load_state_dict(torch.load(<span class="string">'lstm-model.pt'</span>))</span><br><span class="line">test_loss, test_acc = evaluate(model, test_iterator, criterion)</span><br><span class="line">print(<span class="string">f'Test Loss: <span class="subst">&#123;test_loss:<span class="number">.3</span>f&#125;</span> | Test Acc: <span class="subst">&#123;test_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Test Loss: 0.304 | Test Acc: 88.11%</span><br></pre></td></tr></table></figure>
+
+<p>In [44]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(&quot;I feel This film bad&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[44]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.3637591600418091</span><br></pre></td></tr></table></figure>
+
+<p>In [43]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(&quot;This film is great&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[43]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.9947803020477295</span><br></pre></td></tr></table></figure>
+
+<h2 id="CNN模型"><a href="#CNN模型" class="headerlink" title="CNN模型"></a>CNN模型</h2><p>In [45]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CNN</span><span class="params">(nn.Module)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, vocab_size, embedding_dim, n_filters, </span></span></span><br><span class="line"><span class="function"><span class="params">                 filter_sizes, output_dim, dropout, pad_idx)</span>:</span></span><br><span class="line">        super().__init__()</span><br><span class="line">        </span><br><span class="line">        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=pad_idx)</span><br><span class="line">        self.convs = nn.ModuleList([</span><br><span class="line">                                    nn.Conv2d(in_channels = <span class="number">1</span>, out_channels = n_filters, </span><br><span class="line">                                              kernel_size = (fs, embedding_dim)) </span><br><span class="line">                                    <span class="keyword">for</span> fs <span class="keyword">in</span> filter_sizes</span><br><span class="line">                                    ])</span><br><span class="line">        <span class="comment"># in_channels：输入的channel，文字都是1</span></span><br><span class="line">        <span class="comment"># out_channels：输出的channel维度</span></span><br><span class="line">        <span class="comment"># fs：每次滑动窗口计算用到几个单词</span></span><br><span class="line">        <span class="comment"># for fs in filter_sizes打算用好几个卷积模型最后concate起来看效果。</span></span><br><span class="line">        </span><br><span class="line">        self.fc = nn.Linear(len(filter_sizes) * n_filters, output_dim)</span><br><span class="line">        self.dropout = nn.Dropout(dropout)</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, text)</span>:</span></span><br><span class="line">        text = text.permute(<span class="number">1</span>, <span class="number">0</span>) <span class="comment"># [batch size, sent len]</span></span><br><span class="line">        embedded = self.embedding(text) <span class="comment"># [batch size, sent len, emb dim]</span></span><br><span class="line">        embedded = embedded.unsqueeze(<span class="number">1</span>) <span class="comment"># [batch size, 1, sent len, emb dim]</span></span><br><span class="line">        <span class="comment"># 升维是为了和nn.Conv2d的输入维度吻合，把channel列升维。</span></span><br><span class="line">        conved = [F.relu(conv(embedded)).squeeze(<span class="number">3</span>) <span class="keyword">for</span> conv <span class="keyword">in</span> self.convs]</span><br><span class="line">        <span class="comment"># conved = [batch size, n_filters, sent len - filter_sizes+1]</span></span><br><span class="line">        <span class="comment"># 有几个filter_sizes就有几个conved</span></span><br><span class="line">    </span><br><span class="line">        </span><br><span class="line">        pooled = [F.max_pool1d(conv, conv.shape[<span class="number">2</span>]).squeeze(<span class="number">2</span>) <span class="keyword">for</span> conv <span class="keyword">in</span> conved]</span><br><span class="line">        <span class="comment"># 把conv的第三个维度最大池化了</span></span><br><span class="line">        <span class="comment">#pooled_n = [batch size, n_filters]</span></span><br><span class="line">        </span><br><span class="line">        cat = self.dropout(torch.cat(pooled, dim=<span class="number">1</span>))</span><br><span class="line">        <span class="comment"># cat = [batch size, n_filters * len(filter_sizes)]</span></span><br><span class="line">        <span class="comment"># 把 len(filter_sizes)个卷积模型concate起来传到全连接层。</span></span><br><span class="line">            </span><br><span class="line">        <span class="keyword">return</span> self.fc(cat)</span><br></pre></td></tr></table></figure>
+
+<p>In [47]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 同上</span></span><br><span class="line">INPUT_DIM = len(TEXT.vocab)</span><br><span class="line">EMBEDDING_DIM = <span class="number">100</span></span><br><span class="line">N_FILTERS = <span class="number">100</span></span><br><span class="line">FILTER_SIZES = [<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>]</span><br><span class="line">OUTPUT_DIM = <span class="number">1</span></span><br><span class="line">DROPOUT = <span class="number">0.5</span></span><br><span class="line">PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">model = CNN(INPUT_DIM, EMBEDDING_DIM, N_FILTERS, FILTER_SIZES, OUTPUT_DIM, DROPOUT, PAD_IDX)</span><br><span class="line">model.embedding.weight.data.copy_(pretrained_embeddings)</span><br><span class="line">UNK_IDX = TEXT.vocab.stoi[TEXT.unk_token]</span><br><span class="line"></span><br><span class="line">model.embedding.weight.data[UNK_IDX] = torch.zeros(EMBEDDING_DIM)</span><br><span class="line">model.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)</span><br><span class="line">model = model.to(device)</span><br><span class="line">print(<span class="string">f'The model has <span class="subst">&#123;count_parameters(model):,&#125;</span> trainable parameters'</span>)</span><br><span class="line"><span class="comment"># 比averge model模型参数差不多</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">The model has 2,620,801 trainable parameters</span><br></pre></td></tr></table></figure>
+
+<p>In [48]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 同上，需要花8分钟左右</span></span><br><span class="line">optimizer = optim.Adam(model.parameters())</span><br><span class="line">criterion = nn.BCEWithLogitsLoss()</span><br><span class="line">criterion = criterion.to(device)</span><br><span class="line"></span><br><span class="line">N_EPOCHS = <span class="number">20</span></span><br><span class="line"></span><br><span class="line">best_valid_loss = float(<span class="string">'inf'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> range(N_EPOCHS):</span><br><span class="line"></span><br><span class="line">    start_time = time.time()</span><br><span class="line">    </span><br><span class="line">    train_loss, train_acc = train(model, train_iterator, optimizer, criterion)</span><br><span class="line">    valid_loss, valid_acc = evaluate(model, valid_iterator, criterion)</span><br><span class="line">    </span><br><span class="line">    end_time = time.time()</span><br><span class="line"></span><br><span class="line">    epoch_mins, epoch_secs = epoch_time(start_time, end_time)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> valid_loss &lt; best_valid_loss:</span><br><span class="line">        best_valid_loss = valid_loss</span><br><span class="line">        torch.save(model.state_dict(), <span class="string">'CNN-model.pt'</span>)</span><br><span class="line">    </span><br><span class="line">    print(<span class="string">f'Epoch: <span class="subst">&#123;epoch+<span class="number">1</span>:<span class="number">02</span>&#125;</span> | Epoch Time: <span class="subst">&#123;epoch_mins&#125;</span>m <span class="subst">&#123;epoch_secs&#125;</span>s'</span>)</span><br><span class="line">    print(<span class="string">f'\tTrain Loss: <span class="subst">&#123;train_loss:<span class="number">.3</span>f&#125;</span> | Train Acc: <span class="subst">&#123;train_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br><span class="line">    print(<span class="string">f'\t Val. Loss: <span class="subst">&#123;valid_loss:<span class="number">.3</span>f&#125;</span> |  Val. Acc: <span class="subst">&#123;valid_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">Epoch: 01 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.652 | Train Acc: 61.81%</span><br><span class="line">	 Val. Loss: 0.527 |  Val. Acc: 76.20%</span><br><span class="line">Epoch: 02 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.427 | Train Acc: 80.66%</span><br><span class="line">	 Val. Loss: 0.358 |  Val. Acc: 84.36%</span><br><span class="line">Epoch: 03 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.304 | Train Acc: 87.14%</span><br><span class="line">	 Val. Loss: 0.318 |  Val. Acc: 86.45%</span><br><span class="line">Epoch: 04 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.215 | Train Acc: 91.42%</span><br><span class="line">	 Val. Loss: 0.313 |  Val. Acc: 86.92%</span><br><span class="line">Epoch: 05 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.156 | Train Acc: 94.18%</span><br><span class="line">	 Val. Loss: 0.326 |  Val. Acc: 87.01%</span><br><span class="line">Epoch: 06 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.105 | Train Acc: 96.33%</span><br><span class="line">	 Val. Loss: 0.344 |  Val. Acc: 87.16%</span><br><span class="line">Epoch: 07 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.075 | Train Acc: 97.61%</span><br><span class="line">	 Val. Loss: 0.372 |  Val. Acc: 87.28%</span><br><span class="line">Epoch: 08 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.052 | Train Acc: 98.39%</span><br><span class="line">	 Val. Loss: 0.403 |  Val. Acc: 87.21%</span><br><span class="line">Epoch: 09 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.041 | Train Acc: 98.64%</span><br><span class="line">	 Val. Loss: 0.433 |  Val. Acc: 87.09%</span><br><span class="line">Epoch: 10 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.031 | Train Acc: 99.10%</span><br><span class="line">	 Val. Loss: 0.462 |  Val. Acc: 87.01%</span><br><span class="line">Epoch: 11 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.023 | Train Acc: 99.29%</span><br><span class="line">	 Val. Loss: 0.495 |  Val. Acc: 86.93%</span><br><span class="line">Epoch: 12 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.021 | Train Acc: 99.34%</span><br><span class="line">	 Val. Loss: 0.530 |  Val. Acc: 86.84%</span><br><span class="line">Epoch: 13 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.015 | Train Acc: 99.60%</span><br><span class="line">	 Val. Loss: 0.559 |  Val. Acc: 86.73%</span><br><span class="line">Epoch: 14 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.013 | Train Acc: 99.69%</span><br><span class="line">	 Val. Loss: 0.597 |  Val. Acc: 86.48%</span><br><span class="line">Epoch: 15 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.012 | Train Acc: 99.70%</span><br><span class="line">	 Val. Loss: 0.608 |  Val. Acc: 86.63%</span><br><span class="line">Epoch: 16 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.009 | Train Acc: 99.76%</span><br><span class="line">	 Val. Loss: 0.640 |  Val. Acc: 86.77%</span><br><span class="line">Epoch: 17 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.010 | Train Acc: 99.73%</span><br><span class="line">	 Val. Loss: 0.674 |  Val. Acc: 86.51%</span><br><span class="line">Epoch: 18 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.012 | Train Acc: 99.63%</span><br><span class="line">	 Val. Loss: 0.704 |  Val. Acc: 86.71%</span><br><span class="line">Epoch: 19 | Epoch Time: 0m 19s</span><br><span class="line">	Train Loss: 0.010 | Train Acc: 99.65%</span><br><span class="line">	 Val. Loss: 0.757 |  Val. Acc: 86.44%</span><br><span class="line">Epoch: 20 | Epoch Time: 0m 20s</span><br><span class="line">	Train Loss: 0.006 | Train Acc: 99.80%</span><br><span class="line">	 Val. Loss: 0.756 |  Val. Acc: 86.55%</span><br></pre></td></tr></table></figure>
+
+<p>In [49]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 发现上面结果过拟合了，同学们可以自行调参</span></span><br><span class="line">model.load_state_dict(torch.load(<span class="string">'CNN-model.pt'</span>))</span><br><span class="line">test_loss, test_acc = evaluate(model, test_iterator, criterion)</span><br><span class="line">print(<span class="string">f'Test Loss: <span class="subst">&#123;test_loss:<span class="number">.3</span>f&#125;</span> | Test Acc: <span class="subst">&#123;test_acc*<span class="number">100</span>:<span class="number">.2</span>f&#125;</span>%'</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Test Loss: 0.339 | Test Acc: 85.68%</span><br></pre></td></tr></table></figure>
+
+<p>In [50]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(&quot;I feel This film bad&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[50]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.6535547375679016</span><br></pre></td></tr></table></figure>
+
+<p>In [52]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(&quot;This film is great well&quot;) </span><br><span class="line"># 我后面加了个well，不加会报错，因为我们的FILTER_SIZES = [3,4,5]有设置为5，所以输出的句子长度不能小于5</span><br></pre></td></tr></table></figure>
+
+<p>Out[52]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.9950380921363831</span><br></pre></td></tr></table></figure>
+
+<p>In [54]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># kaggle上下载模型文件到本地</span></span><br><span class="line"><span class="keyword">from</span> IPython.display <span class="keyword">import</span> HTML</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_download_link</span><span class="params">(title = <span class="string">"Download model file"</span>, filename = <span class="string">"CNN-model.pt"</span>)</span>:</span>  </span><br><span class="line">    html = <span class="string">'&lt;a href=&#123;filename&#125;&gt;&#123;title&#125;&lt;/a&gt;'</span></span><br><span class="line">    html = html.format(title=title,filename=filename)</span><br><span class="line">    <span class="keyword">return</span> HTML(html)</span><br><span class="line"></span><br><span class="line"><span class="comment"># create a link to download the dataframe which was saved with .to_csv method</span></span><br><span class="line">create_download_link(filename=<span class="string">'CNN-model.pt'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>Out[54]:</p>
+<p><a href="file:///Users/mmy/Downloads/CNN-model.pt" target="_blank" rel="noopener">Download model file</a></p>
+<p>In [ ]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> </span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2020/03/28/sentiment情感分析代码注释/">sentiment情感分析代码注释</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2020-03-28, 19:04:14</p>
+        <p><span>最后更新:</span>2020-06-09, 09:28:41</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2020/03/28/sentiment情感分析代码注释/" title="sentiment情感分析代码注释">http://mmyblog.cn/2020/03/28/sentiment情感分析代码注释/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2020/03/28/sentiment情感分析代码注释/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2020/04/09/机器翻译与文本摘要/">
+                    机器翻译与文本摘要
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2020/03/11/聊天机器人二/">
+                    聊天机器人二
+                </a>
+            </div>
+        
+    </nav>
+
+  
+  
+    <! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+    <div id="donate_guide" class="donate_bar center hidden" >
+        
+            <!-- <img src="/img/Alipay.jpg" alt="支付宝打赏">
+            <img src="/img/WeChatpay.jpg" alt="微信打赏"> -->
+       
+        <!-- 方式二；
+            step1：在_config.yml中添加配置
+                Alipay: /img/Alipay.jpg
+                WeChatpay: /img/WeChatpay.jpg
+            step2：此处两张图片的路径分别设置为如下
+                <img src=""
+                <img src=""
+        -->
+        <!-- 支付宝打赏图案 -->
+        <img src="/img/Alipay.jpg" alt="支付宝打赏">
+        <!-- 微信打赏图案 -->
+        <img src="/img//WeChatpay.jpg" alt="微信打赏">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn_donate').onclick = function(){
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+    </script>
+</div>
+<! -- 添加捐赠图标 -->
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#情感分析"><span class="toc-number">1.</span> <span class="toc-text">情感分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#第一步：导入豆瓣电影数据集，只有训练集和测试集"><span class="toc-number">1.1.</span> <span class="toc-text">第一步：导入豆瓣电影数据集，只有训练集和测试集</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第二步：训练集划分为训练集和验证集"><span class="toc-number">2.</span> <span class="toc-text">第二步：训练集划分为训练集和验证集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第三步：用训练集建立vocabulary，就是把每个单词一一映射到一个数字。"><span class="toc-number">3.</span> <span class="toc-text">第三步：用训练集建立vocabulary，就是把每个单词一一映射到一个数字。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第四步：创建iterators，每个itartion都会返回一个batch的样本。"><span class="toc-number">4.</span> <span class="toc-text">第四步：创建iterators，每个itartion都会返回一个batch的样本。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第五步：创建Word-Averaging模型"><span class="toc-number">5.</span> <span class="toc-text">第五步：创建Word Averaging模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Word-Averaging模型"><span class="toc-number">5.1.</span> <span class="toc-text">Word Averaging模型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第六步：初始化参数"><span class="toc-number">6.</span> <span class="toc-text">第六步：初始化参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第七步：训练模型"><span class="toc-number">7.</span> <span class="toc-text">第七步：训练模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第八步：查看模型运行结果"><span class="toc-number">8.</span> <span class="toc-text">第八步：查看模型运行结果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第九步：预测结果"><span class="toc-number">9.</span> <span class="toc-text">第九步：预测结果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RNN模型"><span class="toc-number">10.</span> <span class="toc-text">RNN模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练RNN模型"><span class="toc-number">11.</span> <span class="toc-text">训练RNN模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CNN模型"><span class="toc-number">12.</span> <span class="toc-text">CNN模型</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"sentiment情感分析代码注释　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/04/09/机器翻译与文本摘要/" title="上一篇: 机器翻译与文本摘要">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/03/11/聊天机器人二/" title="下一篇: 聊天机器人二">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/扩展内容/">扩展内容</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/XLNet/">XLNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/PyTorch/">PyTorch</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/朴素贝叶斯/">朴素贝叶斯</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/GPT模型/">GPT模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/BERT系列预训练模型/">BERT系列预训练模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/19/阅读理解/">阅读理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/18/Transformer模型解读/">Transformer模型解读</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/16/Transformer-XL/">Transformer-XL</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/英文书籍word级别的文本生成代码注释/">英文书籍word级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/文本生成任务/">文本生成任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/09/常见预训练模型/">BERT&ELMo&co</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/01/大规模无监督预训练语言模型与应用上/">大规模无监督预训练语言模型与应用上</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/18/语言模型/">语言模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/15/NLP中的ConvNet/">NLP中的ConvNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/13/seq2seq/">seq2seq</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/09/机器翻译与文本摘要/">机器翻译与文本摘要</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/sentiment情感分析代码注释/">sentiment情感分析代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/11/聊天机器人二/">聊天机器人二</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/10/聊天机器人一/">聊天机器人一</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/09/结构化预测/">结构化预测</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/word-embedding/">word-embedding</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/酒店评价情感分类与CNN模型/">酒店评价情感分类与CNN模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/28/NLP技术基础整理/">NLP技术基础整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/18/CNN-Image-Classification/">CNN-Image-Classification</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/丘吉尔的人物传记char级别的文本生成代码注释/">丘吉尔的人物传记char级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/用朴素贝叶斯完成语种检测/">用朴素贝叶斯完成语种检测</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/24/文本分类问题/">文本分类问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/08/python正则表达式/">python正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/08/jieba中文处理/">jieba中文处理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

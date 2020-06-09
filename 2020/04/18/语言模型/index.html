@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="语言模型学习目标  学习语言模型，以及如何训练一个语言模型 学习torchtext的基本使用方法 构建 vocabulary word to inde 和 index to word   学习torch.nn的一些基本模型 Linear RNN LSTM GRU   RNN的训练技巧 Gradient Clipping   如何保存和读取模型  我们会使用 torchtext 来创建vocabul">
+<meta name="keywords" content="RNN,Linear,Gradient Clipping">
+<meta property="og:type" content="article">
+<meta property="og:title" content="语言模型">
+<meta property="og:url" content="http://mmyblog.cn/2020/04/18/语言模型/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="语言模型学习目标  学习语言模型，以及如何训练一个语言模型 学习torchtext的基本使用方法 构建 vocabulary word to inde 和 index to word   学习torch.nn的一些基本模型 Linear RNN LSTM GRU   RNN的训练技巧 Gradient Clipping   如何保存和读取模型  我们会使用 torchtext 来创建vocabul">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-06-09T01:24:52.278Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="语言模型">
+<meta name="twitter:description" content="语言模型学习目标  学习语言模型，以及如何训练一个语言模型 学习torchtext的基本使用方法 构建 vocabulary word to inde 和 index to word   学习torch.nn的一些基本模型 Linear RNN LSTM GRU   RNN的训练技巧 Gradient Clipping   如何保存和读取模型  我们会使用 torchtext 来创建vocabul">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>语言模型 | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Attention/">Attention</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BERT/">BERT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BLUE/">BLUE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Beam-search/">Beam search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CRF/">CRF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ConvNet/">ConvNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ELMo/">ELMo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPT/">GPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GRU/">GRU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradient-Clipping/">Gradient Clipping</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LSTM/">LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linear/">Linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Parsing/">Parsing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PyTorch/">PyTorch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QA/">QA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN/">RNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN-LSTM/">RNN/LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Recursive-Neural-Networks/">Recursive Neural Networks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seq2Seq/">Seq2Seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TorchText/">TorchText</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer/">Transformer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer-XL/">Transformer-XL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/XLNet/">XLNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/inference/">inference</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jiaba/">jiaba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jieba/">jieba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/word-embedding/">word-embedding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wxBot/">wxBot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/中文分词/">中文分词</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图神经网络/">图神经网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/朴素贝叶斯/">朴素贝叶斯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则表达式/">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聊天机器人/">聊天机器人</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言模型/">语言模型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-语言模型" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/04/18/语言模型/" class="article-date">
+      <time datetime="2020-04-18T11:00:36.000Z" itemprop="datePublished">2020-04-18</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      语言模型
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/NLP/">NLP</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Gradient-Clipping/">Gradient Clipping</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linear/">Linear</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RNN/">RNN</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h1 id="语言模型"><a href="#语言模型" class="headerlink" title="语言模型"></a>语言模型</h1><p>学习目标</p>
+<ul>
+<li>学习语言模型，以及如何训练一个语言模型</li>
+<li>学习torchtext的基本使用方法<ul>
+<li>构建 vocabulary</li>
+<li>word to inde 和 index to word</li>
+</ul>
+</li>
+<li>学习torch.nn的一些基本模型<ul>
+<li>Linear</li>
+<li>RNN</li>
+<li>LSTM</li>
+<li>GRU</li>
+</ul>
+</li>
+<li>RNN的训练技巧<ul>
+<li>Gradient Clipping</li>
+</ul>
+</li>
+<li>如何保存和读取模型</li>
+</ul>
+<p>我们会使用 <a href="https://github.com/pytorch/text" target="_blank" rel="noopener">torchtext</a> 来创建vocabulary, 然后把数据读成batch的格式。请大家自行阅读README来学习torchtext。</p>
+<p><strong>先了解下torchtext库：<a href="https://blog.csdn.net/u012436149/article/details/79310176" target="_blank" rel="noopener">torchtext介绍和使用教程</a></strong></p>
+<p>In [1]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torchtext</span><br><span class="line"><span class="keyword">from</span> torchtext.vocab <span class="keyword">import</span> Vectors</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">USE_CUDA = torch.cuda.is_available()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为了保证实验结果可以复现，我们经常会把各种random seed固定在某一个值</span></span><br><span class="line">random.seed(<span class="number">53113</span>)</span><br><span class="line">np.random.seed(<span class="number">53113</span>)</span><br><span class="line">torch.manual_seed(<span class="number">53113</span>)</span><br><span class="line"><span class="keyword">if</span> USE_CUDA:</span><br><span class="line">    torch.cuda.manual_seed(<span class="number">53113</span>)</span><br><span class="line"></span><br><span class="line">BATCH_SIZE = <span class="number">32</span> <span class="comment">#一个batch多少个句子</span></span><br><span class="line">EMBEDDING_SIZE = <span class="number">650</span>  <span class="comment">#每个单词多少维</span></span><br><span class="line">MAX_VOCAB_SIZE = <span class="number">50000</span>  <span class="comment">#单词总数</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>我们会继续使用上次的text8作为我们的训练，验证和测试数据</li>
+<li>torchtext提供了LanguageModelingDataset这个class来帮助我们处理语言模型数据集</li>
+<li>BPTTIterator可以连续地得到连贯的句子</li>
+</ul>
+<p>In [2]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">TEXT = torchtext.data.Field(lower=<span class="literal">True</span>) </span><br><span class="line"><span class="comment"># .Field这个对象包含了我们打算如何预处理文本数据的信息，这里定义单词全部小写</span></span><br><span class="line"></span><br><span class="line">train, val, test = \</span><br><span class="line">torchtext.datasets.LanguageModelingDataset.splits(</span><br><span class="line">    path=<span class="string">"."</span>, </span><br><span class="line">    train=<span class="string">"text8.train.txt"</span>, </span><br><span class="line">    validation=<span class="string">"text8.dev.txt"</span>, </span><br><span class="line">    test=<span class="string">"text8.test.txt"</span>, </span><br><span class="line">    text_field=TEXT)</span><br><span class="line"><span class="comment"># torchtext提供了LanguageModelingDataset这个class来帮助我们处理语言模型数据集</span></span><br><span class="line"></span><br><span class="line">TEXT.build_vocab(train, max_size=MAX_VOCAB_SIZE)</span><br><span class="line"><span class="comment"># build_vocab可以根据我们提供的训练数据集来创建最高频单词的单词表，max_size帮助我们限定单词总量。</span></span><br><span class="line">print(<span class="string">"vocabulary size: &#123;&#125;"</span>.format(len(TEXT.vocab)))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vocabulary size: 50002</span><br></pre></td></tr></table></figure>
+
+<p>In [4]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test</span><br></pre></td></tr></table></figure>
+
+<p>Out[4]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;torchtext.data.example.Example at 0x121738b00&gt;</span><br></pre></td></tr></table></figure>
+
+<p>In [ ]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>In [9]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">print(TEXT.vocab.itos[<span class="number">0</span>:<span class="number">50</span>]) </span><br><span class="line"><span class="comment"># 这里越靠前越常见，增加了两个特殊的token，&lt;unk&gt;表示未知的单词，&lt;pad&gt;表示padding。</span></span><br><span class="line">print(<span class="string">"------"</span>*<span class="number">10</span>)</span><br><span class="line">print(list(TEXT.vocab.stoi.items())[<span class="number">0</span>:<span class="number">50</span>])</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[&apos;&lt;unk&gt;&apos;, &apos;&lt;pad&gt;&apos;, &apos;the&apos;, &apos;of&apos;, &apos;and&apos;, &apos;one&apos;, &apos;in&apos;, &apos;a&apos;, &apos;to&apos;, &apos;zero&apos;, &apos;nine&apos;, &apos;two&apos;, &apos;is&apos;, &apos;as&apos;, &apos;eight&apos;, &apos;for&apos;, &apos;s&apos;, &apos;five&apos;, &apos;three&apos;, &apos;was&apos;, &apos;by&apos;, &apos;that&apos;, &apos;four&apos;, &apos;six&apos;, &apos;seven&apos;, &apos;with&apos;, &apos;on&apos;, &apos;are&apos;, &apos;it&apos;, &apos;from&apos;, &apos;or&apos;, &apos;his&apos;, &apos;an&apos;, &apos;be&apos;, &apos;this&apos;, &apos;he&apos;, &apos;at&apos;, &apos;which&apos;, &apos;not&apos;, &apos;also&apos;, &apos;have&apos;, &apos;were&apos;, &apos;has&apos;, &apos;but&apos;, &apos;other&apos;, &apos;their&apos;, &apos;its&apos;, &apos;first&apos;, &apos;they&apos;, &apos;had&apos;]</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[(&apos;&lt;unk&gt;&apos;, 0), (&apos;&lt;pad&gt;&apos;, 1), (&apos;the&apos;, 2), (&apos;of&apos;, 3), (&apos;and&apos;, 4), (&apos;one&apos;, 5), (&apos;in&apos;, 6), (&apos;a&apos;, 7), (&apos;to&apos;, 8), (&apos;zero&apos;, 9), (&apos;nine&apos;, 10), (&apos;two&apos;, 11), (&apos;is&apos;, 12), (&apos;as&apos;, 13), (&apos;eight&apos;, 14), (&apos;for&apos;, 15), (&apos;s&apos;, 16), (&apos;five&apos;, 17), (&apos;three&apos;, 18), (&apos;was&apos;, 19), (&apos;by&apos;, 20), (&apos;that&apos;, 21), (&apos;four&apos;, 22), (&apos;six&apos;, 23), (&apos;seven&apos;, 24), (&apos;with&apos;, 25), (&apos;on&apos;, 26), (&apos;are&apos;, 27), (&apos;it&apos;, 28), (&apos;from&apos;, 29), (&apos;or&apos;, 30), (&apos;his&apos;, 31), (&apos;an&apos;, 32), (&apos;be&apos;, 33), (&apos;this&apos;, 34), (&apos;he&apos;, 35), (&apos;at&apos;, 36), (&apos;which&apos;, 37), (&apos;not&apos;, 38), (&apos;also&apos;, 39), (&apos;have&apos;, 40), (&apos;were&apos;, 41), (&apos;has&apos;, 42), (&apos;but&apos;, 43), (&apos;other&apos;, 44), (&apos;their&apos;, 45), (&apos;its&apos;, 46), (&apos;first&apos;, 47), (&apos;they&apos;, 48), (&apos;had&apos;, 49)]</span><br></pre></td></tr></table></figure>
+
+<p>In [10]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">VOCAB_SIZE = len(TEXT.vocab) <span class="comment"># 50002</span></span><br><span class="line">train_iter, val_iter, test_iter = \</span><br><span class="line">torchtext.data.BPTTIterator.splits(</span><br><span class="line">    (train, val, test), </span><br><span class="line">    batch_size=BATCH_SIZE, </span><br><span class="line">    device=<span class="number">-1</span>, </span><br><span class="line">    bptt_len=<span class="number">50</span>, <span class="comment"># 反向传播往回传的长度，这里我暂时理解为一个样本有多少个单词传入模型</span></span><br><span class="line">    repeat=<span class="literal">False</span>, </span><br><span class="line">    shuffle=<span class="literal">True</span>)</span><br><span class="line"><span class="comment"># BPTTIterator可以连续地得到连贯的句子，BPTT的全称是back propagation through time。</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">Iterator：标准迭代器</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">BucketIerator：相比于标准迭代器，会将类似长度的样本当做一批来处理，</span></span><br><span class="line"><span class="string">因为在文本处理中经常会需要将每一批样本长度补齐为当前批中最长序列的长度，</span></span><br><span class="line"><span class="string">因此当样本长度差别较大时，使用BucketIerator可以带来填充效率的提高。</span></span><br><span class="line"><span class="string">除此之外，我们还可以在Field中通过fix_length参数来对样本进行截断补齐操作。</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">BPTTIterator: 基于BPTT(基于时间的反向传播算法)的迭代器，一般用于语言模型中。</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">The `device` argument should be set by using `torch.device` or passing a string as an argument. This behavior will be deprecated soon and currently defaults to cpu.</span><br><span class="line">The `device` argument should be set by using `torch.device` or passing a string as an argument. This behavior will be deprecated soon and currently defaults to cpu.</span><br><span class="line">The `device` argument should be set by using `torch.device` or passing a string as an argument. This behavior will be deprecated soon and currently defaults to cpu.</span><br></pre></td></tr></table></figure>
+
+<p>Out[10]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&apos;\nIterator：标准迭代器\n\nBucketIerator：相比于标准迭代器，会将类似长度的样本当做一批来处理，\n因为在文本处理中经常会需要将每一批样本长度补齐为当前批中最长序列的长度，\n因此当样本长度差别较大时，使用BucketIerator可以带来填充效率的提高。\n除此之外，我们还可以在Field中通过fix_length参数来对样本进行截断补齐操作。\n\nBPTTIterator: 基于BPTT(基于时间的反向传播算法)的迭代器，一般用于语言模型中。\n&apos;</span><br></pre></td></tr></table></figure>
+
+<p>In [11]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">print(next(iter(train_iter))) <span class="comment"># 一个batch训练集维度</span></span><br><span class="line">print(next(iter(val_iter))) <span class="comment"># 一个batch验证集维度</span></span><br><span class="line">print(next(iter(test_iter))) <span class="comment"># 一个batch测试集维度</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[torchtext.data.batch.Batch of size <span class="number">32</span>]</span><br><span class="line">	[.text]:[torch.LongTensor of size <span class="number">50</span>x32]</span><br><span class="line">	[.target]:[torch.LongTensor of size <span class="number">50</span>x32]</span><br><span class="line"></span><br><span class="line">[torchtext.data.batch.Batch of size <span class="number">32</span>]</span><br><span class="line">	[.text]:[torch.LongTensor of size <span class="number">50</span>x32]</span><br><span class="line">	[.target]:[torch.LongTensor of size <span class="number">50</span>x32]</span><br><span class="line"></span><br><span class="line">[torchtext.data.batch.Batch of size <span class="number">32</span>]</span><br><span class="line">	[.text]:[torch.LongTensor of size <span class="number">50</span>x32]</span><br><span class="line">	[.target]:[torch.LongTensor of size <span class="number">50</span>x32]</span><br></pre></td></tr></table></figure>
+
+<p>模型的输入是一串文字，模型的输出也是一串文字，他们之间相差一个位置，因为语言模型的目标是根据之前的单词预测下一个单词。</p>
+<p>In [12]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">it = iter(train_iter)</span><br><span class="line">batch = next(it)</span><br><span class="line">print(<span class="string">" "</span>.join([TEXT.vocab.itos[i] <span class="keyword">for</span> i <span class="keyword">in</span> batch.text[:,<span class="number">1</span>].data])) <span class="comment"># 打印一个输入的句子</span></span><br><span class="line">print(<span class="string">" "</span>.join([TEXT.vocab.itos[i] <span class="keyword">for</span> i <span class="keyword">in</span> batch.target[:,<span class="number">1</span>].data])) <span class="comment"># 打印一个输出的句子</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">combine in pairs and then group into trios of pairs which are the smallest visible units of matter this parallels with the structure of modern atomic theory in which pairs or triplets of supposedly fundamental quarks combine to create most typical forms of matter they had also suggested the possibility</span><br><span class="line">in pairs and then group into trios of pairs which are the smallest visible units of matter this parallels with the structure of modern atomic theory in which pairs or triplets of supposedly fundamental quarks combine to create most typical forms of matter they had also suggested the possibility of</span><br></pre></td></tr></table></figure>
+
+<p>In [ ]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>In [13]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">5</span>): <span class="comment"># 这种取法是在一个固定的batch里取数据，发现一个batch里的数据是连不起来的。</span></span><br><span class="line">    print(j)</span><br><span class="line">    print(<span class="string">" "</span>.join([TEXT.vocab.itos[i] <span class="keyword">for</span> i <span class="keyword">in</span> batch.text[:,j].data]))</span><br><span class="line">    print(j)</span><br><span class="line">    print(<span class="string">" "</span>.join([TEXT.vocab.itos[i] <span class="keyword">for</span> i <span class="keyword">in</span> batch.target[:,j].data]))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">0</span><br><span class="line">anarchism originated as a term of abuse first used against early working class radicals including the diggers of the english revolution and the sans &lt;unk&gt; of the french revolution whilst the term is still used in a pejorative way to describe any act that used violent means to destroy the</span><br><span class="line">0</span><br><span class="line">originated as a term of abuse first used against early working class radicals including the diggers of the english revolution and the sans &lt;unk&gt; of the french revolution whilst the term is still used in a pejorative way to describe any act that used violent means to destroy the organization</span><br><span class="line">1</span><br><span class="line">combine in pairs and then group into trios of pairs which are the smallest visible units of matter this parallels with the structure of modern atomic theory in which pairs or triplets of supposedly fundamental quarks combine to create most typical forms of matter they had also suggested the possibility</span><br><span class="line">1</span><br><span class="line">in pairs and then group into trios of pairs which are the smallest visible units of matter this parallels with the structure of modern atomic theory in which pairs or triplets of supposedly fundamental quarks combine to create most typical forms of matter they had also suggested the possibility of</span><br><span class="line">2</span><br><span class="line">culture few living ainu settlements exist many authentic ainu villages advertised in hokkaido are simply tourist attractions language the ainu language is significantly different from japanese in its syntax phonology morphology and vocabulary although there have been attempts to show that they are related the vast majority of modern scholars</span><br><span class="line">2</span><br><span class="line">few living ainu settlements exist many authentic ainu villages advertised in hokkaido are simply tourist attractions language the ainu language is significantly different from japanese in its syntax phonology morphology and vocabulary although there have been attempts to show that they are related the vast majority of modern scholars reject</span><br><span class="line">3</span><br><span class="line">zero the apple iie card an expansion card for the lc line of macintosh computers was released essentially a miniaturized apple iie computer on a card utilizing the mega ii chip from the apple iigs it allowed the macintosh to run eight bit apple iie software through hardware emulation although</span><br><span class="line">3</span><br><span class="line">the apple iie card an expansion card for the lc line of macintosh computers was released essentially a miniaturized apple iie computer on a card utilizing the mega ii chip from the apple iigs it allowed the macintosh to run eight bit apple iie software through hardware emulation although video</span><br><span class="line">4</span><br><span class="line">in papers have been written arguing that the anthropic principle would explain the physical constants such as the fine structure constant the number of dimensions in the universe and the cosmological constant the three primary versions of the principle as stated by john d barrow and frank j &lt;unk&gt; one</span><br><span class="line">4</span><br><span class="line">papers have been written arguing that the anthropic principle would explain the physical constants such as the fine structure constant the number of dimensions in the universe and the cosmological constant the three primary versions of the principle as stated by john d barrow and frank j &lt;unk&gt; one nine</span><br></pre></td></tr></table></figure>
+
+<p>In [14]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">5</span>): <span class="comment"># 这种取法是在每个batch里取某一个相同位置数据，发现不同batch间相同位置的数据是可以连起来的。这里有点小疑问。</span></span><br><span class="line">    batch = next(it)</span><br><span class="line">    print(i)</span><br><span class="line">    print(<span class="string">" "</span>.join([TEXT.vocab.itos[i] <span class="keyword">for</span> i <span class="keyword">in</span> batch.text[:,<span class="number">2</span>].data]))</span><br><span class="line">    print(i)</span><br><span class="line">    print(<span class="string">" "</span>.join([TEXT.vocab.itos[i] <span class="keyword">for</span> i <span class="keyword">in</span> batch.target[:,<span class="number">2</span>].data]))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">0</span><br><span class="line">reject that the relationship goes beyond contact i e mutual borrowing of words between japanese and ainu in fact no attempt to show a relationship with ainu to any other language has gained wide acceptance and ainu is currently considered to be a language isolate culture traditional ainu culture is</span><br><span class="line">0</span><br><span class="line">that the relationship goes beyond contact i e mutual borrowing of words between japanese and ainu in fact no attempt to show a relationship with ainu to any other language has gained wide acceptance and ainu is currently considered to be a language isolate culture traditional ainu culture is quite</span><br><span class="line">1</span><br><span class="line">quite different from japanese culture never shaving after a certain age the men had full beards and &lt;unk&gt; men and women alike cut their hair level with the shoulders at the sides of the head but trimmed it &lt;unk&gt; behind the women tattooed their mouths arms &lt;unk&gt; and sometimes their</span><br><span class="line">1</span><br><span class="line">different from japanese culture never shaving after a certain age the men had full beards and &lt;unk&gt; men and women alike cut their hair level with the shoulders at the sides of the head but trimmed it &lt;unk&gt; behind the women tattooed their mouths arms &lt;unk&gt; and sometimes their &lt;unk&gt;</span><br><span class="line">2</span><br><span class="line">&lt;unk&gt; starting at the onset of puberty the soot deposited on a pot hung over a fire of birch bark was used for colour their traditional dress is a robe spun from the bark of the elm tree it has long sleeves reaches nearly to the feet is folded round</span><br><span class="line">2</span><br><span class="line">starting at the onset of puberty the soot deposited on a pot hung over a fire of birch bark was used for colour their traditional dress is a robe spun from the bark of the elm tree it has long sleeves reaches nearly to the feet is folded round the</span><br><span class="line">3</span><br><span class="line">the body and is tied with a girdle of the same material women also wear an &lt;unk&gt; of japanese cloth in winter the skins of animals were worn with &lt;unk&gt; of &lt;unk&gt; and boots made from the skin of dogs or salmon both sexes are fond of earrings which are</span><br><span class="line">3</span><br><span class="line">body and is tied with a girdle of the same material women also wear an &lt;unk&gt; of japanese cloth in winter the skins of animals were worn with &lt;unk&gt; of &lt;unk&gt; and boots made from the skin of dogs or salmon both sexes are fond of earrings which are said</span><br><span class="line">4</span><br><span class="line">said to have been made of grapevine in former times as also are bead necklaces called &lt;unk&gt; which the women prized highly their traditional cuisine consists of the flesh of bear fox wolf badger ox or horse as well as fish fowl millet vegetables herbs and roots they never ate</span><br><span class="line">4</span><br><span class="line">to have been made of grapevine in former times as also are bead necklaces called &lt;unk&gt; which the women prized highly their traditional cuisine consists of the flesh of bear fox wolf badger ox or horse as well as fish fowl millet vegetables herbs and roots they never ate raw</span><br></pre></td></tr></table></figure>
+
+<h3 id="定义模型"><a href="#定义模型" class="headerlink" title="定义模型"></a>定义模型</h3><ul>
+<li>继承nn.Module</li>
+<li>初始化函数</li>
+<li>forward函数</li>
+<li>其余可以根据模型需要定义相关的函数</li>
+</ul>
+<p>In [15]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RNNModel</span><span class="params">(nn.Module)</span>:</span></span><br><span class="line">    <span class="string">""" 一个简单的循环神经网络"""</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, rnn_type, ntoken, ninp, nhid, nlayers, dropout=<span class="number">0.5</span>)</span>:</span></span><br><span class="line">        <span class="comment"># rnn_type；有两个层供选择'LSTM', 'GRU'</span></span><br><span class="line">        <span class="comment"># ntoken：VOCAB_SIZE=50002</span></span><br><span class="line">        <span class="comment"># ninp：EMBEDDING_SIZE = 650，输入层维度</span></span><br><span class="line">        <span class="comment"># nhid：EMBEDDING_SIZE = 1000，隐藏层维度，这里是我自己设置的，用于区分ninp层。</span></span><br><span class="line">        <span class="comment"># nlayers：纵向有多少层神经网络</span></span><br><span class="line"></span><br><span class="line">        <span class="string">''' 该模型包含以下几层:</span></span><br><span class="line"><span class="string">            - 词嵌入层</span></span><br><span class="line"><span class="string">            - 一个循环神经网络层(RNN, LSTM, GRU)</span></span><br><span class="line"><span class="string">            - 一个线性层，从hidden state到输出单词表</span></span><br><span class="line"><span class="string">            - 一个dropout层，用来做regularization</span></span><br><span class="line"><span class="string">        '''</span></span><br><span class="line">        super(RNNModel, self).__init__()</span><br><span class="line">        self.drop = nn.Dropout(dropout)</span><br><span class="line">        self.encoder = nn.Embedding(ntoken, ninp)</span><br><span class="line">        <span class="comment"># 定义输入的Embedding层，用来把每个单词转化为词向量</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> rnn_type <span class="keyword">in</span> [<span class="string">'LSTM'</span>, <span class="string">'GRU'</span>]: <span class="comment"># 下面代码以LSTM举例</span></span><br><span class="line">            </span><br><span class="line">            self.rnn = getattr(nn, rnn_type)(ninp, nhid, nlayers, dropout=dropout)</span><br><span class="line">            <span class="comment"># getattr(nn, rnn_type) 相当于 nn.rnn_type</span></span><br><span class="line">            <span class="comment"># nlayers代表纵向有多少层。还有个参数是bidirectional: 是否是双向LSTM，默认false</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                nonlinearity = &#123;<span class="string">'RNN_TANH'</span>: <span class="string">'tanh'</span>, <span class="string">'RNN_RELU'</span>: <span class="string">'relu'</span>&#125;[rnn_type]</span><br><span class="line">            <span class="keyword">except</span> KeyError:</span><br><span class="line">                <span class="keyword">raise</span> ValueError( <span class="string">"""An invalid option for `--model` was supplied,</span></span><br><span class="line"><span class="string">                                 options are ['LSTM', 'GRU', 'RNN_TANH' or 'RNN_RELU']"""</span>)</span><br><span class="line">            self.rnn = nn.RNN(ninp, nhid, nlayers, nonlinearity=nonlinearity, dropout=dropout)</span><br><span class="line">        self.decoder = nn.Linear(nhid, ntoken)</span><br><span class="line">        <span class="comment"># 最后线性全连接隐藏层的维度(1000,50002)</span></span><br><span class="line">      </span><br><span class="line"></span><br><span class="line">        self.init_weights()</span><br><span class="line"></span><br><span class="line">        self.rnn_type = rnn_type</span><br><span class="line">        self.nhid = nhid</span><br><span class="line">        self.nlayers = nlayers</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">init_weights</span><span class="params">(self)</span>:</span></span><br><span class="line">        initrange = <span class="number">0.1</span></span><br><span class="line">        self.encoder.weight.data.uniform_(-initrange, initrange)</span><br><span class="line">        self.decoder.bias.data.zero_()</span><br><span class="line">        self.decoder.weight.data.uniform_(-initrange, initrange)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, input, hidden)</span>:</span> </span><br><span class="line">        </span><br><span class="line">        <span class="string">''' Forward pass:</span></span><br><span class="line"><span class="string">            - word embedding</span></span><br><span class="line"><span class="string">            - 输入循环神经网络</span></span><br><span class="line"><span class="string">            - 一个线性层从hidden state转化为输出单词表</span></span><br><span class="line"><span class="string">        '''</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># input.shape = seg_length * batch = torch.Size([50, 32])</span></span><br><span class="line">        <span class="comment"># 如果觉得想变成32*50格式，可以在LSTM里定义batch_first = True</span></span><br><span class="line">        <span class="comment"># hidden = (nlayers * 32 * hidden_size, nlayers * 32 * hidden_size)</span></span><br><span class="line">        <span class="comment"># hidden是个元组，输入有两个参数，一个是刚开始的隐藏层h的维度，一个是刚开始的用于记忆的c的维度，</span></span><br><span class="line">        <span class="comment"># 这两个层的维度一样，并且需要先初始化，hidden_size的维度和上面nhid的维度一样 =1000，我理解这两个是同一个东西。</span></span><br><span class="line">        emb = self.drop(self.encoder(input)) <span class="comment"># </span></span><br><span class="line">        <span class="comment"># emb.shape=torch.Size([50, 32, 650]) # 输入数据的维度</span></span><br><span class="line">        <span class="comment"># 这里进行了运算（50，50002，650）*(50, 32，50002)</span></span><br><span class="line">        output, hidden = self.rnn(emb, hidden)</span><br><span class="line">        <span class="comment"># output.shape = 50 * 32 * hidden_size # 最终输出数据的维度，</span></span><br><span class="line">        <span class="comment"># hidden是个元组，输出有两个参数，一个是最后的隐藏层h的维度，一个是最后的用于记忆的c的维度，这两个层维度相同 </span></span><br><span class="line">        <span class="comment"># hidden = (h层维度：nlayers * 32 * hidden_size, c层维度：nlayers * 32 * hidden_size)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        output = self.drop(output)</span><br><span class="line">        decoded = self.decoder(output.view(output.size(<span class="number">0</span>)*output.size(<span class="number">1</span>), output.size(<span class="number">2</span>)))</span><br><span class="line">        <span class="comment"># output最后的输出层一定要是二维的，只是为了能进行全连接层的运算，所以把前两个维度拼到一起，（50*32,hidden_size)</span></span><br><span class="line">        <span class="comment"># decoded.shape=（50*32,hidden_size)*(hidden_size,50002)=torch.Size([1600, 50002])</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> decoded.view(output.size(<span class="number">0</span>), output.size(<span class="number">1</span>), decoded.size(<span class="number">1</span>)), hidden</span><br><span class="line">               <span class="comment"># 我们要知道每一个位置预测的是哪个单词，所以最终输出要恢复维度 = (50,32,50002)</span></span><br><span class="line">               <span class="comment"># hidden = (h层维度：2 * 32 * 1000, c层维度：2 * 32 * 1000)</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">init_hidden</span><span class="params">(self, bsz, requires_grad=True)</span>:</span></span><br><span class="line">        <span class="comment"># 这步我们初始化下隐藏层参数</span></span><br><span class="line">        weight = next(self.parameters())</span><br><span class="line">        <span class="comment"># weight = torch.Size([50002, 650])是所有参数的第一个参数</span></span><br><span class="line">        <span class="comment"># 所有参数self.parameters()，是个生成器，LSTM所有参数维度种类如下：</span></span><br><span class="line">        <span class="comment"># print(list(iter(self.parameters())))</span></span><br><span class="line">        <span class="comment"># torch.Size([50002, 650])</span></span><br><span class="line">        <span class="comment"># torch.Size([4000, 650])</span></span><br><span class="line">        <span class="comment"># torch.Size([4000, 1000])</span></span><br><span class="line">        <span class="comment"># torch.Size([4000]) # 偏置项</span></span><br><span class="line">        <span class="comment"># torch.Size([4000])</span></span><br><span class="line">        <span class="comment"># torch.Size([4000, 1000])</span></span><br><span class="line">        <span class="comment"># torch.Size([4000, 1000])</span></span><br><span class="line">        <span class="comment"># torch.Size([4000])</span></span><br><span class="line">        <span class="comment"># torch.Size([4000])</span></span><br><span class="line">        <span class="comment"># torch.Size([50002, 1000])</span></span><br><span class="line">        <span class="comment"># torch.Size([50002])</span></span><br><span class="line">        <span class="keyword">if</span> self.rnn_type == <span class="string">'LSTM'</span>:</span><br><span class="line">            <span class="keyword">return</span> (weight.new_zeros((self.nlayers, bsz, self.nhid), requires_grad=requires_grad),</span><br><span class="line">                    weight.new_zeros((self.nlayers, bsz, self.nhid), requires_grad=requires_grad))</span><br><span class="line">                   <span class="comment"># return = (2 * 32 * 1000, 2 * 32 * 1000)</span></span><br><span class="line">                   <span class="comment"># 这里不明白为什么需要weight.new_zeros，我估计是想整个计算图能链接起来</span></span><br><span class="line">                   <span class="comment"># 这里特别注意hidden的输入不是model的参数，不参与更新，就跟输入数据x一样</span></span><br><span class="line">                   </span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> weight.new_zeros((self.nlayers, bsz, self.nhid), requires_grad=requires_grad)</span><br><span class="line">            <span class="comment"># GRU神经网络把h层和c层合并了，所以这里只有一层。</span></span><br></pre></td></tr></table></figure>
+
+<p>初始化一个模型</p>
+<p>In [16]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nhid = <span class="number">1000</span> <span class="comment"># 我自己设置的维度，用于区分embeding_size=650</span></span><br><span class="line">model = RNNModel(<span class="string">"LSTM"</span>, VOCAB_SIZE, EMBEDDING_SIZE, nhid, <span class="number">2</span>, dropout=<span class="number">0.5</span>)</span><br><span class="line"><span class="keyword">if</span> USE_CUDA:</span><br><span class="line">    model = model.cuda()</span><br></pre></td></tr></table></figure>
+
+<p>In [17]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model</span><br></pre></td></tr></table></figure>
+
+<p>Out[17]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">RNNModel(</span><br><span class="line">  (drop): Dropout(p=<span class="number">0.5</span>)</span><br><span class="line">  (encoder): Embedding(<span class="number">50002</span>, <span class="number">650</span>)</span><br><span class="line">  (rnn): LSTM(<span class="number">650</span>, <span class="number">1000</span>, num_layers=<span class="number">2</span>, dropout=<span class="number">0.5</span>)</span><br><span class="line">  (decoder): Linear(in_features=<span class="number">1000</span>, out_features=<span class="number">50002</span>, bias=<span class="literal">True</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>In [23]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">list(model.parameters())[0].shape</span><br></pre></td></tr></table></figure>
+
+<p>Out[23]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.Size([50002, 650])</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>我们首先定义评估模型的代码。</li>
+<li>模型的评估和模型的训练逻辑基本相同，唯一的区别是我们只需要forward pass，不需要backward pass</li>
+</ul>
+<p>In [68]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先从下面训练模式看起，在看evaluate</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate</span><span class="params">(model, data)</span>:</span></span><br><span class="line">    model.eval() <span class="comment"># 预测模式</span></span><br><span class="line">    total_loss = <span class="number">0.</span></span><br><span class="line">    it = iter(data)</span><br><span class="line">    total_count = <span class="number">0.</span></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        hidden = model.init_hidden(BATCH_SIZE, requires_grad=<span class="literal">False</span>)</span><br><span class="line"><span class="comment"># 这里不管是训练模式还是预测模式，h层的输入都是初始化为0，hidden的输入不是model的参数</span></span><br><span class="line"><span class="comment"># 这里model里的model.parameters()已经是训练过的参数。</span></span><br><span class="line">        <span class="keyword">for</span> i, batch <span class="keyword">in</span> enumerate(it):</span><br><span class="line">            data, target = batch.text, batch.target</span><br><span class="line">            <span class="comment"># # 取出验证集的输入的数据和输出的数据，相当于特征和标签</span></span><br><span class="line">            <span class="keyword">if</span> USE_CUDA:</span><br><span class="line">                data, target = data.cuda(), target.cuda()</span><br><span class="line">            hidden = repackage_hidden(hidden) <span class="comment"># 截断计算图</span></span><br><span class="line">            <span class="keyword">with</span> torch.no_grad(): <span class="comment"># 验证阶段不需要更新梯度</span></span><br><span class="line">                output, hidden = model(data, hidden)</span><br><span class="line">                <span class="comment">#调用model的forward方法进行一次前向传播，得到return输出值</span></span><br><span class="line">            loss = loss_fn(output.view(<span class="number">-1</span>, VOCAB_SIZE), target.view(<span class="number">-1</span>))</span><br><span class="line">            <span class="comment"># 计算交叉熵损失</span></span><br><span class="line">            </span><br><span class="line">            total_count += np.multiply(*data.size()) </span><br><span class="line"><span class="comment"># 上面计算交叉熵的损失是平均过的，这里需要计算下总的损失</span></span><br><span class="line"><span class="comment"># total_count先计算验证集样本的单词总数，一个样本有50个单词，一个batch32个样本</span></span><br><span class="line"><span class="comment"># np.multiply(*data.size()) =50*32=1600</span></span><br><span class="line">            total_loss += loss.item()*np.multiply(*data.size())</span><br><span class="line"><span class="comment"># 每次batch平均后的损失乘以每次batch的样本的总的单词数 = 一次batch总的损失</span></span><br><span class="line">            </span><br><span class="line">    loss = total_loss / total_count <span class="comment"># 整个验证集总的损失除以总的单词数</span></span><br><span class="line">    model.train() <span class="comment"># 训练模式</span></span><br><span class="line">    <span class="keyword">return</span> loss</span><br></pre></td></tr></table></figure>
+
+<p>In [9]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">a = torch.ones((<span class="number">5</span>,<span class="number">3</span>))</span><br><span class="line">print(a.size())</span><br><span class="line">np.multiply(*a.size())</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.Size([5, 3])</span><br></pre></td></tr></table></figure>
+
+<p>Out[9]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">15</span><br></pre></td></tr></table></figure>
+
+<p>我们需要定义下面的一个function，帮助我们把一个hidden state和计算图之前的历史分离。</p>
+<p>In [69]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Remove this part</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">repackage_hidden</span><span class="params">(h)</span>:</span></span><br><span class="line">    <span class="string">"""Wraps hidden states in new Tensors, to detach them from their history."""</span></span><br><span class="line">    <span class="keyword">if</span> isinstance(h, torch.Tensor): </span><br><span class="line">        <span class="comment"># 这个是GRU的截断，因为只有一个隐藏层</span></span><br><span class="line">        <span class="comment"># 判断h是不是torch.Tensor</span></span><br><span class="line">        <span class="keyword">return</span> h.detach() <span class="comment"># 截断计算图，h是全的计算图的开始，只是保留了h的值</span></span><br><span class="line">    <span class="keyword">else</span>: <span class="comment"># 这个是LSTM的截断，有两个隐藏层，格式是元组</span></span><br><span class="line">        <span class="keyword">return</span> tuple(repackage_hidden(v) <span class="keyword">for</span> v <span class="keyword">in</span> h)</span><br></pre></td></tr></table></figure>
+
+<p>定义loss function和optimizer</p>
+<p>In [70]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">loss_fn = nn.CrossEntropyLoss() <span class="comment"># 交叉熵损失</span></span><br><span class="line">learning_rate = <span class="number">0.001</span></span><br><span class="line">optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)</span><br><span class="line">scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, <span class="number">0.5</span>)</span><br><span class="line"><span class="comment"># 每调用一次这个函数，lenrning_rate就降一半，0.5就是一半的意思</span></span><br></pre></td></tr></table></figure>
+
+<p>训练模型：</p>
+<ul>
+<li>模型一般需要训练若干个epoch</li>
+<li>每个epoch我们都把所有的数据分成若干个batch</li>
+<li>把每个batch的输入和输出都包装成cuda tensor</li>
+<li>forward pass，通过输入的句子预测每个单词的下一个单词</li>
+<li>用模型的预测和正确的下一个单词计算cross entropy loss</li>
+<li>清空模型当前gradient</li>
+<li>backward pass</li>
+<li>gradient clipping，防止梯度爆炸</li>
+<li>更新模型参数</li>
+<li>每隔一定的iteration输出模型在当前iteration的loss，以及在验证集上做模型的评估</li>
+</ul>
+<p>In [13]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> copy</span><br><span class="line">GRAD_CLIP = <span class="number">1.</span></span><br><span class="line">NUM_EPOCHS = <span class="number">2</span></span><br><span class="line"></span><br><span class="line">val_losses = []</span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> range(NUM_EPOCHS):</span><br><span class="line">    model.train() <span class="comment"># 训练模式</span></span><br><span class="line">    it = iter(train_iter) </span><br><span class="line">    <span class="comment"># iter,生成迭代器,这里train_iter也是迭代器，不用iter也可以</span></span><br><span class="line">    hidden = model.init_hidden(BATCH_SIZE) </span><br><span class="line">    <span class="comment"># 得到hidden初始化后的维度</span></span><br><span class="line">    <span class="keyword">for</span> i, batch <span class="keyword">in</span> enumerate(it):</span><br><span class="line">        data, target = batch.text, batch.target</span><br><span class="line">        <span class="comment"># 取出训练集的输入的数据和输出的数据，相当于特征和标签</span></span><br><span class="line">        <span class="keyword">if</span> USE_CUDA:</span><br><span class="line">            data, target = data.cuda(), target.cuda()</span><br><span class="line">        hidden = repackage_hidden(hidden)</span><br><span class="line"><span class="comment"># 语言模型每个batch的隐藏层的输出值是要继续作为下一个batch的隐藏层的输入的</span></span><br><span class="line"><span class="comment"># 因为batch数量很多，如果一直往后传，会造成整个计算图很庞大，反向传播会内存崩溃。</span></span><br><span class="line"><span class="comment"># 所有每次一个batch的计算图迭代完成后，需要把计算图截断，只保留隐藏层的输出值。</span></span><br><span class="line"><span class="comment"># 不过只有语言模型才这么干，其他比如翻译模型不需要这么做。</span></span><br><span class="line"><span class="comment"># repackage_hidden自定义函数用来截断计算图的。</span></span><br><span class="line">        model.zero_grad() <span class="comment"># 梯度归零，不然每次迭代梯度会累加</span></span><br><span class="line">        output, hidden = model(data, hidden)</span><br><span class="line">        <span class="comment"># output = (50,32,50002)</span></span><br><span class="line">        loss = loss_fn(output.view(<span class="number">-1</span>, VOCAB_SIZE), target.view(<span class="number">-1</span>))</span><br><span class="line"><span class="comment"># output.view(-1, VOCAB_SIZE) = (1600,50002)</span></span><br><span class="line"><span class="comment"># target.view(-1) =(1600),关于pytorch中交叉熵的计算公式请看下面链接。</span></span><br><span class="line"><span class="comment"># https://blog.csdn.net/geter_CS/article/details/84857220</span></span><br><span class="line">        loss.backward()</span><br><span class="line">        torch.nn.utils.clip_grad_norm_(model.parameters(), GRAD_CLIP)</span><br><span class="line">        <span class="comment"># 防止梯度爆炸，设定阈值，当梯度大于阈值时，更新的梯度为阈值</span></span><br><span class="line">        optimizer.step()</span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">1000</span> == <span class="number">0</span>:</span><br><span class="line">            print(<span class="string">"epoch"</span>, epoch, <span class="string">"iter"</span>, i, <span class="string">"loss"</span>, loss.item())</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">10000</span> == <span class="number">0</span>:</span><br><span class="line">            val_loss = evaluate(model, val_iter)</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> len(val_losses) == <span class="number">0</span> <span class="keyword">or</span> val_loss &lt; min(val_losses):</span><br><span class="line">                <span class="comment"># 如果比之前的loss要小，就保存模型</span></span><br><span class="line">                print(<span class="string">"best model, val loss: "</span>, val_loss)</span><br><span class="line">                torch.save(model.state_dict(), <span class="string">"lm-best.th"</span>)</span><br><span class="line">            <span class="keyword">else</span>: <span class="comment"># 否则loss没有降下来，需要优化</span></span><br><span class="line">                scheduler.step() <span class="comment"># 自动调整学习率</span></span><br><span class="line">                optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)</span><br><span class="line">                <span class="comment"># 学习率调整后需要更新optimizer，下次训练就用更新后的</span></span><br><span class="line">            val_losses.append(val_loss) <span class="comment"># 保存每10000次迭代后的验证集损失损失</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">epoch 0 iter 0 loss 10.821578979492188</span><br><span class="line">best model, val loss:  10.782116411285918</span><br><span class="line">epoch 0 iter 1000 loss 6.5122528076171875</span><br><span class="line">epoch 0 iter 2000 loss 6.3599748611450195</span><br><span class="line">epoch 0 iter 3000 loss 6.13856315612793</span><br><span class="line">epoch 0 iter 4000 loss 5.473214626312256</span><br><span class="line">epoch 0 iter 5000 loss 5.901871204376221</span><br><span class="line">epoch 0 iter 6000 loss 5.85321569442749</span><br><span class="line">epoch 0 iter 7000 loss 5.636535167694092</span><br><span class="line">epoch 0 iter 8000 loss 5.7489800453186035</span><br><span class="line">epoch 0 iter 9000 loss 5.464158058166504</span><br><span class="line">epoch 0 iter 10000 loss 5.554863452911377</span><br><span class="line">best model, val loss:  5.264891533569864</span><br><span class="line">epoch 0 iter 11000 loss 5.703625202178955</span><br><span class="line">epoch 0 iter 12000 loss 5.6448974609375</span><br><span class="line">epoch 0 iter 13000 loss 5.372857570648193</span><br><span class="line">epoch 0 iter 14000 loss 5.2639479637146</span><br><span class="line">epoch 1 iter 0 loss 5.696778297424316</span><br><span class="line">best model, val loss:  5.124550380139679</span><br><span class="line">epoch 1 iter 1000 loss 5.534722805023193</span><br><span class="line">epoch 1 iter 2000 loss 5.599489212036133</span><br><span class="line">epoch 1 iter 3000 loss 5.459986686706543</span><br><span class="line">epoch 1 iter 4000 loss 4.927192211151123</span><br><span class="line">epoch 1 iter 5000 loss 5.435710906982422</span><br><span class="line">epoch 1 iter 6000 loss 5.4059576988220215</span><br><span class="line">epoch 1 iter 7000 loss 5.308575630187988</span><br><span class="line">epoch 1 iter 8000 loss 5.405811786651611</span><br><span class="line">epoch 1 iter 9000 loss 5.1389055252075195</span><br><span class="line">epoch 1 iter 10000 loss 5.226413726806641</span><br><span class="line">best model, val loss:  4.946829228873176</span><br><span class="line">epoch 1 iter 11000 loss 5.379891395568848</span><br><span class="line">epoch 1 iter 12000 loss 5.360724925994873</span><br><span class="line">epoch 1 iter 13000 loss 5.176026344299316</span><br><span class="line">epoch 1 iter 14000 loss 5.110936641693115</span><br></pre></td></tr></table></figure>
+
+<p>In [ ]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加载保存好的模型参数</span></span><br><span class="line">best_model = RNNModel(<span class="string">"LSTM"</span>, VOCAB_SIZE, EMBEDDING_SIZE, nhid, <span class="number">2</span>, dropout=<span class="number">0.5</span>)</span><br><span class="line"><span class="keyword">if</span> USE_CUDA:</span><br><span class="line">    best_model = best_model.cuda()</span><br><span class="line">best_model.load_state_dict(torch.load(<span class="string">"lm-best.th"</span>))</span><br><span class="line"><span class="comment"># 把模型参数load到best_model里</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="使用最好的模型在valid数据上计算perplexity"><a href="#使用最好的模型在valid数据上计算perplexity" class="headerlink" title="使用最好的模型在valid数据上计算perplexity"></a>使用最好的模型在valid数据上计算perplexity</h3><p>In [15]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">val_loss = evaluate(best_model, val_iter)</span><br><span class="line">print(<span class="string">"perplexity: "</span>, np.exp(val_loss))</span><br><span class="line"><span class="comment"># 这里不清楚语言模型的评估指标perplexity = np.exp(val_loss)</span></span><br><span class="line"><span class="comment"># 清楚的朋友欢迎交流下</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perplexity:  140.72803934425724</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用最好的模型在测试数据上计算perplexity"><a href="#使用最好的模型在测试数据上计算perplexity" class="headerlink" title="使用最好的模型在测试数据上计算perplexity"></a>使用最好的模型在测试数据上计算perplexity</h3><p>In [16]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">test_loss = evaluate(best_model, test_iter)</span><br><span class="line">print(<span class="string">"perplexity: "</span>, np.exp(test_loss))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perplexity:  178.54742013696125</span><br></pre></td></tr></table></figure>
+
+<p>使用训练好的模型生成一些句子。</p>
+<p>In [18]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">hidden = best_model.init_hidden(<span class="number">1</span>) <span class="comment"># batch_size = 1</span></span><br><span class="line">device = torch.device(<span class="string">"cuda"</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">"cpu"</span>)</span><br><span class="line">input = torch.randint(VOCAB_SIZE, (<span class="number">1</span>, <span class="number">1</span>), dtype=torch.long).to(device)</span><br><span class="line"><span class="comment"># (1,1)表示输出格式是1行1列的2维tensor，VOCAB_SIZE表示随机取的值小于VOCAB_SIZE=50002</span></span><br><span class="line"><span class="comment"># 我们input相当于取的是一个单词</span></span><br><span class="line">words = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">100</span>):</span><br><span class="line">    output, hidden = best_model(input, hidden)</span><br><span class="line">    <span class="comment"># output.shape = 1 * 1 * 50002</span></span><br><span class="line">    <span class="comment"># hidden = (2 * 1 * 1000, 2 * 1 * 1000)</span></span><br><span class="line">    word_weights = output.squeeze().exp().cpu()</span><br><span class="line">    <span class="comment"># .exp()的两个作用：一是把概率更大的变得更大，二是把负数经过e后变成正数，下面.multinomial参数需要正数</span></span><br><span class="line">    word_idx = torch.multinomial(word_weights, <span class="number">1</span>)[<span class="number">0</span>]</span><br><span class="line">    <span class="comment"># 按照word_weights里面的概率随机的取值，概率大的取到的机会大。</span></span><br><span class="line">    <span class="comment"># torch.multinomial看这个博客理解：https://blog.csdn.net/monchin/article/details/79787621</span></span><br><span class="line">    <span class="comment"># 这里如果选择概率最大的，会每次生成重复的句子。</span></span><br><span class="line">    input.fill_(word_idx) <span class="comment"># 预测的单词index是word_idx，然后把word_idx作为下一个循环预测的input输入</span></span><br><span class="line">    word = TEXT.vocab.itos[word_idx] <span class="comment"># 根据word_idx取出对应的单词</span></span><br><span class="line">    words.append(word) </span><br><span class="line">print(<span class="string">" "</span>.join(words))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">s influence clinton decision de gaulle is himself sappho s iv one family banquet was made published by paul &lt;unk&gt; and by a persuaded to prevent arcane of animate poverty based at copernicus bachelor in search services and in a cruise corps references eds the robin series july four one nine zero eight summer gutenberg one nine six four births one nine two eight deaths timeline of this method by the fourth amendment the german ioc known for his &lt;unk&gt; from &lt;unk&gt; one eight nine eight one seven eight nine management was established in one nine seven zero they had</span><br></pre></td></tr></table></figure>
+
+<p>In [42]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.randint(50002, (1, 1))</span><br></pre></td></tr></table></figure>
+
+<p>Out[42]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([[11293]])</span><br></pre></td></tr></table></figure>
+
+<p>In [ ]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> </span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2020/04/18/语言模型/">语言模型</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2020-04-18, 19:00:36</p>
+        <p><span>最后更新:</span>2020-06-09, 09:24:52</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2020/04/18/语言模型/" title="语言模型">http://mmyblog.cn/2020/04/18/语言模型/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2020/04/18/语言模型/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2020/04/20/特征工程与模型调优/">
+                    特征工程与模型调优
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2020/04/17/SQuAD-BiDAF/">
+                    SQuAD-BiDAF
+                </a>
+            </div>
+        
+    </nav>
+
+  
+  
+    <! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+    <div id="donate_guide" class="donate_bar center hidden" >
+        
+            <!-- <img src="/img/Alipay.jpg" alt="支付宝打赏">
+            <img src="/img/WeChatpay.jpg" alt="微信打赏"> -->
+       
+        <!-- 方式二；
+            step1：在_config.yml中添加配置
+                Alipay: /img/Alipay.jpg
+                WeChatpay: /img/WeChatpay.jpg
+            step2：此处两张图片的路径分别设置为如下
+                <img src=""
+                <img src=""
+        -->
+        <!-- 支付宝打赏图案 -->
+        <img src="/img/Alipay.jpg" alt="支付宝打赏">
+        <!-- 微信打赏图案 -->
+        <img src="/img//WeChatpay.jpg" alt="微信打赏">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn_donate').onclick = function(){
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+    </script>
+</div>
+<! -- 添加捐赠图标 -->
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#语言模型"><span class="toc-number">1.</span> <span class="toc-text">语言模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#定义模型"><span class="toc-number">1.0.1.</span> <span class="toc-text">定义模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用最好的模型在valid数据上计算perplexity"><span class="toc-number">1.0.2.</span> <span class="toc-text">使用最好的模型在valid数据上计算perplexity</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用最好的模型在测试数据上计算perplexity"><span class="toc-number">1.0.3.</span> <span class="toc-text">使用最好的模型在测试数据上计算perplexity</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"语言模型　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/04/20/特征工程与模型调优/" title="上一篇: 特征工程与模型调优">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/04/17/SQuAD-BiDAF/" title="下一篇: SQuAD-BiDAF">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/扩展内容/">扩展内容</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/XLNet/">XLNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/PyTorch/">PyTorch</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/朴素贝叶斯/">朴素贝叶斯</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/GPT模型/">GPT模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/BERT系列预训练模型/">BERT系列预训练模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/19/阅读理解/">阅读理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/18/Transformer模型解读/">Transformer模型解读</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/16/Transformer-XL/">Transformer-XL</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/英文书籍word级别的文本生成代码注释/">英文书籍word级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/文本生成任务/">文本生成任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/09/常见预训练模型/">BERT&ELMo&co</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/01/大规模无监督预训练语言模型与应用上/">大规模无监督预训练语言模型与应用上</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/18/语言模型/">语言模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/15/NLP中的ConvNet/">NLP中的ConvNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/13/seq2seq/">seq2seq</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/09/机器翻译与文本摘要/">机器翻译与文本摘要</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/sentiment情感分析代码注释/">sentiment情感分析代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/11/聊天机器人二/">聊天机器人二</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/10/聊天机器人一/">聊天机器人一</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/09/结构化预测/">结构化预测</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/word-embedding/">word-embedding</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/酒店评价情感分类与CNN模型/">酒店评价情感分类与CNN模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/28/NLP技术基础整理/">NLP技术基础整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/18/CNN-Image-Classification/">CNN-Image-Classification</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/丘吉尔的人物传记char级别的文本生成代码注释/">丘吉尔的人物传记char级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/用朴素贝叶斯完成语种检测/">用朴素贝叶斯完成语种检测</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/24/文本分类问题/">文本分类问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/08/python正则表达式/">python正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/08/jieba中文处理/">jieba中文处理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

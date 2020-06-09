@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="​        NLP/AI是近几年来飞速发展的领域，很多的模型和算法只能在论文、讲义和博客中找到，而不会出现在任何的教科书中。凡是课程中提到的论文，大家都能够阅读一遍。对于重要的论文（我会特别标明或者在课上强调，例如BERT, transformer等），建议认真阅读，搞清楚模型的细节。其余的论文，建议至少能够阅读，了解论文的创新点和中心思想。 如何读论文？对于如何读论文，每个人有自己不同的方">
+<meta name="keywords" content="ConvNet">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NLP中的ConvNet">
+<meta property="og:url" content="http://mmyblog.cn/2020/04/15/NLP中的ConvNet/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="​        NLP/AI是近几年来飞速发展的领域，很多的模型和算法只能在论文、讲义和博客中找到，而不会出现在任何的教科书中。凡是课程中提到的论文，大家都能够阅读一遍。对于重要的论文（我会特别标明或者在课上强调，例如BERT, transformer等），建议认真阅读，搞清楚模型的细节。其余的论文，建议至少能够阅读，了解论文的创新点和中心思想。 如何读论文？对于如何读论文，每个人有自己不同的方">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://uploader.shimo.im/f/bAD5TU2kjCQipLid.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/pOmG3eS8ntYi0dSQ.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/MlEd8ePXgDs7gaLg.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/T3pionftmyImwzPH.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/cM7DZvGSt3gNz8uL.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/5ZrPtIuh6X4P9lQJ.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/BxnIovJf5Pwv8RHZ.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/24t3sOep2m8g4ls6.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/NzpvIEElx3UVKJyo.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/WDfJgndz6HMQ5CTF.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/3aLnMpCpyUUQSGcQ.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/3s1XVoEyWCA2091O.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/8RwAjCP390sIoG1A.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/8tCfiuW0gHgwBKAi.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/kDZ1ulm65h8m0dOX.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/MuogKhR9b48cABpI.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/EdLJ369IWcQgqx0x.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/yFXfmhqvzzcU8D7D.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/uQLvQ1erpmAJfLlP.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/eHzdNjYIZBM93TQN.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/er1A7CMeiukGczjw.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/BJXPoQQi9Xg4fJJa.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/r5pAK5SQWzQDyDFL.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/IMLzC3rtvxkqLmuo.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/aNGZg3EjGyw1aWu7.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/VMfU3If3biw5286r.png!thumbnail">
+<meta property="og:updated_time" content="2020-06-09T01:27:40.076Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="NLP中的ConvNet">
+<meta name="twitter:description" content="​        NLP/AI是近几年来飞速发展的领域，很多的模型和算法只能在论文、讲义和博客中找到，而不会出现在任何的教科书中。凡是课程中提到的论文，大家都能够阅读一遍。对于重要的论文（我会特别标明或者在课上强调，例如BERT, transformer等），建议认真阅读，搞清楚模型的细节。其余的论文，建议至少能够阅读，了解论文的创新点和中心思想。 如何读论文？对于如何读论文，每个人有自己不同的方">
+<meta name="twitter:image" content="https://uploader.shimo.im/f/bAD5TU2kjCQipLid.png!thumbnail">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>NLP中的ConvNet | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Attention/">Attention</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BERT/">BERT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BLUE/">BLUE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Beam-search/">Beam search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CRF/">CRF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ConvNet/">ConvNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ELMo/">ELMo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPT/">GPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GRU/">GRU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradient-Clipping/">Gradient Clipping</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LSTM/">LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linear/">Linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Parsing/">Parsing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PyTorch/">PyTorch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QA/">QA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN/">RNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN-LSTM/">RNN/LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Recursive-Neural-Networks/">Recursive Neural Networks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seq2Seq/">Seq2Seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TorchText/">TorchText</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer/">Transformer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer-XL/">Transformer-XL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/XLNet/">XLNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/inference/">inference</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jiaba/">jiaba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jieba/">jieba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/word-embedding/">word-embedding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wxBot/">wxBot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/中文分词/">中文分词</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图神经网络/">图神经网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/朴素贝叶斯/">朴素贝叶斯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则表达式/">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聊天机器人/">聊天机器人</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言模型/">语言模型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-NLP中的ConvNet" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/04/15/NLP中的ConvNet/" class="article-date">
+      <time datetime="2020-04-15T00:21:14.000Z" itemprop="datePublished">2020-04-15</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      NLP中的ConvNet
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/NLP/">NLP</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ConvNet/">ConvNet</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>​        NLP/AI是近几年来飞速发展的领域，很多的模型和算法只能在论文、讲义和博客中找到，而不会出现在任何的教科书中。凡是课程中提到的论文，大家都能够阅读一遍。对于重要的论文（我会特别标明或者在课上强调，例如BERT, transformer等），建议认真阅读，搞清楚模型的细节。其余的论文，建议至少能够阅读，了解论文的创新点和中心思想。</p>
+<h3 id="如何读论文？"><a href="#如何读论文？" class="headerlink" title="如何读论文？"></a>如何读论文？</h3><p>对于如何读论文，每个人有自己不同的方法。我的建议是：</p>
+<ul>
+<li><p>最快读论文的方法：上各大中文网站（知乎，CSDN，微信公众号等）寻找该论文的中文解读，大部分有名的论文都会有很多的解读文章。</p>
+</li>
+<li><p>读论文时候的重点章节：大部分NLP的论文的主要两个章节是，Model, Experiments。基本上看完这两个章节就了解了论文的核心思想。另外我也会特别关注论文使用的<strong>数据</strong>，因为这些数据我们可能可以拿来用在自己的项目上。</p>
+</li>
+<li><p>如果想要更加深入地学习该论文的内容，可以上网去寻找与该论文相关的资料，包括作者的个人主页，他/她发布的论文slides，论文代码等等。顺便说一下，如果你想要复现论文的结果，但是在网上找不到代码，不要急于自己实现，可以写邮件给论文的第一作者与通讯作者（最后一位），礼貌地询问对方是否可以将源码和数据提供给你，理论上论文作者有义务公开自己的代码和数据。如果没有代码可以公开，要不然可能是论文太新，还没有公开代码，要不然可能是论文中某些部分的实现有困难，不那么容易复现。</p>
+</li>
+<li><p>另外如果你想要更深入地学习这个论文相关的领域，可以读一下Related Work中提到的一些文章。</p>
+</li>
+</ul>
+<h1 id="NLP中的-ConvNet-精选论文"><a href="#NLP中的-ConvNet-精选论文" class="headerlink" title="NLP中的 ConvNet 精选论文"></a>NLP中的 ConvNet 精选论文</h1><p>MNIST</p>
+<p>convolutional kernel: local feature detector</p>
+<p>图像：</p>
+<ul>
+<li><p>平移不变性</p>
+</li>
+<li><p>pixel features</p>
+</li>
+</ul>
+<p>Hinton</p>
+<ul>
+<li><p>Capsule Network</p>
+</li>
+<li><p>ConvNet的缺陷：</p>
+</li>
+<li><p>没有处理旋转不变性</p>
+</li>
+<li><p>图片大小发生改变</p>
+</li>
+</ul>
+<p>文本</p>
+<ul>
+<li><p>ngram</p>
+</li>
+<li><p>ngram 之间的联系 n-n-gram</p>
+</li>
+</ul>
+<p>曾经有一段时间由于<strong>Yann Lecun</strong>加入Facebook AI Research担任Director的关系，FB投入了很多的精力研发把ConvNet用在Text问题上。ConvNet主打的一个强项就是速度比RNN快，Encoder可以并行。后来可能是由于Google的Transformer开始统治这个领域，导致大家慢慢在ConvNet上的关注度越来越小。</p>
+<p>transformer (BERT) 就是 filter size 为 1 的 convolutional neural network 。</p>
+<p>不过这一系列以ConvNet为核心的NLP模型依然非常值得学习。ConvNet的一个长处在于它可以很自然地得到 <strong>ngram</strong> 的表示。由于NLP最近的进展日新月异，可能几天或者几个月之后又有一系列基于ConvNet的模型重登SOTA，谁知道呢。</p>
+<p>对于不了解什么是Convolutional Neural Network的同学，建议阅读斯坦福cs231的课程资料 <a href="http://cs231n.github.io/convolutional-networks/" target="_blank" rel="noopener">http://cs231n.github.io/convolutional-networks/</a> 网上的中文翻译很多，例如：<a href="https://zhuanlan.zhihu.com/p/22038289?refer=intelligentunit" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/22038289?refer=intelligentunit</a></p>
+<h2 id="Yoon-Kim-Convolutional-Neural-Networks-for-Sentence-Classification"><a href="#Yoon-Kim-Convolutional-Neural-Networks-for-Sentence-Classification" class="headerlink" title="Yoon Kim Convolutional Neural Networks for Sentence Classification"></a>Yoon Kim <a href="https://aclweb.org/anthology/D14-1181" target="_blank" rel="noopener">Convolutional Neural Networks for Sentence Classification</a></h2><p><a href="https://aclweb.org/anthology/D14-1181" target="_blank" rel="noopener">https://aclweb.org/anthology/D14-1181</a></p>
+<p>这篇文章首次提出了在text上使用convolutional network，并且取得了不错的效果。后续很多把ConvNet用在NLP任务上都是基于这篇论文的模型改进。</p>
+<h3 id="模型架构图"><a href="#模型架构图" class="headerlink" title="模型架构图"></a>模型架构图</h3><p><img src="https://uploader.shimo.im/f/bAD5TU2kjCQipLid.png!thumbnail" alt="img"></p>
+<h3 id="embedding层"><a href="#embedding层" class="headerlink" title="embedding层"></a>embedding层</h3><p><img src="https://uploader.shimo.im/f/pOmG3eS8ntYi0dSQ.png!thumbnail" alt="img"></p>
+<h3 id="convolution层"><a href="#convolution层" class="headerlink" title="convolution层"></a>convolution层</h3><p><img src="https://uploader.shimo.im/f/MlEd8ePXgDs7gaLg.png!thumbnail" alt="img"></p>
+<p><img src="https://uploader.shimo.im/f/T3pionftmyImwzPH.png!thumbnail" alt="img"></p>
+<h3 id="Max-over-time-pooling"><a href="#Max-over-time-pooling" class="headerlink" title="Max over time pooling"></a>Max over time pooling</h3><p><img src="https://uploader.shimo.im/f/cM7DZvGSt3gNz8uL.png!thumbnail" alt="img"></p>
+<h3 id="输出层"><a href="#输出层" class="headerlink" title="输出层"></a>输出层</h3><p>一个affine transformation加上dropout</p>
+<p><img src="https://uploader.shimo.im/f/5ZrPtIuh6X4P9lQJ.png!thumbnail" alt="img"></p>
+<h3 id="模型的效果"><a href="#模型的效果" class="headerlink" title="模型的效果"></a>模型的效果</h3><p>可以媲美当时的众多传统模型。从今天的眼光来看这个模型的思路还是挺简单的，不过当时大家开始探索把CNN用到text问题上的时候，这一系列模型架构的想法还是很新颖的。</p>
+<p><img src="https://uploader.shimo.im/f/BxnIovJf5Pwv8RHZ.png!thumbnail" alt="img"></p>
+<h3 id="我们的代码实现"><a href="#我们的代码实现" class="headerlink" title="我们的代码实现"></a>我们的代码实现</h3><p>用ConvNet做文本分类的部分代码。有些部分可能的实现可能和模型有一定出入，不过我的模型实现效果也很不错，仅供参考。</p>
+<p><a href="https://github.com/ZeweiChu/PyTorch-Course/blob/master/notebooks/4.sentiment_with_mask.ipynb" target="_blank" rel="noopener">https://github.com/ZeweiChu/PyTorch-Course/blob/master/notebooks/4.sentiment_with_mask.ipynb</a></p>
+<p>感兴趣的同学可以参考更多Yoon Kim的工作</p>
+<p><a href="http://www.people.fas.harvard.edu/~yoonkim/" target="_blank" rel="noopener">http://www.people.fas.harvard.edu/~yoonkim/</a></p>
+<p>Yoon Kim的导师Alex Rush</p>
+<p><a href="http://nlp.seas.harvard.edu/rush.html" target="_blank" rel="noopener">http://nlp.seas.harvard.edu/rush.html</a></p>
+<p>他们的一项工作OpenNMT-py</p>
+<p><a href="https://github.com/OpenNMT/OpenNMT-py" target="_blank" rel="noopener">https://github.com/OpenNMT/OpenNMT-py</a></p>
+<p>Alex Rush的一些优秀学生</p>
+<p>Sam Wiseman <a href="https://swiseman.github.io/" target="_blank" rel="noopener">https://swiseman.github.io/</a> 他做了很多VAE的工作</p>
+<h2 id="Zhang-et-al-Character-level-Convolutional-Networks-for-Text-Classification"><a href="#Zhang-et-al-Character-level-Convolutional-Networks-for-Text-Classification" class="headerlink" title="Zhang et. al., Character-level Convolutional Networks for Text Classification "></a>Zhang et. al., <a href="https://papers.nips.cc/paper/5782-character-level-convolutional-networks-for-text-classification.pdf" target="_blank" rel="noopener">Character-level Convolutional Networks for Text Classification </a></h2><p><a href="https://papers.nips.cc/paper/5782-character-level-convolutional-networks-for-text-classification.pdf" target="_blank" rel="noopener">https://papers.nips.cc/paper/5782-character-level-convolutional-networks-for-text-classification.pdf</a></p>
+<p>这篇文章在char层面上使用ConvNet，当时在分类任务上取得了SOTA的效果。后来人们经常把这套方法用来做单词表示的学习，例如ELMo就是用CharCNN来encode单词的。</p>
+<h3 id="关键Modules"><a href="#关键Modules" class="headerlink" title="关键Modules"></a>关键Modules</h3><p>Convolutional Module</p>
+<p><img src="https://uploader.shimo.im/f/24t3sOep2m8g4ls6.png!thumbnail" alt="img"></p>
+<p>k是kernel size。</p>
+<p>max pooling</p>
+<p><img src="https://uploader.shimo.im/f/NzpvIEElx3UVKJyo.png!thumbnail" alt="img"></p>
+<h3 id="模型架构图-1"><a href="#模型架构图-1" class="headerlink" title="模型架构图"></a>模型架构图</h3><h2 id><a href="#" class="headerlink" title></a><img src="https://uploader.shimo.im/f/WDfJgndz6HMQ5CTF.png!thumbnail" alt="img"></h2><p>在ELMo上的character embedding</p>
+<p><img src="https://uploader.shimo.im/f/3aLnMpCpyUUQSGcQ.png!thumbnail" alt="img"></p>
+<h3 id="模型代码"><a href="#模型代码" class="headerlink" title="模型代码"></a>模型代码</h3><p><a href="https://github.com/srviest/char-cnn-text-classification-pytorch/blob/master/model.py" target="_blank" rel="noopener">https://github.com/srviest/char-cnn-text-classification-pytorch/blob/master/model.py</a></p>
+<h2 id="Gehring-et-al-Convolutional-Sequence-to-Sequence-Learning"><a href="#Gehring-et-al-Convolutional-Sequence-to-Sequence-Learning" class="headerlink" title="Gehring et. al., Convolutional Sequence to Sequence Learning"></a>Gehring et. al., <a href="https://arxiv.org/pdf/1705.03122.pdf" target="_blank" rel="noopener">Convolutional Sequence to Sequence Learning</a></h2><p><a href="https://arxiv.org/pdf/1705.03122.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1705.03122.pdf</a></p>
+<p>参考博客资料</p>
+<p><a href="https://ycts.github.io/weeklypapers/convSeq2seq/" target="_blank" rel="noopener">https://ycts.github.io/weeklypapers/convSeq2seq/</a></p>
+<p>用ConvNet做Seq2Seq模型，其实这篇文章中有很多Transformer的影子，并且模型效果也很好。可能由于同时期的Transformer光芒过于耀眼，掩盖了这一篇同样非常重量级的文章。</p>
+<p>我的建议是，这篇文章可以简要阅读，了解ConvNet可以怎么样被运用到Text Modeling问题上。由于现在学术界和工业界的主流是各种Transformer模型的变种，且Transformer的模型相对更简洁易懂，所以建议同学们在后面花更多的时间在Transformer上。最近很多NLP的面试都会问到一些与Transformer和BERT相关的问题，可能很多人不太了解这篇Conv Seq2Seq的论文。</p>
+<h3 id="Positional-Embedddings"><a href="#Positional-Embedddings" class="headerlink" title="Positional Embedddings"></a>Positional Embedddings</h3><p><img src="https://uploader.shimo.im/f/3s1XVoEyWCA2091O.png!thumbnail" alt="img"></p>
+<p>对每个单词分别做word embedding w_i和positional embedding p_i，然后单词的embedding的w_i + p_i。p_i是模型的参数，在训练中会被更新。</p>
+<p>如果没有positional embedding，CNN是无法知晓单词的位置信息的。因为不同于LSTM，如果没有postional embedding，在CNN encoder中的单词位置其实没有区别。</p>
+<h3 id="Convolutional-Block-Structure"><a href="#Convolutional-Block-Structure" class="headerlink" title="Convolutional Block Structure"></a>Convolutional Block Structure</h3><p>Encoder和Decoder第l层的输入</p>
+<p><img src="https://uploader.shimo.im/f/8RwAjCP390sIoG1A.png!thumbnail" alt="img"></p>
+<p>每一层都包含一个一维Convolution，以及一个non-linearity单元，其中conv block/layer的kernel宽度为k，其output包含k个输入元素的信息。参数为</p>
+<p><img src="https://uploader.shimo.im/f/8tCfiuW0gHgwBKAi.png!thumbnail" alt="img"></p>
+<p>输出为</p>
+<p><img src="https://uploader.shimo.im/f/kDZ1ulm65h8m0dOX.png!thumbnail" alt="img"></p>
+<p>然后使用一个Gated Linear Units作为non-linearity。</p>
+<p><img src="https://uploader.shimo.im/f/MuogKhR9b48cABpI.png!thumbnail" alt="img"></p>
+<p>encoder和decoder都有好多层，每一层都加上了residual connection。</p>
+<p><img src="https://uploader.shimo.im/f/EdLJ369IWcQgqx0x.png!thumbnail" alt="img"></p>
+<p>我们在encoder每一层的左右两边都添加padding，这样可以保证每一层经过convolution之后输出的长度和原来一样。decoder和encoder稍有不同，因为我们必须保证我们在decoder一个位置的单词的时候没有看到这个位置后面的单词。所以我们的做法是，在decoder每一层左右两边都加上k-1个padding，做完conv之后把右边的k个单位移除。</p>
+<p>最后的一个标准套路是把hidden state做个affine transformation，然后Softmax变成单词表上的一个概率分布。</p>
+<p><img src="https://uploader.shimo.im/f/yFXfmhqvzzcU8D7D.png!thumbnail" alt="img"></p>
+<h3 id="Multi-step-Attention"><a href="#Multi-step-Attention" class="headerlink" title="Multi-step Attention"></a>Multi-step Attention</h3><p>Decoder的每一层都有单独的Attention。</p>
+<p><img src="https://uploader.shimo.im/f/uQLvQ1erpmAJfLlP.png!thumbnail" alt="img"></p>
+<p>g_i是当前单词的embedding，</p>
+<p><img src="https://uploader.shimo.im/f/eHzdNjYIZBM93TQN.png!thumbnail" alt="img"></p>
+<p>然后我们用这个新造的 d_i^l 对 encoder 的每个位置做attention。</p>
+<p><img src="https://uploader.shimo.im/f/er1A7CMeiukGczjw.png!thumbnail" alt="img"></p>
+<p>然后非常常规的，用attention score对encoder hidden states做加权平均。唯一不同的是，这里还直接加上了输入的embedding。</p>
+<p><img src="https://uploader.shimo.im/f/BJXPoQQi9Xg4fJJa.png!thumbnail" alt="img"></p>
+<p>作者说他们发现直接加上这个词向量的embedding还是很有用的。</p>
+<h3 id="模型架构图-2"><a href="#模型架构图-2" class="headerlink" title="模型架构图"></a>模型架构图</h3><p><img src="https://uploader.shimo.im/f/r5pAK5SQWzQDyDFL.png!thumbnail" alt="img"></p>
+<h3 id="Normalization策略"><a href="#Normalization策略" class="headerlink" title="Normalization策略"></a>Normalization策略</h3><p>为了保持模型训练的稳定性，我们希望模型中间的向量的variance不要太大。</p>
+<ul>
+<li>输出+residual之后乘以\sqrt{5}，这样可以让这些vector每个维度的variance减半。其实很多时候这些确保模型稳定度的细节挺关键的，大家可能也知道transformer中也增加了一些减少variance的方法。如果不是调模型专家就会忽视这些细节，然后模型就训练不好了。</li>
+</ul>
+<p><img src="https://uploader.shimo.im/f/IMLzC3rtvxkqLmuo.png!thumbnail" alt="img"></p>
+<p>还有更多的模型参数初始化细节，感兴趣的同学可以自己去认真阅读paper。</p>
+<h3 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h3><p><img src="https://uploader.shimo.im/f/aNGZg3EjGyw1aWu7.png!thumbnail" alt="img"></p>
+<p>在翻译任务上超越了GNMT (Google Neural Machine Translation)，其实这个比较能说明问题，因为当时的GNMT是State of the Art。</p>
+<p><img src="https://uploader.shimo.im/f/VMfU3If3biw5286r.png!thumbnail" alt="img"></p>
+<p>然后他们还展示了ConvS2S的速度比GNMT更快。</p>
+<p>总结来说，ConvS2S其实是一篇很有价值的文章，Decoder的设计比较精致， 不知道这篇文章对后来的Transformer产生了多少的影响，当然他们可以说是同时期的作品。</p>
+<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><p>主要代码在Fairseq的下面这个文件中</p>
+<p><a href="https://github.com/ZeweiChu/fairseq/blob/master/fairseq/models/fconv.py" target="_blank" rel="noopener">https://github.com/ZeweiChu/fairseq/blob/master/fairseq/models/fconv.py</a></p>
+<p>Fairseq是一个值得关注一波的工具包，由Facebook开发，主要开发者有 </p>
+<ul>
+<li>Myle Ott <a href="https://myleott.com/" target="_blank" rel="noopener">https://myleott.com/</a></li>
+</ul>
+<h1 id="关于文本分类的更多参考资料"><a href="#关于文本分类的更多参考资料" class="headerlink" title="关于文本分类的更多参考资料"></a>关于文本分类的更多参考资料</h1><p>基于深度学习的文本分类</p>
+<p><a href="https://zhuanlan.zhihu.com/p/34212945" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/34212945</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2020/04/15/NLP中的ConvNet/">NLP中的ConvNet</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2020-04-15, 08:21:14</p>
+        <p><span>最后更新:</span>2020-06-09, 09:27:40</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2020/04/15/NLP中的ConvNet/" title="NLP中的ConvNet">http://mmyblog.cn/2020/04/15/NLP中的ConvNet/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2020/04/15/NLP中的ConvNet/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2020/04/17/SQuAD-BiDAF/">
+                    SQuAD-BiDAF
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2020/04/13/seq2seq/">
+                    seq2seq
+                </a>
+            </div>
+        
+    </nav>
+
+  
+  
+    <! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+    <div id="donate_guide" class="donate_bar center hidden" >
+        
+            <!-- <img src="/img/Alipay.jpg" alt="支付宝打赏">
+            <img src="/img/WeChatpay.jpg" alt="微信打赏"> -->
+       
+        <!-- 方式二；
+            step1：在_config.yml中添加配置
+                Alipay: /img/Alipay.jpg
+                WeChatpay: /img/WeChatpay.jpg
+            step2：此处两张图片的路径分别设置为如下
+                <img src=""
+                <img src=""
+        -->
+        <!-- 支付宝打赏图案 -->
+        <img src="/img/Alipay.jpg" alt="支付宝打赏">
+        <!-- 微信打赏图案 -->
+        <img src="/img//WeChatpay.jpg" alt="微信打赏">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn_donate').onclick = function(){
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+    </script>
+</div>
+<! -- 添加捐赠图标 -->
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何读论文？"><span class="toc-number">1.</span> <span class="toc-text">如何读论文？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#NLP中的-ConvNet-精选论文"><span class="toc-number"></span> <span class="toc-text">NLP中的 ConvNet 精选论文</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Yoon-Kim-Convolutional-Neural-Networks-for-Sentence-Classification"><span class="toc-number"></span> <span class="toc-text">Yoon Kim Convolutional Neural Networks for Sentence Classification</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#模型架构图"><span class="toc-number">1.</span> <span class="toc-text">模型架构图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#embedding层"><span class="toc-number">2.</span> <span class="toc-text">embedding层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#convolution层"><span class="toc-number">3.</span> <span class="toc-text">convolution层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Max-over-time-pooling"><span class="toc-number">4.</span> <span class="toc-text">Max over time pooling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#输出层"><span class="toc-number">5.</span> <span class="toc-text">输出层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模型的效果"><span class="toc-number">6.</span> <span class="toc-text">模型的效果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#我们的代码实现"><span class="toc-number">7.</span> <span class="toc-text">我们的代码实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zhang-et-al-Character-level-Convolutional-Networks-for-Text-Classification"><span class="toc-number"></span> <span class="toc-text">Zhang et. al., Character-level Convolutional Networks for Text Classification </span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#关键Modules"><span class="toc-number">1.</span> <span class="toc-text">关键Modules</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模型架构图-1"><span class="toc-number">2.</span> <span class="toc-text">模型架构图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#null"><span class="toc-number"></span> <span class="toc-text"></span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#模型代码"><span class="toc-number">1.</span> <span class="toc-text">模型代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gehring-et-al-Convolutional-Sequence-to-Sequence-Learning"><span class="toc-number"></span> <span class="toc-text">Gehring et. al., Convolutional Sequence to Sequence Learning</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Positional-Embedddings"><span class="toc-number">1.</span> <span class="toc-text">Positional Embedddings</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Convolutional-Block-Structure"><span class="toc-number">2.</span> <span class="toc-text">Convolutional Block Structure</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Multi-step-Attention"><span class="toc-number">3.</span> <span class="toc-text">Multi-step Attention</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模型架构图-2"><span class="toc-number">4.</span> <span class="toc-text">模型架构图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Normalization策略"><span class="toc-number">5.</span> <span class="toc-text">Normalization策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实验结果"><span class="toc-number">6.</span> <span class="toc-text">实验结果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码"><span class="toc-number">7.</span> <span class="toc-text">代码</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#关于文本分类的更多参考资料"><span class="toc-number"></span> <span class="toc-text">关于文本分类的更多参考资料</span></a>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"NLP中的ConvNet　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/04/17/SQuAD-BiDAF/" title="上一篇: SQuAD-BiDAF">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/04/13/seq2seq/" title="下一篇: seq2seq">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/扩展内容/">扩展内容</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/XLNet/">XLNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/PyTorch/">PyTorch</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/朴素贝叶斯/">朴素贝叶斯</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/GPT模型/">GPT模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/BERT系列预训练模型/">BERT系列预训练模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/19/阅读理解/">阅读理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/18/Transformer模型解读/">Transformer模型解读</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/16/Transformer-XL/">Transformer-XL</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/英文书籍word级别的文本生成代码注释/">英文书籍word级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/文本生成任务/">文本生成任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/09/常见预训练模型/">BERT&ELMo&co</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/01/大规模无监督预训练语言模型与应用上/">大规模无监督预训练语言模型与应用上</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/18/语言模型/">语言模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/15/NLP中的ConvNet/">NLP中的ConvNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/13/seq2seq/">seq2seq</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/09/机器翻译与文本摘要/">机器翻译与文本摘要</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/sentiment情感分析代码注释/">sentiment情感分析代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/11/聊天机器人二/">聊天机器人二</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/10/聊天机器人一/">聊天机器人一</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/09/结构化预测/">结构化预测</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/word-embedding/">word-embedding</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/酒店评价情感分类与CNN模型/">酒店评价情感分类与CNN模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/28/NLP技术基础整理/">NLP技术基础整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/18/CNN-Image-Classification/">CNN-Image-Classification</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/丘吉尔的人物传记char级别的文本生成代码注释/">丘吉尔的人物传记char级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/用朴素贝叶斯完成语种检测/">用朴素贝叶斯完成语种检测</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/24/文本分类问题/">文本分类问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/08/python正则表达式/">python正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/08/jieba中文处理/">jieba中文处理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

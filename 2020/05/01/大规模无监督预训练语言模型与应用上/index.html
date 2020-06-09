@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="Subword Modeling以单词作为模型的基本单位有一些问题：  单词量有限，我们一般会把单词量固定在50k-300k，然后没有见过的单词只能用UNK表示  zipf distribution: given some corpus of natural language utterances, the frequency of any word is inversely proportion">
+<meta name="keywords" content="BERT,Transformer,ELMo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大规模无监督预训练语言模型与应用上">
+<meta property="og:url" content="http://mmyblog.cn/2020/05/01/大规模无监督预训练语言模型与应用上/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="Subword Modeling以单词作为模型的基本单位有一些问题：  单词量有限，我们一般会把单词量固定在50k-300k，然后没有见过的单词只能用UNK表示  zipf distribution: given some corpus of natural language utterances, the frequency of any word is inversely proportion">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://uploader.shimo.im/f/V49ti0noVOsqeLRH.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/bsR8NzGROvs0scpq.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/FplKX422O5owOuVV.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/3nQUw9cZGvwNSCyx.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/0zx2ooI2uzoWLfOg.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/keW15vUeJX4E7gam.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/XbXbCNlxSpk5PLuh.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/atuHcc6hYNIE2QOd.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/XCVPs561UVADzFkO.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/bdClv9vmULUCXgcc.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/Uiw1y8KX5pEw5Lri.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/kzvejsQ7DMI3369N.png!thumbnail">
+<meta property="og:updated_time" content="2020-06-09T00:57:54.232Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="大规模无监督预训练语言模型与应用上">
+<meta name="twitter:description" content="Subword Modeling以单词作为模型的基本单位有一些问题：  单词量有限，我们一般会把单词量固定在50k-300k，然后没有见过的单词只能用UNK表示  zipf distribution: given some corpus of natural language utterances, the frequency of any word is inversely proportion">
+<meta name="twitter:image" content="https://uploader.shimo.im/f/V49ti0noVOsqeLRH.png!thumbnail">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>大规模无监督预训练语言模型与应用上 | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Attention/">Attention</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BERT/">BERT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BLUE/">BLUE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Beam-search/">Beam search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CRF/">CRF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ConvNet/">ConvNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ELMo/">ELMo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPT/">GPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GRU/">GRU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradient-Clipping/">Gradient Clipping</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LSTM/">LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linear/">Linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Parsing/">Parsing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PyTorch/">PyTorch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QA/">QA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN/">RNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN-LSTM/">RNN/LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Recursive-Neural-Networks/">Recursive Neural Networks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seq2Seq/">Seq2Seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TorchText/">TorchText</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer/">Transformer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer-XL/">Transformer-XL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/XLNet/">XLNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/inference/">inference</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jiaba/">jiaba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jieba/">jieba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/word-embedding/">word-embedding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wxBot/">wxBot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/中文分词/">中文分词</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图神经网络/">图神经网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/朴素贝叶斯/">朴素贝叶斯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则表达式/">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聊天机器人/">聊天机器人</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言模型/">语言模型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-大规模无监督预训练语言模型与应用上" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/05/01/大规模无监督预训练语言模型与应用上/" class="article-date">
+      <time datetime="2020-05-01T00:23:44.000Z" itemprop="datePublished">2020-05-01</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      大规模无监督预训练语言模型与应用上
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/NLP/">NLP</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BERT/">BERT</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ELMo/">ELMo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Transformer/">Transformer</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="Subword-Modeling"><a href="#Subword-Modeling" class="headerlink" title="Subword Modeling"></a>Subword Modeling</h3><p>以单词作为模型的基本单位有一些问题：</p>
+<ul>
+<li><p>单词量有限，我们一般会把单词量固定在50k-300k，然后没有见过的单词只能用<strong>UNK</strong>表示</p>
+</li>
+<li><p>zipf distribution: given some corpus of natural language utterances, the frequency of any word is inversely proportional to its rank in the frequency table. Thus the most frequent word will occur approximately twice as often as the second most frequent word, three times as often as the third most frequent word, etc.: the rank-frequency distribution is an inverse relation. </p>
+</li>
+<li><p>模型参数量太大，100K * 300 = 30M个参数，仅仅是embedding层</p>
+</li>
+<li><p>对于很多语言，例如英语来说，很多时候单词是由几个subword拼接而成的</p>
+</li>
+<li><p>对于中文来说，很多常用的模型会采用分词后得到的词语作为模型的基本单元，同样存在上述问题</p>
+</li>
+</ul>
+<p>可能的解决方案：</p>
+<ul>
+<li><p>使用subword information，例如字母作为语言的基本单元 Char-CNN</p>
+</li>
+<li><p>用wordpiece</p>
+</li>
+</ul>
+<h2 id="解决方案：character-level-modeling"><a href="#解决方案：character-level-modeling" class="headerlink" title="解决方案：character level modeling"></a>解决方案：character level modeling</h2><ul>
+<li>使用字母作为模型的基本输入单元</li>
+</ul>
+<h3 id="Ling-et-al-Finding-Function-in-Form-Compositional-Character-Models-for-Open-Vocabulary-Word-Representation"><a href="#Ling-et-al-Finding-Function-in-Form-Compositional-Character-Models-for-Open-Vocabulary-Word-Representation" class="headerlink" title="Ling et. al, Finding Function in Form: Compositional Character Models for Open Vocabulary Word Representation"></a>Ling et. al, <a href="https://aclweb.org/anthology/D15-1176" target="_blank" rel="noopener">Finding Function in Form: Compositional Character Models for Open Vocabulary Word Representation</a></h3><p>用BiLSTM把单词中的每个字母encode到一起</p>
+<p><img src="https://uploader.shimo.im/f/V49ti0noVOsqeLRH.png!thumbnail" alt="img"></p>
+<h3 id="Yoon-Kim-et-al-Character-Aware-Neural-Language-Models"><a href="#Yoon-Kim-et-al-Character-Aware-Neural-Language-Models" class="headerlink" title="Yoon Kim et. al, Character-Aware Neural Language Models"></a>Yoon Kim et. al, <a href="https://www.aaai.org/ocs/index.php/AAAI/AAAI16/paper/viewFile/12489/12017" target="_blank" rel="noopener">Character-Aware Neural Language Models</a></h3><p><img src="https://uploader.shimo.im/f/bsR8NzGROvs0scpq.png!thumbnail" alt="img"></p>
+<p>根据以上模型示意图思考以下问题：</p>
+<ul>
+<li><p>character emebdding的的维度是多少？4</p>
+</li>
+<li><p>有几个character 4-gram的filter？filter-size=4? 红色的 5个filter</p>
+</li>
+<li><p>max-over-time pooling: 3-gram 4维， 2-gram 3维 4-gram 55维</p>
+</li>
+<li><p>为什么不同的filter (kernel size)长度会导致不同长度的feature map?  seq_length - kernel_size + 1</p>
+</li>
+</ul>
+<p>fastText</p>
+<ul>
+<li>与word2vec类似，但是每个单词是它的character n-gram embeddings + word emebdding</li>
+</ul>
+<h2 id="解决方案：使用subword作为模型的基本单元"><a href="#解决方案：使用subword作为模型的基本单元" class="headerlink" title="解决方案：使用subword作为模型的基本单元"></a>解决方案：使用subword作为模型的基本单元</h2><h3 id="Botha-amp-Blunsom-2014-Composional-Morphology-for-Word-Representations-and-Language-Modelling"><a href="#Botha-amp-Blunsom-2014-Composional-Morphology-for-Word-Representations-and-Language-Modelling" class="headerlink" title="Botha &amp; Blunsom (2014): Composional Morphology for Word Representations    and    Language Modelling"></a>Botha &amp; Blunsom (2014): <a href="http://proceedings.mlr.press/v32/botha14.pdf" target="_blank" rel="noopener">Composional Morphology for Word Representations    and    Language Modelling</a></h3><p><img src="https://uploader.shimo.im/f/FplKX422O5owOuVV.png!thumbnail" alt="img"></p>
+<p>subword embedding</p>
+<p><img src="https://uploader.shimo.im/f/3nQUw9cZGvwNSCyx.png!thumbnail" alt="img"></p>
+<h3 id="Byte-Pair-Encoding-需要知道什么是BPE"><a href="#Byte-Pair-Encoding-需要知道什么是BPE" class="headerlink" title="Byte Pair Encoding (需要知道什么是BPE)"></a>Byte Pair Encoding (需要知道什么是BPE)</h3><p><a href="https://www.aclweb.org/anthology/P16-1162" target="_blank" rel="noopener">Neural Machine Translation of Rare Words with Subword Units</a></p>
+<p>关于什么是BPE可以参考下面的文章</p>
+<p><a href="https://www.cnblogs.com/huangyc/p/10223075.html" target="_blank" rel="noopener">https://www.cnblogs.com/huangyc/p/10223075.html</a></p>
+<p><a href="https://leimao.github.io/blog/Byte-Pair-Encoding/" target="_blank" rel="noopener">https://leimao.github.io/blog/Byte-Pair-Encoding/</a></p>
+<ul>
+<li><p>首先定义所有可能的基本字符（abcde…）</p>
+</li>
+<li><p>然后开始循环数出最经常出现的pairs，加入到我们的候选字符（基本组成单元）中去</p>
+</li>
+</ul>
+<p>a, b, c, d, …, z, A, B, …., Z.. !, @, ?, st, est, lo, low, </p>
+<p>控制单词表的大小</p>
+<ul>
+<li>我只要确定iteration的次数 30000个iteartion，30000+原始字母表当中的字母数 个单词</li>
+</ul>
+<p>happiest</p>
+<p>h a p p i est</p>
+<p>LSTM</p>
+<p>emb(h), emb(a), emb(p), emb(p), emb(i), emb(est)</p>
+<p>happ, iest</p>
+<p>emb(happ), emb(iest)</p>
+<p><img src="https://uploader.shimo.im/f/0zx2ooI2uzoWLfOg.png!thumbnail" alt="img"></p>
+<p><a href="https://www.aclweb.org/anthology/P16-1162.pdf" target="_blank" rel="noopener">https://www.aclweb.org/anthology/P16-1162.pdf</a></p>
+<h2 id="中文词向量"><a href="#中文词向量" class="headerlink" title="中文词向量"></a>中文词向量</h2><h3 id="Meng-et-al-Is-Word-Segmentation-Necessary-for-Deep-Learning-of-Chinese-Representations"><a href="#Meng-et-al-Is-Word-Segmentation-Necessary-for-Deep-Learning-of-Chinese-Representations" class="headerlink" title="Meng et. al, Is Word Segmentation Necessary for Deep Learning of Chinese Representations?"></a>Meng et. al, <a href="https://arxiv.org/pdf/1905.05526.pdf" target="_blank" rel="noopener">Is Word Segmentation Necessary for Deep Learning of Chinese Representations?</a></h3><p>简单来说，这篇文章的作者生成通过他们的实验发现Chinese Word Segmentation对于语言模型、文本分类，翻译和文本关系分类并没有什么帮助，直接使用单个字作为模型的输入可以达到更好的效果。</p>
+<blockquote>
+<p>We benchmark neural word-based models which rely on word segmentation against neural char-based models which do not involve word segmentation in four end-to-end NLP benchmark tasks: language modeling, machine translation, sentence matching/paraphrase and text classification. Through direct comparisons between these two types of models, we find that charbased models consistently outperform wordbased models.</p>
+</blockquote>
+<blockquote>
+</blockquote>
+<blockquote>
+<p>word-based models are more vulnerable to data sparsity and the presence of out-of-vocabulary (OOV) words, and thus more prone to overfitting</p>
+</blockquote>
+<p>Jiwei Li</p>
+<p><a href="https://nlp.stanford.edu/~bdlijiwei/" target="_blank" rel="noopener">https://nlp.stanford.edu/~bdlijiwei/</a></p>
+<h3 id="中文分词工具"><a href="#中文分词工具" class="headerlink" title="中文分词工具"></a>中文分词工具</h3><p>建议同学们可以在自己的项目中尝试以下工具</p>
+<ul>
+<li><p>北大中文分词工具 </p>
+</li>
+<li><p><a href="https://github.com/lancopku/pkuseg-python" target="_blank" rel="noopener">https://github.com/lancopku/pkuseg-python</a> </p>
+</li>
+<li><p>机器之心报道 <a href="https://www.jiqizhixin.com/articles/2019-01-09-12" target="_blank" rel="noopener">https://www.jiqizhixin.com/articles/2019-01-09-12</a></p>
+</li>
+<li><p>清华分词工具 <a href="https://github.com/thunlp/THULAC-Python" target="_blank" rel="noopener">https://github.com/thunlp/THULAC-Python</a></p>
+</li>
+<li><p>结巴 <a href="https://github.com/fxsjy/jieba" target="_blank" rel="noopener">https://github.com/fxsjy/jieba</a></p>
+</li>
+</ul>
+<h1 id="预训练句子-文档向量"><a href="#预训练句子-文档向量" class="headerlink" title="预训练句子/文档向量"></a>预训练句子/文档向量</h1><p>既然有词向量，那么我们是否可以更进一步，把句子甚至一整个文档也编码成一个向量呢？</p>
+<p>在之前的课程中我们已经涉及到了一些句子级别的任务，例如文本分类，常常就是把一句或者若干句文本分类成一定的类别。此类模型的一般实现方式是首先把文本编码成某种文本表示方式，例如averaged word embeddings，或者双向LSTM头尾拼接，或者CNN模型等等。</p>
+<p>文本分类</p>
+<ul>
+<li><p>文本通过某种方式变成一个向量</p>
+</li>
+<li><p>WORDAVG</p>
+</li>
+<li><p>LSTM</p>
+</li>
+<li><p>CNN</p>
+</li>
+<li><p>最后是一个linear layer 300维句子向量 –》 2 情感分类</p>
+</li>
+</ul>
+<p>猫图片/狗图片</p>
+<p>图片 –&gt; <strong>ResNet</strong> –&gt; 2048维向量 –&gt; (2, 2048) –&gt; 2维向量 binary cross entropy loss</p>
+<p><strong>ResNet</strong> 预训练模型</p>
+<p>文本 –&gt; TextResNet –&gt; 2048维向量</p>
+<p>apply to any downstream tasks</p>
+<p>TextResNet：LSTM模型</p>
+<p>不同的任务（例如不同的文本分类：情感分类，话题分类）虽然最终的输出不同，但是往往拥有着相似甚至完全一样的编码层。如果我们能够预训练一个非常好的编码层，那么后续模型的负担就可以在一定程度上得到降低。这样的思想很多是来自图像处理的相关工作。例如人们在各类图像任务中发现，如果使用在ImageNet上预训练过的深层CNN网络（例如ResNet），只把最终的输出层替换成自己需要的样子，往往可以取得非常好的效果，且可以在少量数据的情况下训练出优质的模型。</p>
+<p>在句子/文本向量预训练的领域涌现出了一系列的工作，下面我们选取一些有代表性的工作供大家学习参考。</p>
+<h2 id="Skip-Thought"><a href="#Skip-Thought" class="headerlink" title="Skip-Thought"></a>Skip-Thought</h2><p>Kiros et. al, <a href="https://papers.nips.cc/paper/5950-skip-thought-vectors.pdf" target="_blank" rel="noopener">Skip-Thought Vectors</a></p>
+<p>skip-gram: distributional semantics of words 用中心词–》周围词</p>
+<p>skip-thought: distributional semantics of sentences 用中心句–》周围句</p>
+<p>两个句子如果总是在同一个环境下出现，那么这两个句子可能有某种含义上的联系</p>
+<p>如何把句子map成一个向量：compositional model，RNN, LSTM, CNN, WordAvg, <strong>GRU</strong></p>
+<p>Skip-thought 模型的思想非常简单，我们训练一个基于GRU的模型作为句子的编码器。事实上Skip-thought这个名字与Skip-gram有着千丝万缕的联系，它们基于一个共同的思想，就是一句话（一个单词）的含义与它所处的环境（context，周围句子/单词）高度相关。</p>
+<p>如下图所示，Skipthought采用一个GRU encoder，使用编码器最后一个hidden state来表示整个句子。然后使用这个hidden state作为初始状态来解码它之前和之后的句子。</p>
+<p>decoder: 两个conditional语言模型。</p>
+<p>基于中心句的句子向量，优化conditional log likelihood</p>
+<p><img src="https://uploader.shimo.im/f/keW15vUeJX4E7gam.png!thumbnail" alt="img"></p>
+<p>一个encoder GRU</p>
+<p><img src="https://uploader.shimo.im/f/XbXbCNlxSpk5PLuh.png!thumbnail" alt="img"></p>
+<p>两个decoder GRU</p>
+<p><img src="https://uploader.shimo.im/f/atuHcc6hYNIE2QOd.png!thumbnail" alt="img"></p>
+<p>训练目标</p>
+<p><img src="https://uploader.shimo.im/f/XCVPs561UVADzFkO.png!thumbnail" alt="img"></p>
+<p>然后我们就可以把encoder当做feature extractor了。</p>
+<p>类似的工作还有<a href="https://arxiv.org/pdf/1602.03483.pdf" target="_blank" rel="noopener">FastSent</a>。FastSent直接使用词向量之和来表示整个句子，然后用该句子向量来解码周围句子中的单个单词们。</p>
+<h2 id="InferSent"><a href="#InferSent" class="headerlink" title="InferSent"></a>InferSent</h2><p><a href="https://www.aclweb.org/anthology/D17-1070" target="_blank" rel="noopener">Supervised Learning of Universal Sentence Representations from Natural Language Inference Data</a></p>
+<p>Natural Language Inference (NLI)</p>
+<ul>
+<li><p>给定两个句子，判断这两个句子之间的关系</p>
+</li>
+<li><p>entailment 承接关系</p>
+</li>
+<li><p>neutral 没有关系</p>
+</li>
+<li><p>contradiction 矛盾</p>
+</li>
+<li><p>(non_entailment)</p>
+</li>
+</ul>
+<h3 id="SNLI任务"><a href="#SNLI任务" class="headerlink" title="SNLI任务"></a>SNLI任务</h3><p>给定两个句子，预测这两个句子的关系是entailment, contradiction，还是neutral  </p>
+<p>一个简单有效的模型</p>
+<p><img src="https://uploader.shimo.im/f/bdClv9vmULUCXgcc.png!thumbnail" alt="img"></p>
+<p>Encoder是BiLSTM + max pooling</p>
+<p><img src="https://uploader.shimo.im/f/Uiw1y8KX5pEw5Lri.png!thumbnail" alt="img"></p>
+<p>模型效果</p>
+<p><img src="https://uploader.shimo.im/f/kzvejsQ7DMI3369N.png!thumbnail" alt="img"></p>
+<h2 id="SentEval"><a href="#SentEval" class="headerlink" title="SentEval"></a>SentEval</h2><p><a href="https://www.aclweb.org/anthology/L18-1269" target="_blank" rel="noopener">SentEval: An Evaluation Toolkit for Universal Sentence Representations</a></p>
+<p>一个非常通用的benchmark，用来评估句子embedding是否能够很好地应用于downstream tasks。</p>
+<p>Github: <a href="https://github.com/facebookresearch/SentEval" target="_blank" rel="noopener">https://github.com/facebookresearch/SentEval</a></p>
+<h2 id="Document-Vector"><a href="#Document-Vector" class="headerlink" title="Document Vector"></a>Document Vector</h2><p>事实上研究者在句子向量上的各种尝试是不太成功的。主要体现在这些预训练向量并不能非常好地提升模型在各种下游任务上的表现，人们大多数时候还是从头开始训练模型。</p>
+<p>在document vector上的尝试就更不尽如人意了，因为一个文本往往包含非常丰富的信息，而一个向量能够编码的信息量实在太小。</p>
+<p>Learning Deep Structured Semantic Models for Web Search using Clickthrough Data</p>
+<p><a href="https://www.microsoft.com/en-us/research/publication/learning-deep-structured-semantic-models-for-web-search-using-clickthrough-data/" target="_blank" rel="noopener">https://www.microsoft.com/en-us/research/publication/learning-deep-structured-semantic-models-for-web-search-using-clickthrough-data/</a></p>
+<p>Hierarchical Attention Networks for Document Classification</p>
+<p><a href="https://www.cs.cmu.edu/~./hovy/papers/16HLT-hierarchical-attention-networks.pdf" target="_blank" rel="noopener">https://www.cs.cmu.edu/~./hovy/papers/16HLT-hierarchical-attention-networks.pdf</a></p>
+<h1 id="ELMo-BERT"><a href="#ELMo-BERT" class="headerlink" title="ELMo, BERT"></a><a href="https://shimo.im/docs/Y6q3gX8yGGjpWqXx" target="_blank" rel="noopener">ELMo, BERT</a></h1><p>ELMO paper: <a href="https://arxiv.org/pdf/1802.05365.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1802.05365.pdf</a></p>
+<h1 id="Transformer中的Encoder"><a href="#Transformer中的Encoder" class="headerlink" title="Transformer中的Encoder"></a><a href="https://shimo.im/docs/gPwkqCXrkJyRW89V" target="_blank" rel="noopener">Transformer中的Encoder</a></h1>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2020/05/01/大规模无监督预训练语言模型与应用上/">大规模无监督预训练语言模型与应用上</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2020-05-01, 08:23:44</p>
+        <p><span>最后更新:</span>2020-06-09, 08:57:54</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2020/05/01/大规模无监督预训练语言模型与应用上/" title="大规模无监督预训练语言模型与应用上">http://mmyblog.cn/2020/05/01/大规模无监督预训练语言模型与应用上/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2020/05/01/大规模无监督预训练语言模型与应用上/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2020/05/09/常见预训练模型/">
+                    BERT&amp;ELMo&amp;co
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2020/04/24/word2vec/">
+                    word2vec
+                </a>
+            </div>
+        
+    </nav>
+
+  
+  
+    <! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+    <div id="donate_guide" class="donate_bar center hidden" >
+        
+            <!-- <img src="/img/Alipay.jpg" alt="支付宝打赏">
+            <img src="/img/WeChatpay.jpg" alt="微信打赏"> -->
+       
+        <!-- 方式二；
+            step1：在_config.yml中添加配置
+                Alipay: /img/Alipay.jpg
+                WeChatpay: /img/WeChatpay.jpg
+            step2：此处两张图片的路径分别设置为如下
+                <img src=""
+                <img src=""
+        -->
+        <!-- 支付宝打赏图案 -->
+        <img src="/img/Alipay.jpg" alt="支付宝打赏">
+        <!-- 微信打赏图案 -->
+        <img src="/img//WeChatpay.jpg" alt="微信打赏">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn_donate').onclick = function(){
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+    </script>
+</div>
+<! -- 添加捐赠图标 -->
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Subword-Modeling"><span class="toc-number">1.</span> <span class="toc-text">Subword Modeling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决方案：character-level-modeling"><span class="toc-number"></span> <span class="toc-text">解决方案：character level modeling</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Ling-et-al-Finding-Function-in-Form-Compositional-Character-Models-for-Open-Vocabulary-Word-Representation"><span class="toc-number">1.</span> <span class="toc-text">Ling et. al, Finding Function in Form: Compositional Character Models for Open Vocabulary Word Representation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Yoon-Kim-et-al-Character-Aware-Neural-Language-Models"><span class="toc-number">2.</span> <span class="toc-text">Yoon Kim et. al, Character-Aware Neural Language Models</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决方案：使用subword作为模型的基本单元"><span class="toc-number"></span> <span class="toc-text">解决方案：使用subword作为模型的基本单元</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Botha-amp-Blunsom-2014-Composional-Morphology-for-Word-Representations-and-Language-Modelling"><span class="toc-number">1.</span> <span class="toc-text">Botha &amp; Blunsom (2014): Composional Morphology for Word Representations    and    Language Modelling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Byte-Pair-Encoding-需要知道什么是BPE"><span class="toc-number">2.</span> <span class="toc-text">Byte Pair Encoding (需要知道什么是BPE)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#中文词向量"><span class="toc-number"></span> <span class="toc-text">中文词向量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Meng-et-al-Is-Word-Segmentation-Necessary-for-Deep-Learning-of-Chinese-Representations"><span class="toc-number">1.</span> <span class="toc-text">Meng et. al, Is Word Segmentation Necessary for Deep Learning of Chinese Representations?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#中文分词工具"><span class="toc-number">2.</span> <span class="toc-text">中文分词工具</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#预训练句子-文档向量"><span class="toc-number"></span> <span class="toc-text">预训练句子/文档向量</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Skip-Thought"><span class="toc-number"></span> <span class="toc-text">Skip-Thought</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#InferSent"><span class="toc-number"></span> <span class="toc-text">InferSent</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SNLI任务"><span class="toc-number">1.</span> <span class="toc-text">SNLI任务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SentEval"><span class="toc-number"></span> <span class="toc-text">SentEval</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Document-Vector"><span class="toc-number"></span> <span class="toc-text">Document Vector</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ELMo-BERT"><span class="toc-number"></span> <span class="toc-text">ELMo, BERT</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Transformer中的Encoder"><span class="toc-number"></span> <span class="toc-text">Transformer中的Encoder</span></a>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"大规模无监督预训练语言模型与应用上　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/05/09/常见预训练模型/" title="上一篇: BERT&amp;ELMo&amp;co">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/04/24/word2vec/" title="下一篇: word2vec">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/扩展内容/">扩展内容</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/XLNet/">XLNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/PyTorch/">PyTorch</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/朴素贝叶斯/">朴素贝叶斯</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/GPT模型/">GPT模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/BERT系列预训练模型/">BERT系列预训练模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/19/阅读理解/">阅读理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/18/Transformer模型解读/">Transformer模型解读</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/16/Transformer-XL/">Transformer-XL</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/英文书籍word级别的文本生成代码注释/">英文书籍word级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/文本生成任务/">文本生成任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/09/常见预训练模型/">BERT&ELMo&co</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/01/大规模无监督预训练语言模型与应用上/">大规模无监督预训练语言模型与应用上</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/18/语言模型/">语言模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/15/NLP中的ConvNet/">NLP中的ConvNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/13/seq2seq/">seq2seq</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/09/机器翻译与文本摘要/">机器翻译与文本摘要</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/sentiment情感分析代码注释/">sentiment情感分析代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/11/聊天机器人二/">聊天机器人二</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/10/聊天机器人一/">聊天机器人一</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/09/结构化预测/">结构化预测</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/word-embedding/">word-embedding</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/酒店评价情感分类与CNN模型/">酒店评价情感分类与CNN模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/28/NLP技术基础整理/">NLP技术基础整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/18/CNN-Image-Classification/">CNN-Image-Classification</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/丘吉尔的人物传记char级别的文本生成代码注释/">丘吉尔的人物传记char级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/用朴素贝叶斯完成语种检测/">用朴素贝叶斯完成语种检测</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/24/文本分类问题/">文本分类问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/08/python正则表达式/">python正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/08/jieba中文处理/">jieba中文处理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

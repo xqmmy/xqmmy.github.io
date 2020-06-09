@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="什么是自然语言处理？自然语言处理（NLP）是一门融语言学、计算机科学、人工智能于一体的（实验性）科学，解决的是“让机器可以理解自然语言”。 NLP = NLU + NLG NLP问题的难点 自然语言有歧义（ambiguity），同样的含义又有不同的表达方式（variability） ambiguity：同样的一段表述能表示不同的意思 variability：不同的表达方式是同一个意思    cor">
+<meta name="keywords" content="语言模型,RNN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NLP技术基础整理">
+<meta property="og:url" content="http://mmyblog.cn/2020/01/28/NLP技术基础整理/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="什么是自然语言处理？自然语言处理（NLP）是一门融语言学、计算机科学、人工智能于一体的（实验性）科学，解决的是“让机器可以理解自然语言”。 NLP = NLU + NLG NLP问题的难点 自然语言有歧义（ambiguity），同样的含义又有不同的表达方式（variability） ambiguity：同样的一段表述能表示不同的意思 variability：不同的表达方式是同一个意思    cor">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://uploader.shimo.im/f/56iORCYdcewm9en3.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/OClAoRm660cjqZR3.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/tQdVXIYvqV4KYDft.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/5yQkBDvdSLMwl5D7.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/5y0BeYWd6FcaIvsY.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/ywl7Mm0fkBYm9phX.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/ToYFke24QkcZ1Nnc.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/QTXGcqteVe4Gw2ly.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/tPj4cDeD0qwzoRl8.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/ZMjjEt9ljYYZOe0M.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/OS6m4GnrJW8nxTQx.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/d4DeJ9HiUWo9s7Lm.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/E9r4QuAPgOgrMABu.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/osePhB4L13wW9hVW.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/HsQ3wAnDSF05627e.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/j8m6S8mQx20BXvuG.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/Z0tFJCnDmosbrqSl.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/4NtGiIfAhsUB1CD0.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/IYZsqDJtKqE1xTNS.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/t5msLvPFMsQMSZ7n.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/pZ2L5AVPvWE5Hksz.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/fG2yM4re1x8ZURLk.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/jnAscu6ZX6Ua0iKb.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/I2HL7hp9YtQpnrCY.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/K8GCxNZ0tvAHbT6k.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/tq4vTXGrt80lNPky.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/QGDnJuSZy4U48KFA.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/CJrPG8AsEUktoMmU.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/bV1ttfAFazcOcXpj.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/WUuDdC1NvcoEvYtG.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/xveC6xbloAUcZNsk.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/4OYGZmwTiZIi45JQ.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/LAcBJG4tRCEhosvb.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/ALMg6pQ29vIRto5c.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/F7xsa6NCDqQwhXLD.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/w3BqZxsJscgnTdOo.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/HCdEvmDFLjQaKEjy.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/2zIZmqQGMHspT70Y.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/N7MJfS38rIYSTgPJ.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/gONaJMt6zNYKXwOw.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/3z40P9PADe4YxhYr.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/sa2fnlo4tvA5zP4I.png!thumbnail">
+<meta property="og:updated_time" content="2020-06-09T01:27:10.597Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="NLP技术基础整理">
+<meta name="twitter:description" content="什么是自然语言处理？自然语言处理（NLP）是一门融语言学、计算机科学、人工智能于一体的（实验性）科学，解决的是“让机器可以理解自然语言”。 NLP = NLU + NLG NLP问题的难点 自然语言有歧义（ambiguity），同样的含义又有不同的表达方式（variability） ambiguity：同样的一段表述能表示不同的意思 variability：不同的表达方式是同一个意思    cor">
+<meta name="twitter:image" content="https://uploader.shimo.im/f/56iORCYdcewm9en3.png!thumbnail">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>NLP技术基础整理 | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Attention/">Attention</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BERT/">BERT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BLUE/">BLUE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Beam-search/">Beam search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CRF/">CRF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ConvNet/">ConvNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ELMo/">ELMo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPT/">GPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GRU/">GRU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradient-Clipping/">Gradient Clipping</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LSTM/">LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linear/">Linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Parsing/">Parsing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PyTorch/">PyTorch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QA/">QA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN/">RNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN-LSTM/">RNN/LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Recursive-Neural-Networks/">Recursive Neural Networks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seq2Seq/">Seq2Seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TorchText/">TorchText</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer/">Transformer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer-XL/">Transformer-XL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/XLNet/">XLNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/inference/">inference</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jiaba/">jiaba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jieba/">jieba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/word-embedding/">word-embedding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wxBot/">wxBot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/中文分词/">中文分词</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图神经网络/">图神经网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/朴素贝叶斯/">朴素贝叶斯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则表达式/">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聊天机器人/">聊天机器人</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言模型/">语言模型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-NLP技术基础整理" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/01/28/NLP技术基础整理/" class="article-date">
+      <time datetime="2020-01-28T09:50:41.000Z" itemprop="datePublished">2020-01-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      NLP技术基础整理
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/NLP/">NLP</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RNN/">RNN</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/语言模型/">语言模型</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="什么是自然语言处理？"><a href="#什么是自然语言处理？" class="headerlink" title="什么是自然语言处理？"></a>什么是自然语言处理？</h2><p>自然语言处理（NLP）是一门融语言学、计算机科学、人工智能于一体的（实验性）科学，解决的是“让机器可以理解自然语言”。</p>
+<p>NLP = NLU + NLG</p>
+<h2 id="NLP问题的难点"><a href="#NLP问题的难点" class="headerlink" title="NLP问题的难点"></a>NLP问题的难点</h2><ul>
+<li>自然语言有歧义（ambiguity），同样的含义又有不同的表达方式（variability）<ul>
+<li>ambiguity：同样的一段表述能表示不同的意思</li>
+<li>variability：不同的表达方式是同一个意思</li>
+</ul>
+</li>
+</ul>
+<p>coreference resolution</p>
+<p>爸爸已经抱不动<strong>小明</strong>了，因为<strong>他</strong>太胖了。</p>
+<p><strong>爸爸</strong>已经抱不动小明了，因为<strong>他</strong>太虚弱了。</p>
+<p>WSC: GPT-2</p>
+<h2 id="机器学习与NLP"><a href="#机器学习与NLP" class="headerlink" title="机器学习与NLP"></a>机器学习与NLP</h2><p>使用机器学习的方法让模型能够学到输入和输出之间的映射关系。在NLP中，输入一般都是语言文字，而输出则是各种不同的label。</p>
+<h2 id="单词"><a href="#单词" class="headerlink" title="单词"></a>单词</h2><p>自然语言的基本构成单元。</p>
+<h2 id="分词"><a href="#分词" class="headerlink" title="分词"></a>分词</h2><p>英文中的单词一般用空格隔开（标点符号等特殊情况除外），所以天然地完成了分词。中文的分词则不那么自然，需要人为分词。比较好用的分词工具：<a href="https://github.com/lancopku/pkuseg-python" target="_blank" rel="noopener">https://github.com/lancopku/pkuseg-python</a> </p>
+<p>jieba</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pip install pkuseg</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> pkuseg</span><br><span class="line">&gt;&gt;&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>seg = pkuseg.pkuseg()           <span class="comment"># 以默认配置加载模型</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>text = seg.cut(<span class="string">'我爱北京天安门'</span>)  <span class="comment"># 进行分词</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(text)</span><br><span class="line">[<span class="string">'我'</span>, <span class="string">'爱'</span>, <span class="string">'北京'</span>, <span class="string">'天安门'</span>]</span><br></pre></td></tr></table></figure>
+
+<p>英文分词可以使用NLTK</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> nltk</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sentence = “hello, world<span class="string">"</span></span><br><span class="line"><span class="string">&gt;&gt;&gt; tokens = nltk.word_tokenize(sentence)</span></span><br><span class="line"><span class="string">&gt;&gt;&gt; tokens</span></span><br><span class="line"><span class="string">['hello', ‘,', 'world']</span></span><br><span class="line"><span class="string">&gt;&gt;&gt; sents = nltk.sent_tokenize(documents)</span></span><br></pre></td></tr></table></figure>
+
+<p>NLTK还有一些好用的功能，例如POS Tagging</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> nltk</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>text = nltk.word_tokenize(<span class="string">'what does the fox say'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>text</span><br><span class="line">[<span class="string">'what'</span>, <span class="string">'does'</span>, <span class="string">'the'</span>, <span class="string">'fox'</span>, <span class="string">'say'</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>nltk.pos_tag(text)</span><br><span class="line">[(<span class="string">'what'</span>, <span class="string">'WDT'</span>), (<span class="string">'does'</span>, <span class="string">'VBZ'</span>), (<span class="string">'the'</span>, <span class="string">'DT'</span>), (<span class="string">'fox'</span>, <span class="string">'NNS'</span>), (<span class="string">'say'</span>, <span class="string">'VBP'</span>)]</span><br></pre></td></tr></table></figure>
+
+<p>Named Entity Recognition</p>
+<p><img src="https://uploader.shimo.im/f/56iORCYdcewm9en3.png!thumbnail" alt="img"></p>
+<p>去除停用词</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> nltk.corpus <span class="keyword">import</span> stopwords</span><br><span class="line"><span class="comment"># 先token一把，得到一个word_list</span></span><br><span class="line"><span class="comment"># ...</span></span><br><span class="line"><span class="comment"># 然后filter一把</span></span><br><span class="line">filtered_words = </span><br><span class="line">[word <span class="keyword">for</span> word <span class="keyword">in</span> word_list <span class="keyword">if</span> word <span class="keyword">not</span> <span class="keyword">in</span> stopwords.words(<span class="string">'english'</span>)]</span><br></pre></td></tr></table></figure>
+
+<p>one hot vector [0, 0, 0, 1, 0, 0…]</p>
+<h2 id="Bag-of-Words和TF-IDF"><a href="#Bag-of-Words和TF-IDF" class="headerlink" title="Bag of Words和TF-IDF"></a>Bag of Words和TF-IDF</h2><p>词包模型</p>
+<p>vocab: 50000个单词</p>
+<p>文本–&gt; 50000维向量</p>
+<p>{a: 0, an: 1, the:2, ….}</p>
+<p>[100, 50, 30, …]</p>
+<p><strong>TF: Term Frequency</strong>, 衡量一个term在文档中出现得有多频繁。</p>
+<p>TF(t) = (t出现在文档中的次数) / (文档中的term总数)</p>
+<p>文档一个10000个单词，100个the</p>
+<p>TF(the) = 0.01</p>
+<p><strong>IDF: Inverse Document Frequency</strong>, 衡量一个term有多重要。</p>
+<p>有些词出现的很多，但是信息量可能不大，比如’is’，’the‘，’and‘之类。</p>
+<p>为了平衡，我们把罕见的词的重要性（weight）调高，把常见词的重要性调低。</p>
+<p>IDF(t) = lg(文档总数 / 含有t的文档总数 + 1)</p>
+<p>语料一共在3篇文章中出现，但是我们一共有100,000篇文章。IDF(julyedu) = log(100,000/3)</p>
+<p><strong>TF-IDF = TF * IDF</strong></p>
+<p>TFIDF词包</p>
+<p>a, 100*0.000001</p>
+<p>[0.0001, ]</p>
+<h2 id="Distributional-Word-Vectors-词向量"><a href="#Distributional-Word-Vectors-词向量" class="headerlink" title="Distributional Word Vectors 词向量"></a>Distributional Word Vectors 词向量</h2><p>distributional semantics</p>
+<p>“The distributional hypothesis in linguistics is derived from the semantic theory of language usage, i.e. words that are used and occur in the same contexts tend to purport similar meanings.”</p>
+<p>如果两个单词总是在同样的语境下出现，那么表示他们之间存在某种相关性/相似性。</p>
+<p>Counting Context Words</p>
+<p><img src="https://uploader.shimo.im/f/OClAoRm660cjqZR3.png!thumbnail" alt="img"></p>
+<p>50000 * 50000</p>
+<p>50000*300  </p>
+<p>300*300</p>
+<p>300*50000</p>
+<p>在我们定义的固定大小的context window下出现的单词组，就是co-occuring word pairs。</p>
+<p>对于句子的开头和结尾，我们可以定义两个特殊的符号  &lt;s&gt;   和  &lt;/s&gt;。</p>
+<h2 id="单词相似度"><a href="#单词相似度" class="headerlink" title="单词相似度"></a>单词相似度</h2><p>使用词向量间的cosine相似度（cosine 夹角）, u, v是两个词向量</p>
+<p><img src="https://uploader.shimo.im/f/tQdVXIYvqV4KYDft.png!thumbnail" alt="img">= cosine(u, v)</p>
+<p>单词”cooked”周围context windows最常见的单词</p>
+<p><img src="https://uploader.shimo.im/f/5yQkBDvdSLMwl5D7.png!thumbnail" alt="img"></p>
+<p>Pointwise Mutual Information (PMI)</p>
+<p><img src="https://uploader.shimo.im/f/5y0BeYWd6FcaIvsY.png!thumbnail" alt="img"></p>
+<p>独立 P(x)*P(y) = P(x, y)</p>
+<p>PMI表示了事件 x 和事件 y 之间是否存在相关性。</p>
+<p>与 “cooked” PMI值最高的单词</p>
+<p><img src="https://uploader.shimo.im/f/ywl7Mm0fkBYm9phX.png!thumbnail" alt="img"></p>
+<h2 id="如何评估词向量的好坏？"><a href="#如何评估词向量的好坏？" class="headerlink" title="如何评估词向量的好坏？"></a>如何评估词向量的好坏？</h2><p>标准化的单词相似度数据集</p>
+<ul>
+<li>Assign a numerical similarity score between 0 and 10 (0 = words are totally    unrelated, 10 = words are VERY closely related).</li>
+</ul>
+<p><img src="https://uploader.shimo.im/f/ToYFke24QkcZ1Nnc.png!thumbnail" alt="img"><img src="https://uploader.shimo.im/f/QTXGcqteVe4Gw2ly.png!thumbnail" alt="img"></p>
+<p>cosine(journey, voyage) = </p>
+<p>cosine(king, queen) = </p>
+<p>spearman’s R 分数</p>
+<p><strong>Sparse vs. dense vectors</strong></p>
+<p>根据context window定义的词向量非常长，<strong>很多位置上都是0.</strong> 表示我们的信息密度是很低的</p>
+<ul>
+<li><p>低维度词向量更容易训练模型，占用的内存/硬盘也会比较小。</p>
+</li>
+<li><p>低维度词向量能够学到一些单词间的关系，例如有些单词之间是近义词。</p>
+</li>
+</ul>
+<p>降维算法</p>
+<ul>
+<li><p>PCA</p>
+</li>
+<li><p>SVD</p>
+</li>
+<li><p>Brown cluster</p>
+</li>
+<li><p><strong>Word2Vec</strong></p>
+</li>
+</ul>
+<h2 id="Contextualized-Word-Vectors"><a href="#Contextualized-Word-Vectors" class="headerlink" title="Contextualized Word Vectors"></a>Contextualized Word Vectors</h2><p>近两年非常流行的做法，不仅仅是针对单个单词训练词向量，而是根据单词出现的语境给出词向量，是的该词向量既包含当前单词的信息，又包含单词周围context的信息。</p>
+<ul>
+<li><p>BERT, RoBERTa, ALBERT, T5</p>
+</li>
+<li><p>GPT2</p>
+</li>
+</ul>
+<h2 id="文本分类"><a href="#文本分类" class="headerlink" title="文本分类"></a>文本分类</h2><p>NLP数据集</p>
+<ul>
+<li>NLP数据集一般包含输入（inputs，一般是文字）和输出（outputs，一般是某种标注）。</li>
+</ul>
+<p>标注</p>
+<ul>
+<li><p>监督学习需要标注过的数据集，这些标注一般被称为ground truth。</p>
+</li>
+<li><p>在自然语言处理数据集中，标注往往是由人手动标注的</p>
+</li>
+<li><p>人们往往会对数据的标注有不同的意见，因为很多时候不同的人对同样的语言会有不同的理解。所以我们也会把这些标注称为gold standard，而不是ground truth。</p>
+</li>
+</ul>
+<p>NLP数据集如何构建</p>
+<ul>
+<li><p>付钱请人标注</p>
+<ul>
+<li>比较传统的做法</li>
+<li>研究员写下标注的guideline，然后花钱请人标注（以前一般请一些专业的语言学家）</li>
+<li>标注的质量会比较高，但是成本也高</li>
+<li>例如，Penn Treebank(1993)</li>
+</ul>
+</li>
+<li><p>Croudsourcing</p>
+<ul>
+<li>现在比较流行</li>
+<li>一般不专门训练标注者（annotator），但是可以对同一条数据取得多条样本</li>
+<li>例如，Stanford Sentiment Treebank</li>
+</ul>
+</li>
+<li><p>自然拥有标注的数据集</p>
+<ul>
+<li>法律文件的中英文版本，可以用于训练翻译模型</li>
+<li>报纸的内容分类</li>
+<li>聊天记录</li>
+<li>文本摘要（新闻的全文和摘要）</li>
+</ul>
+</li>
+</ul>
+<p>标注者同意度 Annotator Agreement</p>
+<ul>
+<li>给定两个标注者给出的所有标注，如何计算他们之间的标注是否比较统一？<ul>
+<li>相同标注的百分比？</li>
+<li>Cohen’s Kappa</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://uploader.shimo.im/f/tPj4cDeD0qwzoRl8.png!thumbnail" alt="img"></p>
+<p>来自维基百科</p>
+<ul>
+<li>也有更多别的测量方法</li>
+</ul>
+<h2 id="常见的文本分类数据集"><a href="#常见的文本分类数据集" class="headerlink" title="常见的文本分类数据集"></a>常见的文本分类数据集</h2><p>英文：</p>
+<ul>
+<li>AGNEWS, DBPedia, TREC: <a href="http://nlpprogress.com/english/text_classification.html" target="_blank" rel="noopener">http://nlpprogress.com/english/text_classification.html</a></li>
+</ul>
+<p>中文：</p>
+<ul>
+<li><a href="https://github.com/SophonPlus/ChineseNlpCorpus" target="_blank" rel="noopener">https://github.com/SophonPlus/ChineseNlpCorpus</a></li>
+</ul>
+<h2 id="文本分类模型"><a href="#文本分类模型" class="headerlink" title="文本分类模型"></a>文本分类模型</h2><p>什么是一个分类器？</p>
+<ul>
+<li><p>一个从输入（inputs）特征x投射到标注y的函数</p>
+</li>
+<li><p>一个简单的分类器：</p>
+<ul>
+<li>对于输入<strong>x</strong>，给每一个label y打一个分数，score(<strong>x</strong>, y, <strong>w</strong>)，其中<strong>w</strong>是模型的参数</li>
+<li>分类问题也就是选出分数最高的y：classify(<strong>x, w</strong>) = argmax_y score(<strong>x</strong>, y, <strong>w</strong>)</li>
+</ul>
+</li>
+</ul>
+<p>Modeling, Inference, Learning</p>
+<p><img src="https://uploader.shimo.im/f/ZMjjEt9ljYYZOe0M.png!thumbnail" alt="img"></p>
+<h2 id="Modeling"><a href="#Modeling" class="headerlink" title="Modeling"></a>Modeling</h2><p>二元情感分类</p>
+<p>classify(<strong>x, w</strong>)  = argmax_y score(<strong>x,</strong> y, <strong>w</strong>)</p>
+<p>如果我们采用线性模型，那么模型可以被写为</p>
+<p><img src="https://uploader.shimo.im/f/OS6m4GnrJW8nxTQx.png!thumbnail" alt="img"></p>
+<p>现在的问题是，我们如何定义f？对于比较常见的机器学习问题，我们的输入往往是格式固定的，但是NLP的输入一般是长度不固定的文本。这里就涉及到如何把文本转换成特征（feature）。</p>
+<ul>
+<li><p>过去25年：特征工程（feature engineering），人为定制，比较复杂，只适用于某一类问题</p>
+</li>
+<li><p>过去5年：表示学习（representation learning）, ICLR， international conference for learning representations</p>
+</li>
+</ul>
+<p>常见的features：</p>
+<p>f1: 文本是正面情感，文本包含“好”</p>
+<p>f2: 文本是负面情感，文本包含“好”</p>
+<p>。。。</p>
+<h2 id="Inference"><a href="#Inference" class="headerlink" title="Inference"></a>Inference</h2><p>比较直观，给定一段话，在每个Label上打分，然后取分数最大的label作为预测。</p>
+<h2 id="Learning"><a href="#Learning" class="headerlink" title="Learning"></a>Learning</h2><ul>
+<li><p>根据训练数据得到模型权重<strong>w</strong></p>
+</li>
+<li><p>把数据分为训练集（train），验证集（dev, val）测试集（test）</p>
+</li>
+<li><p>在NLP中，我们常常使用一种learning framework: Empirical Risk Minimization</p>
+<ul>
+<li>损失函数（cost function）：对比模型的预测和gold standard，计算一个分数<img src="https://uploader.shimo.im/f/d4DeJ9HiUWo9s7Lm.png!thumbnail" alt="img"></li>
+<li>损失函数与我们真正优化的目标要尽量保持一致</li>
+<li>一般来说如果cost为0，表示我们的模型预测完全正确</li>
+<li>对于文本分类来说，我们应该使用怎样的损失函数呢？</li>
+</ul>
+</li>
+</ul>
+<p>错误率：<img src="https://uploader.shimo.im/f/E9r4QuAPgOgrMABu.png!thumbnail" alt="img"></p>
+<p>Risk Minimization:</p>
+<p>给定训练数据 <img src="https://uploader.shimo.im/f/osePhB4L13wW9hVW.png!thumbnail" alt="img">x表示输入，y表示label</p>
+<p>我们的目标是<img src="https://uploader.shimo.im/f/HsQ3wAnDSF05627e.png!thumbnail" alt="img"></p>
+<p>Empirical Risk Minimization <img src="https://uploader.shimo.im/f/j8m6S8mQx20BXvuG.png!thumbnail" alt="img"></p>
+<p>我们之前定义的0-1损失函数是很难优化的，因为0-1loss不连续，所以无法使用基于梯度的优化方法。</p>
+<p>loss.backward() # \d loss / \d w = gradient</p>
+<p>optimizer.step() # w - learning_rate*gradient</p>
+<p>cost = -score(x, y_label, w) 问题：没有考虑到label之间的关系！</p>
+<p>一些其他的损失函数</p>
+<p><strong>perceptron loss</strong></p>
+<p><img src="https://uploader.shimo.im/f/Z0tFJCnDmosbrqSl.png!thumbnail" alt="img"></p>
+<p><strong>hinge loss</strong></p>
+<p><img src="https://uploader.shimo.im/f/4NtGiIfAhsUB1CD0.png!thumbnail" alt="img"></p>
+<p><img src="https://uploader.shimo.im/f/IYZsqDJtKqE1xTNS.png!thumbnail" alt="img"></p>
+<h3 id="Log-Loss-Cross-Entropy-Loss"><a href="#Log-Loss-Cross-Entropy-Loss" class="headerlink" title="Log Loss/Cross Entropy Loss"></a>Log Loss/Cross Entropy Loss</h3><p><img src="https://uploader.shimo.im/f/t5msLvPFMsQMSZ7n.png!thumbnail" alt="img"></p>
+<p>我们之前只有score(x, y, w)，怎么样定义p_w(y | z)</p>
+<ul>
+<li><p>让gold standard label的条件概率尽可能大</p>
+</li>
+<li><p>使用softmax把score转化成概率</p>
+</li>
+<li><p>其中的score function可以是各种函数，例如一个神经网络</p>
+</li>
+</ul>
+<p>损失函数往往会结合regularization 正则项</p>
+<ul>
+<li><p>L2 regularization <img src="https://uploader.shimo.im/f/pZ2L5AVPvWE5Hksz.png!thumbnail" alt="img"></p>
+</li>
+<li><p>L1 regularization <img src="https://uploader.shimo.im/f/fG2yM4re1x8ZURLk.png!thumbnail" alt="img"></p>
+</li>
+</ul>
+<p>模型训练</p>
+<ul>
+<li>(stochastic, batch) gradient descent</li>
+</ul>
+<h2 id="语言模型"><a href="#语言模型" class="headerlink" title="语言模型"></a>语言模型</h2><p>语言模型：给句子计算一个概率</p>
+<p>为什么会有这样一个奇怪的任务？</p>
+<ul>
+<li><p>机器翻译：P（我喜欢吃水果）&gt; P（我喜欢喝水果）</p>
+</li>
+<li><p>拼写检查：P（我想吃饭）&gt; P（我像吃饭）</p>
+</li>
+<li><p>语音识别：P （我看见了一架飞机）&gt; P（我看见了一架斐济）</p>
+</li>
+<li><p>summarizaton, question answering, etc. </p>
+</li>
+</ul>
+<p>文本自动补全。。。</p>
+<h2 id="概率语言模型（probablistic-language-modeling）"><a href="#概率语言模型（probablistic-language-modeling）" class="headerlink" title="概率语言模型（probablistic language modeling）"></a>概率语言模型（probablistic language modeling）</h2><ul>
+<li><p>目标：计算一串单词连成一个句子的概率 P(<strong>w</strong>) = P(w_1, …, w_n)</p>
+</li>
+<li><p>相关的任务 P(w_4|w_1, …, w_3) </p>
+</li>
+<li><p>这两个任务的模型都称之为语言模型</p>
+</li>
+</ul>
+<p>条件概率</p>
+<p><img src="https://uploader.shimo.im/f/jnAscu6ZX6Ua0iKb.png!thumbnail" alt="img"></p>
+<p>马尔科夫假设</p>
+<ul>
+<li><p>上述条件概率公式只取决于最近的n-1个单词 P(w_i|w_1, …, w_{i-1}) = P(w_i | w_{i-n+1}, …, w_{i-1})</p>
+</li>
+<li><p>我们创建出了n-gram模型</p>
+</li>
+<li><p>简单的案例，bigram模型</p>
+</li>
+</ul>
+<p><img src="https://uploader.shimo.im/f/I2HL7hp9YtQpnrCY.png!thumbnail" alt="img"></p>
+<p>一些Smoothing方法</p>
+<ul>
+<li>“Add-1” estimation</li>
+</ul>
+<p><img src="https://uploader.shimo.im/f/K8GCxNZ0tvAHbT6k.png!thumbnail" alt="img"></p>
+<ul>
+<li><p>Backoff，如果一些trigram存在，就是用trigram，如果不存在，就是用bigram，如果bigram也不存在，就退而求其次使用unigram。</p>
+</li>
+<li><p>interpolation：混合使用unigram, bigram, trigram</p>
+</li>
+</ul>
+<p>Perplexity: 用于评估语言模型的好坏。评估的语言，我现在给你一套比较好的语言，我希望自己的语言模型能够给这段话尽可能高的分数。</p>
+<p><img src="https://uploader.shimo.im/f/tq4vTXGrt80lNPky.png!thumbnail" alt="img"> l 越大越好，-l 越小越好</p>
+<p><img src="https://uploader.shimo.im/f/QGDnJuSZy4U48KFA.png!thumbnail" alt="img">PP 越小越好 困惑度</p>
+<p>perplexity越低 = 模型越好</p>
+<h2 id="简单的Trigram神经网络语言模型"><a href="#简单的Trigram神经网络语言模型" class="headerlink" title="简单的Trigram神经网络语言模型"></a>简单的Trigram神经网络语言模型</h2><p><img src="https://uploader.shimo.im/f/CJrPG8AsEUktoMmU.png!thumbnail" alt="img"></p>
+<p>这个模型可以使用log loss来训练。</p>
+<p>我们还可以在这个模型的基础上增加hidden layer </p>
+<p><img src="https://uploader.shimo.im/f/bV1ttfAFazcOcXpj.png!thumbnail" alt="img"></p>
+<h2 id="循环神经网络（Recurrent-Neural-Networks）"><a href="#循环神经网络（Recurrent-Neural-Networks）" class="headerlink" title="循环神经网络（Recurrent Neural Networks）"></a>循环神经网络（Recurrent Neural Networks）</h2><p><img src="https://uploader.shimo.im/f/WUuDdC1NvcoEvYtG.png!thumbnail" alt="img"></p>
+<p>基于循环神经网络的语言模型</p>
+<p><img src="https://uploader.shimo.im/f/xveC6xbloAUcZNsk.png!thumbnail" alt="img"></p>
+<p><img src="https://uploader.shimo.im/f/4OYGZmwTiZIi45JQ.png!thumbnail" alt="img"></p>
+<p>Long Short-term Memory</p>
+<p><img src="https://uploader.shimo.im/f/LAcBJG4tRCEhosvb.png!thumbnail" alt="img"></p>
+<p>Gates</p>
+<p><img src="https://uploader.shimo.im/f/ALMg6pQ29vIRto5c.png!thumbnail" alt="img"></p>
+<p>Gated Recurrent Unit (GRU)</p>
+<p><img src="https://uploader.shimo.im/f/F7xsa6NCDqQwhXLD.png!thumbnail" alt="img"></p>
+<p><a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/" target="_blank" rel="noopener">https://colah.github.io/posts/2015-08-Understanding-LSTMs/</a></p>
+<h1 id="Word2Vec"><a href="#Word2Vec" class="headerlink" title="Word2Vec"></a>Word2Vec</h1><p><img src="https://uploader.shimo.im/f/w3BqZxsJscgnTdOo.png!thumbnail" alt="img"></p>
+<p>我们的目标是利用没有标注过的纯文本训练有用的词向量（word vectors）</p>
+<p>skip-gram (window size = 5)</p>
+<blockquote>
+<p>agriculture is the tradional mainstay of the cambodian economy . but benares has been destroyed by an earthquake.</p>
+</blockquote>
+<p><img src="https://uploader.shimo.im/f/HCdEvmDFLjQaKEjy.png!thumbnail" alt="img"></p>
+<p>skip-gram中使用的score function</p>
+<p><img src="https://uploader.shimo.im/f/2zIZmqQGMHspT70Y.png!thumbnail" alt="img"></p>
+<p>模型参数，所有的单词的词向量，包括输入向量和输出向量</p>
+<h2 id="learning"><a href="#learning" class="headerlink" title="learning"></a>learning</h2><p><img src="https://uploader.shimo.im/f/N7MJfS38rIYSTgPJ.png!thumbnail" alt="img"></p>
+<p><img src="https://uploader.shimo.im/f/gONaJMt6zNYKXwOw.png!thumbnail" alt="img"></p>
+<p>注意这个概率模型需要汇总单词表中的所有单词，计算量非常之大</p>
+<h2 id="Negative-Sampling"><a href="#Negative-Sampling" class="headerlink" title="Negative Sampling"></a>Negative Sampling</h2><p><img src="https://uploader.shimo.im/f/3z40P9PADe4YxhYr.png!thumbnail" alt="img"></p>
+<p>随机生成一些负例，然后优化以上损失函数</p>
+<p><img src="https://uploader.shimo.im/f/sa2fnlo4tvA5zP4I.png!thumbnail" alt="img"></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2020/01/28/NLP技术基础整理/">NLP技术基础整理</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2020-01-28, 17:50:41</p>
+        <p><span>最后更新:</span>2020-06-09, 09:27:10</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2020/01/28/NLP技术基础整理/" title="NLP技术基础整理">http://mmyblog.cn/2020/01/28/NLP技术基础整理/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2020/01/28/NLP技术基础整理/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2020/02/08/酒店评价情感分类与CNN模型/">
+                    酒店评价情感分类与CNN模型
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2020/01/18/CNN-Image-Classification/">
+                    CNN-Image-Classification
+                </a>
+            </div>
+        
+    </nav>
+
+  
+  
+    <! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+    <div id="donate_guide" class="donate_bar center hidden" >
+        
+            <!-- <img src="/img/Alipay.jpg" alt="支付宝打赏">
+            <img src="/img/WeChatpay.jpg" alt="微信打赏"> -->
+       
+        <!-- 方式二；
+            step1：在_config.yml中添加配置
+                Alipay: /img/Alipay.jpg
+                WeChatpay: /img/WeChatpay.jpg
+            step2：此处两张图片的路径分别设置为如下
+                <img src=""
+                <img src=""
+        -->
+        <!-- 支付宝打赏图案 -->
+        <img src="/img/Alipay.jpg" alt="支付宝打赏">
+        <!-- 微信打赏图案 -->
+        <img src="/img//WeChatpay.jpg" alt="微信打赏">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn_donate').onclick = function(){
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+    </script>
+</div>
+<! -- 添加捐赠图标 -->
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是自然语言处理？"><span class="toc-number">1.</span> <span class="toc-text">什么是自然语言处理？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NLP问题的难点"><span class="toc-number">2.</span> <span class="toc-text">NLP问题的难点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#机器学习与NLP"><span class="toc-number">3.</span> <span class="toc-text">机器学习与NLP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#单词"><span class="toc-number">4.</span> <span class="toc-text">单词</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分词"><span class="toc-number">5.</span> <span class="toc-text">分词</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Bag-of-Words和TF-IDF"><span class="toc-number">6.</span> <span class="toc-text">Bag of Words和TF-IDF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Distributional-Word-Vectors-词向量"><span class="toc-number">7.</span> <span class="toc-text">Distributional Word Vectors 词向量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#单词相似度"><span class="toc-number">8.</span> <span class="toc-text">单词相似度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何评估词向量的好坏？"><span class="toc-number">9.</span> <span class="toc-text">如何评估词向量的好坏？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Contextualized-Word-Vectors"><span class="toc-number">10.</span> <span class="toc-text">Contextualized Word Vectors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文本分类"><span class="toc-number">11.</span> <span class="toc-text">文本分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见的文本分类数据集"><span class="toc-number">12.</span> <span class="toc-text">常见的文本分类数据集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文本分类模型"><span class="toc-number">13.</span> <span class="toc-text">文本分类模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Modeling"><span class="toc-number">14.</span> <span class="toc-text">Modeling</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Inference"><span class="toc-number">15.</span> <span class="toc-text">Inference</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Learning"><span class="toc-number">16.</span> <span class="toc-text">Learning</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Log-Loss-Cross-Entropy-Loss"><span class="toc-number">16.1.</span> <span class="toc-text">Log Loss/Cross Entropy Loss</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#语言模型"><span class="toc-number">17.</span> <span class="toc-text">语言模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#概率语言模型（probablistic-language-modeling）"><span class="toc-number">18.</span> <span class="toc-text">概率语言模型（probablistic language modeling）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#简单的Trigram神经网络语言模型"><span class="toc-number">19.</span> <span class="toc-text">简单的Trigram神经网络语言模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#循环神经网络（Recurrent-Neural-Networks）"><span class="toc-number">20.</span> <span class="toc-text">循环神经网络（Recurrent Neural Networks）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Word2Vec"><span class="toc-number"></span> <span class="toc-text">Word2Vec</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#learning"><span class="toc-number">1.</span> <span class="toc-text">learning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Negative-Sampling"><span class="toc-number">2.</span> <span class="toc-text">Negative Sampling</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"NLP技术基础整理　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/02/08/酒店评价情感分类与CNN模型/" title="上一篇: 酒店评价情感分类与CNN模型">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/01/18/CNN-Image-Classification/" title="下一篇: CNN-Image-Classification">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/扩展内容/">扩展内容</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/XLNet/">XLNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/PyTorch/">PyTorch</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/朴素贝叶斯/">朴素贝叶斯</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/GPT模型/">GPT模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/BERT系列预训练模型/">BERT系列预训练模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/19/阅读理解/">阅读理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/18/Transformer模型解读/">Transformer模型解读</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/16/Transformer-XL/">Transformer-XL</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/英文书籍word级别的文本生成代码注释/">英文书籍word级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/文本生成任务/">文本生成任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/09/常见预训练模型/">BERT&ELMo&co</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/01/大规模无监督预训练语言模型与应用上/">大规模无监督预训练语言模型与应用上</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/18/语言模型/">语言模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/15/NLP中的ConvNet/">NLP中的ConvNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/13/seq2seq/">seq2seq</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/09/机器翻译与文本摘要/">机器翻译与文本摘要</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/sentiment情感分析代码注释/">sentiment情感分析代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/11/聊天机器人二/">聊天机器人二</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/10/聊天机器人一/">聊天机器人一</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/09/结构化预测/">结构化预测</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/word-embedding/">word-embedding</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/酒店评价情感分类与CNN模型/">酒店评价情感分类与CNN模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/28/NLP技术基础整理/">NLP技术基础整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/18/CNN-Image-Classification/">CNN-Image-Classification</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/丘吉尔的人物传记char级别的文本生成代码注释/">丘吉尔的人物传记char级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/用朴素贝叶斯完成语种检测/">用朴素贝叶斯完成语种检测</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/24/文本分类问题/">文本分类问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/08/python正则表达式/">python正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/08/jieba中文处理/">jieba中文处理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

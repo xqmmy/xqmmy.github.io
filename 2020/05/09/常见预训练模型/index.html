@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="【译】The Illustrated BERT, ELMo, and co.ELMo: Contextualized Word Vectors 本文由Adam Liu授权转载，源链接 https://blog.csdn.net/qq_41664845/article/details/84787969 原文链接：The Illustrated BERT, ELMo, and co. (How NLP">
+<meta name="keywords" content="BERT,ELMo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BERT&amp;ELMo&amp;co">
+<meta property="og:url" content="http://mmyblog.cn/2020/05/09/常见预训练模型/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="【译】The Illustrated BERT, ELMo, and co.ELMo: Contextualized Word Vectors 本文由Adam Liu授权转载，源链接 https://blog.csdn.net/qq_41664845/article/details/84787969 原文链接：The Illustrated BERT, ELMo, and co. (How NLP">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://uploader.shimo.im/f/Z0tgsQt24GAoKjkj.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/6xxJC31NvvYDCGFQ.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/8T7zkJ6MWgwE98oi.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/1jNYmPwPIDEzhsLv.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/4VwjFpmDltoJInZh.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/X6bsq7gTFDERfO9s.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/SIlXQTqB9vM4DEDi.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/AahBpyq3tDodAsMn.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/IPV3LOYXmr8m8GN7.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/7z7sv9ALI24kQSst.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/HWw1FQCwDbUJkIi5.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/ZldUQJvmyjsiR5fx.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/khgCdxx0pNIaAVe3.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/TId9a8gwTE0DTjua.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/cBZwrEweFIQLuP0O.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/KdcfSdkeNBIb5iRT.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/7x6X4ngskaEUd6sY.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/P4V9NbGQz9Q2k213.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/jvcJ8SPeBEwszR8M.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/yKFxOevBvMQXvjnv.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/uKUkG73gELQGry4L.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/bfpUyWE9YCEP9IU2.png!thumbnail">
+<meta property="og:updated_time" content="2020-06-09T00:56:26.079Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="BERT&amp;ELMo&amp;co">
+<meta name="twitter:description" content="【译】The Illustrated BERT, ELMo, and co.ELMo: Contextualized Word Vectors 本文由Adam Liu授权转载，源链接 https://blog.csdn.net/qq_41664845/article/details/84787969 原文链接：The Illustrated BERT, ELMo, and co. (How NLP">
+<meta name="twitter:image" content="https://uploader.shimo.im/f/Z0tgsQt24GAoKjkj.png!thumbnail">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>BERT&amp;ELMo&amp;co | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Attention/">Attention</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BERT/">BERT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BLUE/">BLUE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Beam-search/">Beam search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CRF/">CRF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ConvNet/">ConvNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ELMo/">ELMo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPT/">GPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GRU/">GRU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradient-Clipping/">Gradient Clipping</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LSTM/">LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linear/">Linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Parsing/">Parsing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PyTorch/">PyTorch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QA/">QA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN/">RNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN-LSTM/">RNN/LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Recursive-Neural-Networks/">Recursive Neural Networks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seq2Seq/">Seq2Seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TorchText/">TorchText</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer/">Transformer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer-XL/">Transformer-XL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/XLNet/">XLNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/inference/">inference</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jiaba/">jiaba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jieba/">jieba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/word-embedding/">word-embedding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wxBot/">wxBot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/中文分词/">中文分词</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图神经网络/">图神经网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/朴素贝叶斯/">朴素贝叶斯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则表达式/">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聊天机器人/">聊天机器人</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言模型/">语言模型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-常见预训练模型" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/05/09/常见预训练模型/" class="article-date">
+      <time datetime="2020-05-09T00:25:57.000Z" itemprop="datePublished">2020-05-09</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      BERT&amp;ELMo&amp;co
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/NLP/">NLP</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BERT/">BERT</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ELMo/">ELMo</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="【译】The-Illustrated-BERT-ELMo-and-co"><a href="#【译】The-Illustrated-BERT-ELMo-and-co" class="headerlink" title="【译】The Illustrated BERT, ELMo, and co."></a>【译】The Illustrated BERT, ELMo, and co.</h2><p><a href="https://www.mihaileric.com/posts/deep-contextualized-word-representations-elmo/" target="_blank" rel="noopener">ELMo: Contextualized Word Vectors</a></p>
+<p>本文由Adam Liu授权转载，源链接 <a href="https://blog.csdn.net/qq_41664845/article/details/84787969#comments" target="_blank" rel="noopener">https://blog.csdn.net/qq_41664845/article/details/84787969</a></p>
+<p>原文链接：The Illustrated BERT, ELMo, and co. (How NLP Cracked Transfer Learning)</p>
+<p>作者：Jay Alammar</p>
+<p>修改：褚则伟 <a href="mailto:zeweichu@gmail.com" target="_blank" rel="noopener">zeweichu@gmail.com</a></p>
+<p>BERT论文地址：BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding <a href="https://arxiv.org/abs/1810.04805" target="_blank" rel="noopener">https://arxiv.org/abs/1810.04805</a></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>2018年可谓是自然语言处理（NLP）的元年，在我们如何以最能捕捉潜在语义关系的方式  来辅助计算机对的句子概念性的理解 这方面取得了极大的发展进步。此外， NLP领域的一些开源社区已经发布了很多强大的组件，我们可以在自己的模型训练过程中免费的下载使用。（可以说今年是NLP的ImageNet时刻，因为这和几年前计算机视觉的发展很相似）</p>
+<p><img src="https://uploader.shimo.im/f/Z0tgsQt24GAoKjkj.png!thumbnail" alt="img"></p>
+<p>上图中，最新发布的BERT是一个NLP任务的里程碑式模型，它的发布势必会带来一个NLP的新时代。BERT是一个算法模型，它的出现打破了大量的自然语言处理任务的记录。在BERT的论文发布不久后，Google的研发团队还开放了该模型的代码，并提供了一些在大量数据集上预训练好的算法模型下载方式。Goole开源这个模型，并提供预训练好的模型，这使得所有人都可以通过它来构建一个涉及NLP的算法模型，节约了大量训练语言模型所需的时间，精力，知识和资源。</p>
+<p><img src="https://uploader.shimo.im/f/6xxJC31NvvYDCGFQ.png!thumbnail" alt="img"></p>
+<p>BERT集成了最近一段时间内NLP领域中的一些顶尖的思想，包括但不限于 Semi-supervised Sequence Learning (by Andrew Dai and Quoc Le), ELMo (by Matthew Peters and researchers from AI2 and UW CSE), ULMFiT (by fast.ai founder Jeremy Howard and Sebastian Ruder), and the OpenAI transformer (by OpenAI researchers Radford, Narasimhan, Salimans, and Sutskever), and the Transformer (Vaswani et al).。</p>
+<p>你需要注意一些事情才能恰当的理解BERT的内容，不过，在介绍模型涉及的概念之前可以使用BERT的方法。 </p>
+<h2 id="示例：句子分类"><a href="#示例：句子分类" class="headerlink" title="示例：句子分类"></a>示例：句子分类</h2><p>使用BERT最简单的方法就是做一个文本分类模型，这样的模型结构如下图所示：</p>
+<p><img src="https://uploader.shimo.im/f/8T7zkJ6MWgwE98oi.png!thumbnail" alt="img"></p>
+<p>为了训练一个这样的模型，（主要是训练一个分类器），在训练阶段BERT模型发生的变化很小。该训练过程称为微调，并且源于 Semi-supervised Sequence Learning 和 ULMFiT.。</p>
+<p>为了更方便理解，我们下面举一个分类器的例子。分类器是属于监督学习领域的，这意味着你需要一些标记的数据来训练这些模型。对于垃圾邮件分类器的示例，标记的数据集由邮件的内容和邮件的类别2部分组成（类别分为“垃圾邮件”或“非垃圾邮件”）。</p>
+<h1 id="模型架构"><a href="#模型架构" class="headerlink" title="模型架构"></a>模型架构</h1><p>现在您已经了解了如何使用BERT的示例，让我们仔细了解一下他的工作原理。</p>
+<p><img src="https://uploader.shimo.im/f/1jNYmPwPIDEzhsLv.png!thumbnail" alt="img"></p>
+<p>BERT的论文中介绍了2种版本：</p>
+<ul>
+<li><p>BERT BASE - 与OpenAI Transformer的尺寸相当，以便比较性能</p>
+</li>
+<li><p>BERT LARGE - 一个非常庞大的模型，它完成了本文介绍的最先进的结果。</p>
+</li>
+</ul>
+<p>BERT的基础集成单元是Transformer的Encoder。关于Transformer的介绍可以阅读作者之前的文章：The Illustrated Transformer，该文章解释了Transformer模型 - BERT的基本概念以及我们接下来要讨论的概念。</p>
+<p>2个BERT的模型都有一个很大的编码器层数，（论文里面将此称为Transformer Blocks） - 基础版本就有12层，进阶版本有24层。同时它也有很大的前馈神经网络（ 768和1024个隐藏层神经元），还有很多attention heads（12-16个）。这超过了Transformer论文中的参考配置参数（6个编码器层，512个隐藏层单元，和8个注意头）</p>
+<h2 id="模型输入"><a href="#模型输入" class="headerlink" title="模型输入"></a>模型输入</h2><p>输入的第一个字符为[CLS]，在这里字符[CLS]表达的意思很简单 - Classification （分类）。</p>
+<p>BERT与Transformer 的编码方式一样。将固定长度的字符串作为输入，数据由下而上传递计算，每一层都用到了self attention，并通过前馈神经网络传递其结果，将其交给下一个编码器。</p>
+<p><img src="https://uploader.shimo.im/f/4VwjFpmDltoJInZh.png!thumbnail" alt="img"></p>
+<p>这样的架构，似乎是沿用了Transformer 的架构（除了层数，不过这是我们可以设置的参数）。那么BERT与Transformer 不同之处在哪里呢？可能在模型的输出上，我们可以发现一些端倪。</p>
+<h2 id="模型输出"><a href="#模型输出" class="headerlink" title="模型输出"></a>模型输出</h2><p>每个位置返回的输出都是一个隐藏层大小的向量（基本版本BERT为768）。以文本分类为例，我们重点关注第一个位置上的输出（第一个位置是分类标识[CLS]） 。如下图</p>
+<p>该向量现在可以用作我们选择的分类器的输入，在论文中指出使用单层神经网络作为分类器就可以取得很好的效果。原理如下：</p>
+<p><img src="https://uploader.shimo.im/f/X6bsq7gTFDERfO9s.png!thumbnail" alt="img"></p>
+<p>例子中只有垃圾邮件和非垃圾邮件，如果你有更多的label，你只需要增加输出神经元的个数即可，另外把最后的激活函数换成softmax即可。</p>
+<h2 id="Parallels-with-Convolutional-Nets（BERT-VS卷积神经网络）"><a href="#Parallels-with-Convolutional-Nets（BERT-VS卷积神经网络）" class="headerlink" title="Parallels with Convolutional Nets（BERT VS卷积神经网络）"></a>Parallels with Convolutional Nets（BERT VS卷积神经网络）</h2><p>对于那些具有计算机视觉背景的人来说，这个矢量切换应该让人联想到VGGNet等网络的卷积部分与网络末端的完全连接的分类部分之间发生的事情。你可以这样理解，实质上这样理解也很方便。</p>
+<p><img src="https://uploader.shimo.im/f/SIlXQTqB9vM4DEDi.png!thumbnail" alt="img"></p>
+<h1 id="词嵌入的新时代〜"><a href="#词嵌入的新时代〜" class="headerlink" title="词嵌入的新时代〜"></a>词嵌入的新时代〜</h1><p>BERT的开源随之而来的是一种词嵌入的更新。到目前为止，词嵌入已经成为NLP模型处理自然语言的主要组成部分。诸如Word2vec和Glove 等方法已经广泛的用于处理这些问题，在我们使用新的词嵌入之前，我们有必要回顾一下其发展。</p>
+<h2 id="Word-Embedding-Recap"><a href="#Word-Embedding-Recap" class="headerlink" title="Word Embedding Recap"></a>Word Embedding Recap</h2><p>为了让机器可以学习到文本的特征属性，我们需要一些将文本数值化的表示的方式。Word2vec算法通过使用一组固定维度的向量来表示单词，计算其方式可以捕获到单词的语义及单词与单词之间的关系。使用Word2vec的向量化表示方式可以用于判断单词是否相似，对立，或者说判断“男人‘与’女人”的关系就如同“国王”与“王后”。（这些话是不是听腻了〜 emmm水文必备）。另外还能捕获到一些语法的关系，这个在英语中很实用。例如“had”与“has”的关系如同“was”与“is”的关系。</p>
+<p>这样的做法，我们可以使用大量的文本数据来预训练一个词嵌入模型，而这个词嵌入模型可以广泛用于其他NLP的任务，这是个好主意，这使得一些初创公司或者计算资源不足的公司，也能通过下载已经开源的词嵌入模型来完成NLP的任务。</p>
+<h2 id="ELMo：语境问题"><a href="#ELMo：语境问题" class="headerlink" title="ELMo：语境问题"></a>ELMo：语境问题</h2><p>上面介绍的词嵌入方式有一个很明显的问题，因为使用预训练好的词向量模型，那么无论上下文的语境关系如何，每个单词都只有一个唯一的且已经固定保存的向量化形式“。Wait a minute “ - 出自(Peters et. al., 2017, McCann et. al., 2017, and yet again Peters et. al., 2018 in the ELMo paper )</p>
+<blockquote>
+<p>“ Wait a minute ”这是一个欧美日常梗，示例：</p>
+</blockquote>
+<blockquote>
+<p>​                         我：兄弟，你认真学习深度，没准能拿80W年薪啊。</p>
+</blockquote>
+<blockquote>
+<p>​                         你：Wait a minute，这么好，你为啥不做。 </p>
+</blockquote>
+<p>这和中文的同音字其实也类似，用这个举一个例子吧， ‘长’ 这个字，在 ‘长度’ 这个词中表示度量，在 ‘长高’ 这个词中表示增加。那么为什么我们不通过”长’周围是度或者是高来判断它的读音或者它的语义呢？嗖嘎，这个问题就派生出语境化的词嵌入模型。</p>
+<p><img src="https://uploader.shimo.im/f/AahBpyq3tDodAsMn.png!thumbnail" alt="img"></p>
+<p>EMLo改变Word2vec类的将单词固定为指定长度的向量的处理方式，它是在为每个单词分配词向量之前先查看整个句子，然后使用bi-LSTM来训练它对应的词向量。</p>
+<p><img src="https://uploader.shimo.im/f/IPV3LOYXmr8m8GN7.png!thumbnail" alt="img"></p>
+<p>ELMo为解决NLP的语境问题作出了重要的贡献，它的LSTM可以使用与我们任务相关的大量文本数据来进行训练，然后将训练好的模型用作其他NLP任务的词向量的基准。</p>
+<p>ELMo的秘密是什么？</p>
+<p>ELMo会训练一个模型，这个模型接受一个句子或者单词的输入,输出最有可能出现在后面的一个单词。想想输入法，对啦，就是这样的道理。这个在NLP中我们也称作Language Modeling。这样的模型很容易实现，因为我们拥有大量的文本数据且我们可以在不需要标签的情况下去学习。</p>
+<p><img src="https://uploader.shimo.im/f/7z7sv9ALI24kQSst.png!thumbnail" alt="img"></p>
+<p>上图介绍了ELMo预训练的过程的步骤的一部分：</p>
+<p>我们需要完成一个这样的任务：输入“Lets stick to”，预测下一个最可能出现的单词，如果在训练阶段使用大量的数据集进行训练，那么在预测阶段我们可能准确的预测出我们期待的下一个单词。比如输入“机器”，在‘’学习‘和‘买菜’中它最有可能的输出会是‘学习’而不是‘买菜’。</p>
+<p>从上图可以发现，每个展开的LSTM都在最后一步完成预测。</p>
+<p>对了真正的ELMo会更进一步，它不仅能判断下一个词，还能预测前一个词。（Bi-Lstm）</p>
+<p><img src="https://uploader.shimo.im/f/HWw1FQCwDbUJkIi5.png!thumbnail" alt="img"></p>
+<p>ELMo通过下图的方式将hidden states（的初始的嵌入）组合咋子一起来提炼出具有语境意义的词嵌入方式（全连接后加权求和）</p>
+<p><img src="https://uploader.shimo.im/f/ZldUQJvmyjsiR5fx.png!thumbnail" alt="img"></p>
+<p>ELMo pretrained embedding可以在AllenNLP的repo下找到</p>
+<p><a href="https://github.com/allenai/allennlp/blob/master/tutorials/how_to/elmo.md" target="_blank" rel="noopener">https://github.com/allenai/allennlp/blob/master/tutorials/how_to/elmo.md</a></p>
+<p>顺便说一下AllenNLP有个非常不错的关于NLP的教程</p>
+<p><a href="https://github.com/allenai/writing-code-for-nlp-research-emnlp2018" target="_blank" rel="noopener">https://github.com/allenai/writing-code-for-nlp-research-emnlp2018</a></p>
+<p>ELMo的几位作者都是NLP圈内的知名人士</p>
+<ul>
+<li><p><a href="https://people.cs.umass.edu/~miyyer/" target="_blank" rel="noopener">Mohit Iyyer: UMass</a></p>
+</li>
+<li><p><a href="https://www.cs.washington.edu/people/faculty/lsz/" target="_blank" rel="noopener">Luke Zettlemoyer: UWashington</a></p>
+</li>
+<li><p><a href="https://matt-gardner.github.io/" target="_blank" rel="noopener">Matt Gardner: Allan AI</a></p>
+</li>
+</ul>
+<h3 id="更多ELMo的模型图片"><a href="#更多ELMo的模型图片" class="headerlink" title="更多ELMo的模型图片"></a>更多ELMo的模型图片</h3><p><img src="https://uploader.shimo.im/f/khgCdxx0pNIaAVe3.png!thumbnail" alt="img"></p>
+<p>图片来源（<a href="https://tsenghungchen.github.io/posts/elmo/）" target="_blank" rel="noopener">https://tsenghungchen.github.io/posts/elmo/）</a></p>
+<p><img src="https://uploader.shimo.im/f/TId9a8gwTE0DTjua.png!thumbnail" alt="img"></p>
+<p>图片来源（<a href="https://www.mihaileric.com/posts/deep-contextualized-word-representations-elmo/）" target="_blank" rel="noopener">https://www.mihaileric.com/posts/deep-contextualized-word-representations-elmo/）</a></p>
+<h2 id="ULM-FiT：NLP领域应用迁移学习"><a href="#ULM-FiT：NLP领域应用迁移学习" class="headerlink" title="ULM-FiT：NLP领域应用迁移学习"></a>ULM-FiT：NLP领域应用迁移学习</h2><p>ULM-FiT机制让模型的预训练参数得到更好的利用。所利用的参数不仅限于embeddings，也不仅限于语境embedding，ULM-FiT引入了Language Model和一个有效微调该Language Model来执行各种NLP任务的流程。这使得NLP任务也能像计算机视觉一样方便的使用迁移学习。</p>
+<h2 id="The-Transformer：超越LSTM的结构"><a href="#The-Transformer：超越LSTM的结构" class="headerlink" title="The Transformer：超越LSTM的结构"></a>The Transformer：超越LSTM的结构</h2><p>Transformer论文和代码的发布，以及其在机器翻译等任务上取得的优异成果，让一些研究人员认为它是LSTM的替代品，事实上却是Transformer比LSTM更好的处理long-term dependancies（长程依赖）问题。Transformer Encoding和Decoding的结构非常适合机器翻译，但是怎么利用他来做文本分类的任务呢？实际上你只用使用它来预训练可以针对其他任务微调的语言模型即可。</p>
+<h2 id="OpenAI-Transformer：用于语言模型的Transformer解码器预训练"><a href="#OpenAI-Transformer：用于语言模型的Transformer解码器预训练" class="headerlink" title="OpenAI Transformer：用于语言模型的Transformer解码器预训练"></a>OpenAI Transformer：用于语言模型的Transformer解码器预训练</h2><p>事实证明，我们并不需要一个完整的transformer结构来使用迁移学习和一个很好的语言模型来处理NLP任务。我们只需要Transformer的解码器就行了。The decoder is a good choice because it’s a natural choice for language modeling (predicting the next word) since it’s built to mask future tokens – a valuable feature when it’s generating a translation word by word.</p>
+<p><img src="https://uploader.shimo.im/f/cBZwrEweFIQLuP0O.png!thumbnail" alt="img"></p>
+<p>该模型堆叠了十二个Decoder层。 由于在该设置中没有Encoder，因此这些Decoder将不具有Transformer Decoder层具有的Encoder - Decoder attention层。 然而，取而代之的是一个self attention层（masked so it doesn’t peak at future tokens）。</p>
+<p>通过这种结构调整，我们可以继续在相似的语言模型任务上训练模型：使用大量的未标记数据集训练，来预测下一个单词。举个列子：你那7000本书喂给你的模型，（书籍是极好的训练样本~比博客和推文好很多。）训练框架如下：</p>
+<p><img src="https://uploader.shimo.im/f/KdcfSdkeNBIb5iRT.png!thumbnail" alt="img"></p>
+<h2 id="Transfer-Learning-to-Downstream-Tasks"><a href="#Transfer-Learning-to-Downstream-Tasks" class="headerlink" title="Transfer Learning to Downstream Tasks"></a>Transfer Learning to Downstream Tasks</h2><p>通过OpenAI的transformer的预训练和一些微调后，我们就可以将训练好的模型，用于其他下游NLP任务啦。（比如训练一个语言模型，然后拿他的hidden state来做分类。），下面就介绍一下这个骚操作。（还是如上面例子：分为垃圾邮件和非垃圾邮件）</p>
+<p><img src="https://uploader.shimo.im/f/7x6X4ngskaEUd6sY.png!thumbnail" alt="img"></p>
+<p>OpenAI论文概述了许多Transformer使用迁移学习来处理不同类型NLP任务的例子。如下图例子所示：</p>
+<p><img src="https://uploader.shimo.im/f/P4V9NbGQz9Q2k213.png!thumbnail" alt="img"></p>
+<h2 id="BERT-From-Decoders-to-Encoders"><a href="#BERT-From-Decoders-to-Encoders" class="headerlink" title="BERT: From Decoders to Encoders"></a>BERT: From Decoders to Encoders</h2><p>OpenAI transformer为我们提供了基于Transformer的精密的预训练模型。但是从LSTM到Transformer的过渡中，我们发现少了些东西。ELMo的语言模型是双向的，但是OpenAI的transformer是前向训练的语言模型。我们能否让我们的Transformer模型也具有Bi-Lstm的特性呢？</p>
+<p>R-BERT：“Hold my beer”</p>
+<h2 id="Masked-Language-Model"><a href="#Masked-Language-Model" class="headerlink" title="Masked Language Model"></a>Masked Language Model</h2><p>BERT说：“我要用 transformer 的 encoders”</p>
+<p>Ernie不屑道：“呵呵，你不能像Bi-Lstm一样考虑文章”</p>
+<p>BERT自信回答道：“我们会用masks”</p>
+<blockquote>
+<p>解释一下Mask：</p>
+</blockquote>
+<blockquote>
+</blockquote>
+<blockquote>
+<p>语言模型会根据前面单词来预测下一个单词，但是self-attention的注意力只会放在自己身上，那么这样100%预测到自己，毫无意义，所以用Mask，把需要预测的词给挡住。</p>
+</blockquote>
+<p>如下图：</p>
+<p><img src="https://uploader.shimo.im/f/jvcJ8SPeBEwszR8M.png!thumbnail" alt="img"></p>
+<h2 id="Two-sentence-Tasks"><a href="#Two-sentence-Tasks" class="headerlink" title="Two-sentence Tasks"></a>Two-sentence Tasks</h2><p>我们回顾一下OpenAI transformer处理不同任务的输入转换，你会发现在某些任务上我们需要2个句子作为输入，并做一些更为智能的判断，比如是否相似，比如 给出一个维基百科的内容作为输入，同时在放入一条针对该条目的问题，那么我们的算法模型能够处理这个问题吗？</p>
+<p>为了使BERT更好的处理2个句子之间的关系，预训练的过程还有一个额外的任务：给定2个句子（A和B）,A与B是否相似？（0或者1）</p>
+<h2 id="特殊NLP任务"><a href="#特殊NLP任务" class="headerlink" title="特殊NLP任务"></a>特殊NLP任务</h2><p>BERT的论文为我们介绍了几种BERT可以处理的NLP任务：</p>
+<ol>
+<li><p>短文本相似 </p>
+</li>
+<li><p>文本分类</p>
+</li>
+<li><p>QA机器人</p>
+</li>
+<li><p>语义标注</p>
+</li>
+</ol>
+<p><img src="https://uploader.shimo.im/f/yKFxOevBvMQXvjnv.png!thumbnail" alt="img"></p>
+<h2 id="BERT用做特征提取"><a href="#BERT用做特征提取" class="headerlink" title="BERT用做特征提取"></a>BERT用做特征提取</h2><p>微调方法并不是使用BERT的唯一方法，就像ELMo一样，你可以使用预选训练好的BERT来创建语境化词嵌入。然后你可以将这些嵌入提供给现有的模型。</p>
+<p><img src="https://uploader.shimo.im/f/uKUkG73gELQGry4L.png!thumbnail" alt="img"></p>
+<p>哪个向量最适合作为上下文嵌入？ 我认为这取决于任务。 本文考察了六种选择（与微调模型相比，得分为96.4）：</p>
+<p><img src="https://uploader.shimo.im/f/bfpUyWE9YCEP9IU2.png!thumbnail" alt="img"></p>
+<h1 id="如何使用BERT"><a href="#如何使用BERT" class="headerlink" title="如何使用BERT"></a>如何使用BERT</h1><p>使用BERT的最佳方式是通过 BERT FineTuning with Cloud TPUs (<a href="https://colab.research.google.com/github/tensorflow/tpu/blob/master/tools/colab/bert_finetuning_with_cloud_tpus.ipynb" target="_blank" rel="noopener">https://colab.research.google.com/github/tensorflow/tpu/blob/master/tools/colab/bert_finetuning_with_cloud_tpus.ipynb</a>) 谷歌云上托管的笔记。如果你未使用过谷歌云TPU可以试试看，这是个不错的尝试。另外BERT也适用于TPU，CPU和GPU</p>
+<p>下一步是查看BERT仓库中的代码：</p>
+<ol>
+<li><p>该模型在modeling.py（BertModel类）中构建，与vanilla Transformer编码器完全相同。</p>
+</li>
+<li><p>run_classifier.py是微调过程的一个示例。它还构建了监督模型的分类层。如果要构建自己的分类器，请查看该文件中的create_model()方法。</p>
+</li>
+<li><p>可以下载几种预先训练的模型。涵盖102种语言的多语言模型，这些语言都是在维基百科的数据基础上训练而成的。</p>
+</li>
+<li><p>BERT不会将单词视为tokens。相反，它注重WordPieces。 tokenization.py是将你的单词转换为适合BERT的wordPieces的tokensizer。</p>
+</li>
+</ol>
+<p>我自己给BERT的代码增加了一些注解</p>
+<p><a href="https://github.com/ZeweiChu/bert/blob/master/modeling.py" target="_blank" rel="noopener">https://github.com/ZeweiChu/bert/blob/master/modeling.py</a></p>
+<p>重点关注其中的：</p>
+<ul>
+<li><p>attention_layer: <a href="https://github.com/ZeweiChu/bert/blob/master/modeling.py#L638" target="_blank" rel="noopener">https://github.com/ZeweiChu/bert/blob/master/modeling.py#L638</a></p>
+</li>
+<li><p>transformer_model: <a href="https://github.com/ZeweiChu/bert/blob/master/modeling.py#L868" target="_blank" rel="noopener">https://github.com/ZeweiChu/bert/blob/master/modeling.py#L868</a></p>
+</li>
+</ul>
+<p>BERT的很多任务基于GLUE benchmark</p>
+<p><a href="https://gluebenchmark.com/tasks/" target="_blank" rel="noopener">https://gluebenchmark.com/tasks/</a></p>
+<p><a href="https://openreview.net/pdf?id=rJ4km2R5t7" target="_blank" rel="noopener">https://openreview.net/pdf?id=rJ4km2R5t7</a></p>
+<p>最近还有一个SuperGLUE</p>
+<p><a href="https://w4ngatang.github.io/static/papers/superglue.pdf" target="_blank" rel="noopener">https://w4ngatang.github.io/static/papers/superglue.pdf</a></p>
+<p>您还可以查看BERT的PyTorch实现 (<a href="https://github.com/huggingface/pytorch-transformers)。" target="_blank" rel="noopener">https://github.com/huggingface/pytorch-transformers)。</a> AllenNLP库使用此实现允许将BERT嵌入与任何模型一起使用。</p>
+<p>最近NVIDIA开源了他们53分钟训练BERT的代码</p>
+<p><a href="https://github.com/NVIDIA/DeepLearningExamples/tree/master/PyTorch/LanguageModeling/BERT" target="_blank" rel="noopener">https://github.com/NVIDIA/DeepLearningExamples/tree/master/PyTorch/LanguageModeling/BERT</a></p>
+<hr>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>BERT全文翻译成中文</p>
+<p><a href="https://zhuanlan.zhihu.com/p/59775981" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/59775981</a></p>
+<p>图解 BERT 模型：从零开始构建 BERT</p>
+<p><a href="https://flashgene.com/archives/20062.html" target="_blank" rel="noopener">https://flashgene.com/archives/20062.html</a></p>
+<p>NLP必读：十分钟读懂谷歌BERT模型</p>
+<p><a href="https://zhuanlan.zhihu.com/p/51413773" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/51413773</a></p>
+<p>BERT Explained: State of the art language model for NLP</p>
+<p><a href="https://towardsdatascience.com/bert-explained-state-of-the-art-language-model-for-nlp-f8b21a9b6270" target="_blank" rel="noopener">https://towardsdatascience.com/bert-explained-state-of-the-art-language-model-for-nlp-f8b21a9b6270</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2020/05/09/常见预训练模型/">BERT&amp;ELMo&amp;co</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2020-05-09, 08:25:57</p>
+        <p><span>最后更新:</span>2020-06-09, 08:56:26</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2020/05/09/常见预训练模型/" title="BERT&amp;ELMo&amp;co">http://mmyblog.cn/2020/05/09/常见预训练模型/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2020/05/09/常见预训练模型/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2020/05/10/文本生成任务/">
+                    文本生成任务
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2020/05/01/大规模无监督预训练语言模型与应用上/">
+                    大规模无监督预训练语言模型与应用上
+                </a>
+            </div>
+        
+    </nav>
+
+  
+  
+    <! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+    <div id="donate_guide" class="donate_bar center hidden" >
+        
+            <!-- <img src="/img/Alipay.jpg" alt="支付宝打赏">
+            <img src="/img/WeChatpay.jpg" alt="微信打赏"> -->
+       
+        <!-- 方式二；
+            step1：在_config.yml中添加配置
+                Alipay: /img/Alipay.jpg
+                WeChatpay: /img/WeChatpay.jpg
+            step2：此处两张图片的路径分别设置为如下
+                <img src=""
+                <img src=""
+        -->
+        <!-- 支付宝打赏图案 -->
+        <img src="/img/Alipay.jpg" alt="支付宝打赏">
+        <!-- 微信打赏图案 -->
+        <img src="/img//WeChatpay.jpg" alt="微信打赏">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn_donate').onclick = function(){
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+    </script>
+</div>
+<! -- 添加捐赠图标 -->
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#【译】The-Illustrated-BERT-ELMo-and-co"><span class="toc-number">1.</span> <span class="toc-text">【译】The Illustrated BERT, ELMo, and co.</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number"></span> <span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#示例：句子分类"><span class="toc-number">1.</span> <span class="toc-text">示例：句子分类</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#模型架构"><span class="toc-number"></span> <span class="toc-text">模型架构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#模型输入"><span class="toc-number">1.</span> <span class="toc-text">模型输入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模型输出"><span class="toc-number">2.</span> <span class="toc-text">模型输出</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Parallels-with-Convolutional-Nets（BERT-VS卷积神经网络）"><span class="toc-number">3.</span> <span class="toc-text">Parallels with Convolutional Nets（BERT VS卷积神经网络）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#词嵌入的新时代〜"><span class="toc-number"></span> <span class="toc-text">词嵌入的新时代〜</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Word-Embedding-Recap"><span class="toc-number">1.</span> <span class="toc-text">Word Embedding Recap</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ELMo：语境问题"><span class="toc-number">2.</span> <span class="toc-text">ELMo：语境问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#更多ELMo的模型图片"><span class="toc-number">2.1.</span> <span class="toc-text">更多ELMo的模型图片</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ULM-FiT：NLP领域应用迁移学习"><span class="toc-number">3.</span> <span class="toc-text">ULM-FiT：NLP领域应用迁移学习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#The-Transformer：超越LSTM的结构"><span class="toc-number">4.</span> <span class="toc-text">The Transformer：超越LSTM的结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OpenAI-Transformer：用于语言模型的Transformer解码器预训练"><span class="toc-number">5.</span> <span class="toc-text">OpenAI Transformer：用于语言模型的Transformer解码器预训练</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Transfer-Learning-to-Downstream-Tasks"><span class="toc-number">6.</span> <span class="toc-text">Transfer Learning to Downstream Tasks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BERT-From-Decoders-to-Encoders"><span class="toc-number">7.</span> <span class="toc-text">BERT: From Decoders to Encoders</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Masked-Language-Model"><span class="toc-number">8.</span> <span class="toc-text">Masked Language Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Two-sentence-Tasks"><span class="toc-number">9.</span> <span class="toc-text">Two-sentence Tasks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特殊NLP任务"><span class="toc-number">10.</span> <span class="toc-text">特殊NLP任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BERT用做特征提取"><span class="toc-number">11.</span> <span class="toc-text">BERT用做特征提取</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#如何使用BERT"><span class="toc-number"></span> <span class="toc-text">如何使用BERT</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考文献"><span class="toc-number"></span> <span class="toc-text">参考文献</span></a>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"BERT&ELMo&co　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/05/10/文本生成任务/" title="上一篇: 文本生成任务">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/05/01/大规模无监督预训练语言模型与应用上/" title="下一篇: 大规模无监督预训练语言模型与应用上">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/扩展内容/">扩展内容</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/XLNet/">XLNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/PyTorch/">PyTorch</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/朴素贝叶斯/">朴素贝叶斯</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/GPT模型/">GPT模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/BERT系列预训练模型/">BERT系列预训练模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/19/阅读理解/">阅读理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/18/Transformer模型解读/">Transformer模型解读</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/16/Transformer-XL/">Transformer-XL</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/英文书籍word级别的文本生成代码注释/">英文书籍word级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/文本生成任务/">文本生成任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/09/常见预训练模型/">BERT&ELMo&co</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/01/大规模无监督预训练语言模型与应用上/">大规模无监督预训练语言模型与应用上</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/18/语言模型/">语言模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/15/NLP中的ConvNet/">NLP中的ConvNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/13/seq2seq/">seq2seq</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/09/机器翻译与文本摘要/">机器翻译与文本摘要</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/sentiment情感分析代码注释/">sentiment情感分析代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/11/聊天机器人二/">聊天机器人二</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/10/聊天机器人一/">聊天机器人一</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/09/结构化预测/">结构化预测</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/word-embedding/">word-embedding</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/酒店评价情感分类与CNN模型/">酒店评价情感分类与CNN模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/28/NLP技术基础整理/">NLP技术基础整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/18/CNN-Image-Classification/">CNN-Image-Classification</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/丘吉尔的人物传记char级别的文本生成代码注释/">丘吉尔的人物传记char级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/用朴素贝叶斯完成语种检测/">用朴素贝叶斯完成语种检测</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/24/文本分类问题/">文本分类问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/08/python正则表达式/">python正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/08/jieba中文处理/">jieba中文处理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="什么是PyTorch?PyTorch是一个基于Python的科学计算库，它有以下特点:  类似于NumPy，但是它可以使用GPU 可以用它定义深度学习模型，可以灵活地进行深度学习模型的训练和使用  TensorsTensor类似与NumPy的ndarray，唯一的区别是Tensor可以在GPU上加速运算。 In [2]: 1import torch  构造一个未初始化的5x3矩阵: In [4]:">
+<meta name="keywords" content="PyTorch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyTorch">
+<meta property="og:url" content="http://mmyblog.cn/2020/06/08/PyTorch/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="什么是PyTorch?PyTorch是一个基于Python的科学计算库，它有以下特点:  类似于NumPy，但是它可以使用GPU 可以用它定义深度学习模型，可以灵活地进行深度学习模型的训练和使用  TensorsTensor类似与NumPy的ndarray，唯一的区别是Tensor可以在GPU上加速运算。 In [2]: 1import torch  构造一个未初始化的5x3矩阵: In [4]:">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-06-09T01:28:17.998Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PyTorch">
+<meta name="twitter:description" content="什么是PyTorch?PyTorch是一个基于Python的科学计算库，它有以下特点:  类似于NumPy，但是它可以使用GPU 可以用它定义深度学习模型，可以灵活地进行深度学习模型的训练和使用  TensorsTensor类似与NumPy的ndarray，唯一的区别是Tensor可以在GPU上加速运算。 In [2]: 1import torch  构造一个未初始化的5x3矩阵: In [4]:">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>PyTorch | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Attention/">Attention</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BERT/">BERT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BLUE/">BLUE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Beam-search/">Beam search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CRF/">CRF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ConvNet/">ConvNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ELMo/">ELMo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPT/">GPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GRU/">GRU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradient-Clipping/">Gradient Clipping</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LSTM/">LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linear/">Linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Parsing/">Parsing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PyTorch/">PyTorch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QA/">QA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN/">RNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN-LSTM/">RNN/LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Recursive-Neural-Networks/">Recursive Neural Networks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seq2Seq/">Seq2Seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TorchText/">TorchText</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer/">Transformer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer-XL/">Transformer-XL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/XLNet/">XLNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/inference/">inference</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jiaba/">jiaba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jieba/">jieba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/word-embedding/">word-embedding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wxBot/">wxBot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/中文分词/">中文分词</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图神经网络/">图神经网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/朴素贝叶斯/">朴素贝叶斯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则表达式/">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聊天机器人/">聊天机器人</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言模型/">语言模型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-PyTorch" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/06/08/PyTorch/" class="article-date">
+      <time datetime="2020-06-08T11:12:06.000Z" itemprop="datePublished">2020-06-08</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      PyTorch
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/机器学习/">机器学习</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PyTorch/">PyTorch</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h1 id="什么是PyTorch"><a href="#什么是PyTorch" class="headerlink" title="什么是PyTorch?"></a>什么是PyTorch?</h1><p>PyTorch是一个基于Python的科学计算库，它有以下特点:</p>
+<ul>
+<li>类似于NumPy，但是它可以使用GPU</li>
+<li>可以用它定义深度学习模型，可以灵活地进行深度学习模型的训练和使用</li>
+</ul>
+<h2 id="Tensors"><a href="#Tensors" class="headerlink" title="Tensors"></a>Tensors</h2><p>Tensor类似与NumPy的ndarray，唯一的区别是Tensor可以在GPU上加速运算。</p>
+<p>In [2]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import torch</span><br></pre></td></tr></table></figure>
+
+<p>构造一个未初始化的5x3矩阵:</p>
+<p>In [4]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = torch.empty(5,3)</span><br><span class="line">x</span><br></pre></td></tr></table></figure>
+
+<p>Out[4]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[ 0.0000e+00, -8.5899e+09,  0.0000e+00],</span><br><span class="line">        [-8.5899e+09,         nan,  0.0000e+00],</span><br><span class="line">        [ 2.7002e-06,  1.8119e+02,  1.2141e+01],</span><br><span class="line">        [ 7.8503e+02,  6.7504e-07,  6.5200e-10],</span><br><span class="line">        [ 2.9537e-06,  1.7186e-04,         nan]])</span><br></pre></td></tr></table></figure>
+
+<p>构建一个随机初始化的矩阵:</p>
+<p>In [5]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = torch.rand(5,3)</span><br><span class="line">x</span><br></pre></td></tr></table></figure>
+
+<p>Out[5]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[0.4628, 0.7432, 0.9785],</span><br><span class="line">        [0.2068, 0.4441, 0.9176],</span><br><span class="line">        [0.1027, 0.5275, 0.3884],</span><br><span class="line">        [0.9380, 0.2113, 0.2839],</span><br><span class="line">        [0.0094, 0.4001, 0.6483]])</span><br></pre></td></tr></table></figure>
+
+<p>构建一个全部为0，类型为long的矩阵:</p>
+<p>In [8]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = torch.zeros(5,3,dtype=torch.long)</span><br><span class="line">x</span><br></pre></td></tr></table></figure>
+
+<p>Out[8]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[0, 0, 0],</span><br><span class="line">        [0, 0, 0],</span><br><span class="line">        [0, 0, 0],</span><br><span class="line">        [0, 0, 0],</span><br><span class="line">        [0, 0, 0]])</span><br></pre></td></tr></table></figure>
+
+<p>In [11]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = torch.zeros(5,3).long()</span><br><span class="line">x.dtype</span><br></pre></td></tr></table></figure>
+
+<p>Out[11]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.int64</span><br></pre></td></tr></table></figure>
+
+<p>从数据直接直接构建tensor:</p>
+<p>In [12]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = torch.tensor([5.5,3])</span><br><span class="line">x</span><br></pre></td></tr></table></figure>
+
+<p>Out[12]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([5.5000, 3.0000])</span><br></pre></td></tr></table></figure>
+
+<p>也可以从一个已有的tensor构建一个tensor。这些方法会重用原来tensor的特征，例如，数据类型，除非提供新的数据。</p>
+<p>In [16]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = x.new_ones(5,3, dtype=torch.double)</span><br><span class="line">x</span><br></pre></td></tr></table></figure>
+
+<p>Out[16]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[1., 1., 1.],</span><br><span class="line">        [1., 1., 1.],</span><br><span class="line">        [1., 1., 1.],</span><br><span class="line">        [1., 1., 1.],</span><br><span class="line">        [1., 1., 1.]], dtype=torch.float64)</span><br></pre></td></tr></table></figure>
+
+<p>In [17]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = torch.randn_like(x, dtype=torch.float)</span><br><span class="line">x</span><br></pre></td></tr></table></figure>
+
+<p>Out[17]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[ 0.2411, -0.3961, -0.9206],</span><br><span class="line">        [-0.0508,  0.2653,  0.4685],</span><br><span class="line">        [ 0.5368, -0.3606, -0.0073],</span><br><span class="line">        [ 0.3383,  0.6826,  1.7368],</span><br><span class="line">        [-0.0811, -0.6957, -0.4566]])</span><br></pre></td></tr></table></figure>
+
+<p>得到tensor的形状:</p>
+<p>In [20]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x.shape</span><br></pre></td></tr></table></figure>
+
+<p>Out[20]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.Size([5, 3])</span><br></pre></td></tr></table></figure>
+
+<h4 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h4><p><code>torch.Size</code> 返回的是一个tuple</p>
+<p>Operations</p>
+<p>有很多种tensor运算。我们先介绍加法运算。</p>
+<p>In [21]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y = torch.rand(5,3)</span><br><span class="line">y</span><br></pre></td></tr></table></figure>
+
+<p>Out[21]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[0.9456, 0.3996, 0.1981],</span><br><span class="line">        [0.8728, 0.7097, 0.3721],</span><br><span class="line">        [0.7489, 0.9502, 0.6241],</span><br><span class="line">        [0.5176, 0.0200, 0.5130],</span><br><span class="line">        [0.3552, 0.2710, 0.7392]])</span><br></pre></td></tr></table></figure>
+
+<p>In [23]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x + y</span><br></pre></td></tr></table></figure>
+
+<p>Out[23]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[ 1.1866,  0.0035, -0.7225],</span><br><span class="line">        [ 0.8220,  0.9750,  0.8406],</span><br><span class="line">        [ 1.2857,  0.5896,  0.6168],</span><br><span class="line">        [ 0.8559,  0.7026,  2.2498],</span><br><span class="line">        [ 0.2741, -0.4248,  0.2826]])</span><br></pre></td></tr></table></figure>
+
+<p>另一种着加法的写法</p>
+<p>In [24]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.add(x, y)</span><br></pre></td></tr></table></figure>
+
+<p>Out[24]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[ 1.1866,  0.0035, -0.7225],</span><br><span class="line">        [ 0.8220,  0.9750,  0.8406],</span><br><span class="line">        [ 1.2857,  0.5896,  0.6168],</span><br><span class="line">        [ 0.8559,  0.7026,  2.2498],</span><br><span class="line">        [ 0.2741, -0.4248,  0.2826]])</span><br></pre></td></tr></table></figure>
+
+<p>加法：把输出作为一个变量</p>
+<p>In [26]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">result = torch.empty(5,3)</span><br><span class="line">torch.add(x, y, out=result)</span><br><span class="line"># result = x + y</span><br><span class="line">result</span><br></pre></td></tr></table></figure>
+
+<p>Out[26]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[ 1.1866,  0.0035, -0.7225],</span><br><span class="line">        [ 0.8220,  0.9750,  0.8406],</span><br><span class="line">        [ 1.2857,  0.5896,  0.6168],</span><br><span class="line">        [ 0.8559,  0.7026,  2.2498],</span><br><span class="line">        [ 0.2741, -0.4248,  0.2826]])</span><br></pre></td></tr></table></figure>
+
+<p>in-place加法</p>
+<p>In [28]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y.add_(x)</span><br><span class="line">y</span><br></pre></td></tr></table></figure>
+
+<p>Out[28]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tensor([[ 1.1866,  0.0035, -0.7225],</span><br><span class="line">        [ 0.8220,  0.9750,  0.8406],</span><br><span class="line">        [ 1.2857,  0.5896,  0.6168],</span><br><span class="line">        [ 0.8559,  0.7026,  2.2498],</span><br><span class="line">        [ 0.2741, -0.4248,  0.2826]])</span><br></pre></td></tr></table></figure>
+
+<h4 id="注意-1"><a href="#注意-1" class="headerlink" title="注意"></a>注意</h4><p>任何in-place的运算都会以<code>_</code>结尾。 举例来说：<code>x.copy_(y)</code>, <code>x.t_()</code>, 会改变 <code>x</code>。</p>
+<p>各种类似NumPy的indexing都可以在PyTorch tensor上面使用。</p>
+<p>In [31]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x[1:, 1:]</span><br></pre></td></tr></table></figure>
+
+<p>Out[31]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tensor([[ 0.2653,  0.4685],</span><br><span class="line">        [-0.3606, -0.0073],</span><br><span class="line">        [ 0.6826,  1.7368],</span><br><span class="line">        [-0.6957, -0.4566]])</span><br></pre></td></tr></table></figure>
+
+<p>Resizing: 如果你希望resize/reshape一个tensor，可以使用<code>torch.view</code>：</p>
+<p>In [39]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x = torch.randn(4,4)</span><br><span class="line">y = x.view(16)</span><br><span class="line">z = x.view(-1,8)</span><br><span class="line">z</span><br></pre></td></tr></table></figure>
+
+<p>Out[39]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tensor([[-0.5683,  1.3885, -2.0829, -0.7613, -1.9115,  0.3732, -0.2055, -1.2300],</span><br><span class="line">        [-0.2612, -0.4682, -1.0596,  0.7447,  0.7603, -0.4281,  0.5495,  0.1025]])</span><br></pre></td></tr></table></figure>
+
+<p>如果你有一个只有一个元素的tensor，使用<code>.item()</code>方法可以把里面的value变成Python数值。</p>
+<p>In [40]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = torch.randn(1)</span><br><span class="line">x</span><br></pre></td></tr></table></figure>
+
+<p>Out[40]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([-1.1493])</span><br></pre></td></tr></table></figure>
+
+<p>In [44]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x.item()</span><br></pre></td></tr></table></figure>
+
+<p>Out[44]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-1.1493233442306519</span><br></pre></td></tr></table></figure>
+
+<p>In [48]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">z.transpose(1,0)</span><br></pre></td></tr></table></figure>
+
+<p>Out[48]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">tensor([[-0.5683, -0.2612],</span><br><span class="line">        [ 1.3885, -0.4682],</span><br><span class="line">        [-2.0829, -1.0596],</span><br><span class="line">        [-0.7613,  0.7447],</span><br><span class="line">        [-1.9115,  0.7603],</span><br><span class="line">        [ 0.3732, -0.4281],</span><br><span class="line">        [-0.2055,  0.5495],</span><br><span class="line">        [-1.2300,  0.1025]])</span><br></pre></td></tr></table></figure>
+
+<p><strong>更多阅读</strong></p>
+<p>各种Tensor operations, 包括transposing, indexing, slicing, mathematical operations, linear algebra, random numbers在<code>&lt;https://pytorch.org/docs/torch&gt;</code>.</p>
+<h2 id="Numpy和Tensor之间的转化"><a href="#Numpy和Tensor之间的转化" class="headerlink" title="Numpy和Tensor之间的转化"></a>Numpy和Tensor之间的转化</h2><p>在Torch Tensor和NumPy array之间相互转化非常容易。</p>
+<p>Torch Tensor和NumPy array会共享内存，所以改变其中一项也会改变另一项。</p>
+<p>把Torch Tensor转变成NumPy Array</p>
+<p>In [49]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a = torch.ones(5)</span><br><span class="line">a</span><br></pre></td></tr></table></figure>
+
+<p>Out[49]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([1., 1., 1., 1., 1.])</span><br></pre></td></tr></table></figure>
+
+<p>In [50]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">b = a.numpy()</span><br><span class="line">b</span><br></pre></td></tr></table></figure>
+
+<p>Out[50]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">array([1., 1., 1., 1., 1.], dtype=float32)</span><br></pre></td></tr></table></figure>
+
+<p>改变numpy array里面的值。</p>
+<p>In [51]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">b[1] = 2</span><br><span class="line">b</span><br></pre></td></tr></table></figure>
+
+<p>Out[51]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">array([1., 2., 1., 1., 1.], dtype=float32)</span><br></pre></td></tr></table></figure>
+
+<p>In [52]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a</span><br></pre></td></tr></table></figure>
+
+<p>Out[52]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([1., 2., 1., 1., 1.])</span><br></pre></td></tr></table></figure>
+
+<p>把NumPy ndarray转成Torch Tensor</p>
+<p>In [54]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import numpy as np</span><br></pre></td></tr></table></figure>
+
+<p>In [55]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a = np.ones(5)</span><br><span class="line">b = torch.from_numpy(a)</span><br><span class="line">np.add(a, 1, out=a)</span><br><span class="line">print(a)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[2. 2. 2. 2. 2.]</span><br></pre></td></tr></table></figure>
+
+<p>In [56]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">b</span><br></pre></td></tr></table></figure>
+
+<p>Out[56]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensor([2., 2., 2., 2., 2.], dtype=torch.float64)</span><br></pre></td></tr></table></figure>
+
+<p>所有CPU上的Tensor都支持转成numpy或者从numpy转成Tensor。</p>
+<h2 id="CUDA-Tensors"><a href="#CUDA-Tensors" class="headerlink" title="CUDA Tensors"></a>CUDA Tensors</h2><p>使用<code>.to</code>方法，Tensor可以被移动到别的device上。</p>
+<p>In [60]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> torch.cuda.is_available():</span><br><span class="line">    device = torch.device(<span class="string">"cuda"</span>)</span><br><span class="line">    y = torch.ones_like(x, device=device)</span><br><span class="line">    x = x.to(device)</span><br><span class="line">    z = x + y</span><br><span class="line">    print(z)</span><br><span class="line">    print(z.to(<span class="string">"cpu"</span>, torch.double))</span><br></pre></td></tr></table></figure>
+
+<p>Out[60]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">False</span><br></pre></td></tr></table></figure>
+
+<p>In [ ]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y.to(<span class="string">"cpu"</span>).data.numpy()</span><br><span class="line">y.cpu().data.numpy()</span><br></pre></td></tr></table></figure>
+
+<p>In [ ]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model = model.cuda()</span><br></pre></td></tr></table></figure>
+
+<h2 id="热身-用numpy实现两层神经网络"><a href="#热身-用numpy实现两层神经网络" class="headerlink" title="热身: 用numpy实现两层神经网络"></a>热身: 用numpy实现两层神经网络</h2><p>一个全连接ReLU神经网络，一个隐藏层，没有bias。用来从x预测y，使用L2 Loss。</p>
+<ul>
+<li>ℎ=𝑊1𝑋h=W1X</li>
+<li>𝑎=𝑚𝑎𝑥(0,ℎ)a=max(0,h)</li>
+<li>𝑦ℎ𝑎𝑡=𝑊2𝑎yhat=W2a</li>
+</ul>
+<p>这一实现完全使用numpy来计算前向神经网络，loss，和反向传播。</p>
+<ul>
+<li>forward pass</li>
+<li>loss</li>
+<li>backward pass</li>
+</ul>
+<p>numpy ndarray是一个普通的n维array。它不知道任何关于深度学习或者梯度(gradient)的知识，也不知道计算图(computation graph)，只是一种用来计算数学运算的数据结构。</p>
+<p>In [ ]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">N, D_in, H, D_out = <span class="number">64</span>, <span class="number">1000</span>, <span class="number">100</span>, <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机创建一些训练数据</span></span><br><span class="line">x = np.random.randn(N, D_in)</span><br><span class="line">y = np.random.randn(N, D_out)</span><br><span class="line"></span><br><span class="line">w1 = np.random.randn(D_in, H)</span><br><span class="line">w2 = np.random.randn(H, D_out)</span><br><span class="line"></span><br><span class="line">learning_rate = <span class="number">1e-6</span></span><br><span class="line"><span class="keyword">for</span> it <span class="keyword">in</span> range(<span class="number">500</span>):</span><br><span class="line">    <span class="comment"># Forward pass</span></span><br><span class="line">    h = x.dot(w1) <span class="comment"># N * H</span></span><br><span class="line">    h_relu = np.maximum(h, <span class="number">0</span>) <span class="comment"># N * H</span></span><br><span class="line">    y_pred = h_relu.dot(w2) <span class="comment"># N * D_out</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># compute loss</span></span><br><span class="line">    loss = np.square(y_pred - y).sum()</span><br><span class="line">    print(it, loss)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Backward pass</span></span><br><span class="line">    <span class="comment"># compute the gradient</span></span><br><span class="line">    grad_y_pred = <span class="number">2.0</span> * (y_pred - y)</span><br><span class="line">    grad_w2 = h_relu.T.dot(grad_y_pred)</span><br><span class="line">    grad_h_relu = grad_y_pred.dot(w2.T)</span><br><span class="line">    grad_h = grad_h_relu.copy()</span><br><span class="line">    grad_h[h&lt;<span class="number">0</span>] = <span class="number">0</span></span><br><span class="line">    grad_w1 = x.T.dot(grad_h)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># update weights of w1 and w2</span></span><br><span class="line">    w1 -= learning_rate * grad_w1</span><br><span class="line">    w2 -= learning_rate * grad_w2</span><br></pre></td></tr></table></figure>
+
+<h2 id="PyTorch-Tensors"><a href="#PyTorch-Tensors" class="headerlink" title="PyTorch: Tensors"></a>PyTorch: Tensors</h2><p>这次我们使用PyTorch tensors来创建前向神经网络，计算损失，以及反向传播。</p>
+<p>一个PyTorch Tensor很像一个numpy的ndarray。但是它和numpy ndarray最大的区别是，PyTorch Tensor可以在CPU或者GPU上运算。如果想要在GPU上运算，就需要把Tensor换成cuda类型。</p>
+<p>In [ ]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">N, D_in, H, D_out = <span class="number">64</span>, <span class="number">1000</span>, <span class="number">100</span>, <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机创建一些训练数据</span></span><br><span class="line">x = torch.randn(N, D_in)</span><br><span class="line">y = torch.randn(N, D_out)</span><br><span class="line"></span><br><span class="line">w1 = torch.randn(D_in, H)</span><br><span class="line">w2 = torch.randn(H, D_out)</span><br><span class="line"></span><br><span class="line">learning_rate = <span class="number">1e-6</span></span><br><span class="line"><span class="keyword">for</span> it <span class="keyword">in</span> range(<span class="number">500</span>):</span><br><span class="line">    <span class="comment"># Forward pass</span></span><br><span class="line">    h = x.mm(w1) <span class="comment"># N * H</span></span><br><span class="line">    h_relu = h.clamp(min=<span class="number">0</span>) <span class="comment"># N * H</span></span><br><span class="line">    y_pred = h_relu.mm(w2) <span class="comment"># N * D_out</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># compute loss</span></span><br><span class="line">    loss = (y_pred - y).pow(<span class="number">2</span>).sum().item()</span><br><span class="line">    print(it, loss)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Backward pass</span></span><br><span class="line">    <span class="comment"># compute the gradient</span></span><br><span class="line">    grad_y_pred = <span class="number">2.0</span> * (y_pred - y)</span><br><span class="line">    grad_w2 = h_relu.t().mm(grad_y_pred)</span><br><span class="line">    grad_h_relu = grad_y_pred.mm(w2.t())</span><br><span class="line">    grad_h = grad_h_relu.clone()</span><br><span class="line">    grad_h[h&lt;<span class="number">0</span>] = <span class="number">0</span></span><br><span class="line">    grad_w1 = x.t().mm(grad_h)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># update weights of w1 and w2</span></span><br><span class="line">    w1 -= learning_rate * grad_w1</span><br><span class="line">    w2 -= learning_rate * grad_w2</span><br></pre></td></tr></table></figure>
+
+<p>简单的autograd</p>
+<p>In [72]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">x = torch.tensor(<span class="number">1.</span>, requires_grad=<span class="literal">True</span>)</span><br><span class="line">w = torch.tensor(<span class="number">2.</span>, requires_grad=<span class="literal">True</span>)</span><br><span class="line">b = torch.tensor(<span class="number">3.</span>, requires_grad=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">y = w*x + b <span class="comment"># y = 2*1+3</span></span><br><span class="line"></span><br><span class="line">y.backward()</span><br><span class="line"></span><br><span class="line"><span class="comment"># dy / dw = x</span></span><br><span class="line">print(w.grad)</span><br><span class="line">print(x.grad)</span><br><span class="line">print(b.grad)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tensor(1.)</span><br><span class="line">tensor(2.)</span><br><span class="line">tensor(1.)</span><br></pre></td></tr></table></figure>
+
+<h2 id="PyTorch-Tensor和autograd"><a href="#PyTorch-Tensor和autograd" class="headerlink" title="PyTorch: Tensor和autograd"></a>PyTorch: Tensor和autograd</h2><p>PyTorch的一个重要功能就是autograd，也就是说只要定义了forward pass(前向神经网络)，计算了loss之后，PyTorch可以自动求导计算模型所有参数的梯度。</p>
+<p>一个PyTorch的Tensor表示计算图中的一个节点。如果<code>x</code>是一个Tensor并且<code>x.requires_grad=True</code>那么<code>x.grad</code>是另一个储存着<code>x</code>当前梯度(相对于一个scalar，常常是loss)的向量。</p>
+<p>In [ ]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">N, D_in, H, D_out = <span class="number">64</span>, <span class="number">1000</span>, <span class="number">100</span>, <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机创建一些训练数据</span></span><br><span class="line">x = torch.randn(N, D_in)</span><br><span class="line">y = torch.randn(N, D_out)</span><br><span class="line"></span><br><span class="line">w1 = torch.randn(D_in, H, requires_grad=<span class="literal">True</span>)</span><br><span class="line">w2 = torch.randn(H, D_out, requires_grad=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">learning_rate = <span class="number">1e-6</span></span><br><span class="line"><span class="keyword">for</span> it <span class="keyword">in</span> range(<span class="number">500</span>):</span><br><span class="line">    <span class="comment"># Forward pass</span></span><br><span class="line">    y_pred = x.mm(w1).clamp(min=<span class="number">0</span>).mm(w2)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># compute loss</span></span><br><span class="line">    loss = (y_pred - y).pow(<span class="number">2</span>).sum() <span class="comment"># computation graph</span></span><br><span class="line">    print(it, loss.item())</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Backward pass</span></span><br><span class="line">    loss.backward()</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># update weights of w1 and w2</span></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        w1 -= learning_rate * w1.grad</span><br><span class="line">        w2 -= learning_rate * w2.grad</span><br><span class="line">        w1.grad.zero_()</span><br><span class="line">        w2.grad.zero_()</span><br></pre></td></tr></table></figure>
+
+<h2 id="PyTorch-nn"><a href="#PyTorch-nn" class="headerlink" title="PyTorch: nn"></a>PyTorch: nn</h2><p>这次我们使用PyTorch中nn这个库来构建网络。 用PyTorch autograd来构建计算图和计算gradients， 然后PyTorch会帮我们自动计算gradient。</p>
+<p>In [ ]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line">N, D_in, H, D_out = <span class="number">64</span>, <span class="number">1000</span>, <span class="number">100</span>, <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机创建一些训练数据</span></span><br><span class="line">x = torch.randn(N, D_in)</span><br><span class="line">y = torch.randn(N, D_out)</span><br><span class="line"></span><br><span class="line">model = torch.nn.Sequential(</span><br><span class="line">    torch.nn.Linear(D_in, H, bias=<span class="literal">False</span>), <span class="comment"># w_1 * x + b_1</span></span><br><span class="line">    torch.nn.ReLU(),</span><br><span class="line">    torch.nn.Linear(H, D_out, bias=<span class="literal">False</span>),</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">torch.nn.init.normal_(model[<span class="number">0</span>].weight)</span><br><span class="line">torch.nn.init.normal_(model[<span class="number">2</span>].weight)</span><br><span class="line"></span><br><span class="line"><span class="comment"># model = model.cuda()</span></span><br><span class="line"></span><br><span class="line">loss_fn = nn.MSELoss(reduction=<span class="string">'sum'</span>)</span><br><span class="line"></span><br><span class="line">learning_rate = <span class="number">1e-6</span></span><br><span class="line"><span class="keyword">for</span> it <span class="keyword">in</span> range(<span class="number">500</span>):</span><br><span class="line">    <span class="comment"># Forward pass</span></span><br><span class="line">    y_pred = model(x) <span class="comment"># model.forward() </span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># compute loss</span></span><br><span class="line">    loss = loss_fn(y_pred, y) <span class="comment"># computation graph</span></span><br><span class="line">    print(it, loss.item())</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Backward pass</span></span><br><span class="line">    loss.backward()</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># update weights of w1 and w2</span></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        <span class="keyword">for</span> param <span class="keyword">in</span> model.parameters(): <span class="comment"># param (tensor, grad)</span></span><br><span class="line">            param -= learning_rate * param.grad</span><br><span class="line">            </span><br><span class="line">    model.zero_grad()</span><br></pre></td></tr></table></figure>
+
+<p>In [113]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model[0].weight</span><br></pre></td></tr></table></figure>
+
+<p>Out[113]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Parameter containing:</span><br><span class="line">tensor([[-0.0218,  0.0212,  0.0243,  ...,  0.0230,  0.0247,  0.0168],</span><br><span class="line">        [-0.0144,  0.0177, -0.0221,  ...,  0.0161,  0.0098, -0.0172],</span><br><span class="line">        [ 0.0086, -0.0122, -0.0298,  ..., -0.0236, -0.0187,  0.0295],</span><br><span class="line">        ...,</span><br><span class="line">        [ 0.0266, -0.0008, -0.0141,  ...,  0.0018,  0.0319, -0.0129],</span><br><span class="line">        [ 0.0296, -0.0005,  0.0115,  ...,  0.0141, -0.0088, -0.0106],</span><br><span class="line">        [ 0.0289, -0.0077,  0.0239,  ..., -0.0166, -0.0156, -0.0235]],</span><br><span class="line">       requires_grad=True)</span><br></pre></td></tr></table></figure>
+
+<h2 id="PyTorch-optim"><a href="#PyTorch-optim" class="headerlink" title="PyTorch: optim"></a>PyTorch: optim</h2><p>这一次我们不再手动更新模型的weights,而是使用optim这个包来帮助我们更新参数。 optim这个package提供了各种不同的模型优化方法，包括SGD+momentum, RMSProp, Adam等等。</p>
+<p>In [ ]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line">N, D_in, H, D_out = <span class="number">64</span>, <span class="number">1000</span>, <span class="number">100</span>, <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机创建一些训练数据</span></span><br><span class="line">x = torch.randn(N, D_in)</span><br><span class="line">y = torch.randn(N, D_out)</span><br><span class="line"></span><br><span class="line">model = torch.nn.Sequential(</span><br><span class="line">    torch.nn.Linear(D_in, H, bias=<span class="literal">False</span>), <span class="comment"># w_1 * x + b_1</span></span><br><span class="line">    torch.nn.ReLU(),</span><br><span class="line">    torch.nn.Linear(H, D_out, bias=<span class="literal">False</span>),</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">torch.nn.init.normal_(model[<span class="number">0</span>].weight)</span><br><span class="line">torch.nn.init.normal_(model[<span class="number">2</span>].weight)</span><br><span class="line"></span><br><span class="line"><span class="comment"># model = model.cuda()</span></span><br><span class="line"></span><br><span class="line">loss_fn = nn.MSELoss(reduction=<span class="string">'sum'</span>)</span><br><span class="line"><span class="comment"># learning_rate = 1e-4</span></span><br><span class="line"><span class="comment"># optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)</span></span><br><span class="line"></span><br><span class="line">learning_rate = <span class="number">1e-6</span></span><br><span class="line">optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> it <span class="keyword">in</span> range(<span class="number">500</span>):</span><br><span class="line">    <span class="comment"># Forward pass</span></span><br><span class="line">    y_pred = model(x) <span class="comment"># model.forward() </span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># compute loss</span></span><br><span class="line">    loss = loss_fn(y_pred, y) <span class="comment"># computation graph</span></span><br><span class="line">    print(it, loss.item())</span><br><span class="line"></span><br><span class="line">    optimizer.zero_grad()</span><br><span class="line">    <span class="comment"># Backward pass</span></span><br><span class="line">    loss.backward()</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># update model parameters</span></span><br><span class="line">    optimizer.step()</span><br></pre></td></tr></table></figure>
+
+<h2 id="PyTorch-自定义-nn-Modules"><a href="#PyTorch-自定义-nn-Modules" class="headerlink" title="PyTorch: 自定义 nn Modules"></a>PyTorch: 自定义 nn Modules</h2><p>我们可以定义一个模型，这个模型继承自nn.Module类。如果需要定义一个比Sequential模型更加复杂的模型，就需要定义nn.Module模型。</p>
+<p>In [ ]:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line">N, D_in, H, D_out = <span class="number">64</span>, <span class="number">1000</span>, <span class="number">100</span>, <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机创建一些训练数据</span></span><br><span class="line">x = torch.randn(N, D_in)</span><br><span class="line">y = torch.randn(N, D_out)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TwoLayerNet</span><span class="params">(torch.nn.Module)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, D_in, H, D_out)</span>:</span></span><br><span class="line">        super(TwoLayerNet, self).__init__()</span><br><span class="line">        <span class="comment"># define the model architecture</span></span><br><span class="line">        self.linear1 = torch.nn.Linear(D_in, H, bias=<span class="literal">False</span>)</span><br><span class="line">        self.linear2 = torch.nn.Linear(H, D_out, bias=<span class="literal">False</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, x)</span>:</span></span><br><span class="line">        y_pred = self.linear2(self.linear1(x).clamp(min=<span class="number">0</span>))</span><br><span class="line">        <span class="keyword">return</span> y_pred</span><br><span class="line"></span><br><span class="line">model = TwoLayerNet(D_in, H, D_out)</span><br><span class="line">loss_fn = nn.MSELoss(reduction=<span class="string">'sum'</span>)</span><br><span class="line">learning_rate = <span class="number">1e-4</span></span><br><span class="line">optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> it <span class="keyword">in</span> range(<span class="number">500</span>):</span><br><span class="line">    <span class="comment"># Forward pass</span></span><br><span class="line">    y_pred = model(x) <span class="comment"># model.forward() </span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># compute loss</span></span><br><span class="line">    loss = loss_fn(y_pred, y) <span class="comment"># computation graph</span></span><br><span class="line">    print(it, loss.item())</span><br><span class="line"></span><br><span class="line">    optimizer.zero_grad()</span><br><span class="line">    <span class="comment"># Backward pass</span></span><br><span class="line">    loss.backward()</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># update model parameters</span></span><br><span class="line">    optimizer.step()</span><br></pre></td></tr></table></figure>
+
+<p>In [ ]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> </span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2020/06/08/PyTorch/">PyTorch</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2020-06-08, 19:12:06</p>
+        <p><span>最后更新:</span>2020-06-09, 09:28:17</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2020/06/08/PyTorch/" title="PyTorch">http://mmyblog.cn/2020/06/08/PyTorch/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2020/06/08/PyTorch/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2020/06/09/XLNet/">
+                    XLNet
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2020/06/08/朴素贝叶斯/">
+                    朴素贝叶斯
+                </a>
+            </div>
+        
+    </nav>
+
+  
+  
+    <! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+    <div id="donate_guide" class="donate_bar center hidden" >
+        
+            <!-- <img src="/img/Alipay.jpg" alt="支付宝打赏">
+            <img src="/img/WeChatpay.jpg" alt="微信打赏"> -->
+       
+        <!-- 方式二；
+            step1：在_config.yml中添加配置
+                Alipay: /img/Alipay.jpg
+                WeChatpay: /img/WeChatpay.jpg
+            step2：此处两张图片的路径分别设置为如下
+                <img src=""
+                <img src=""
+        -->
+        <!-- 支付宝打赏图案 -->
+        <img src="/img/Alipay.jpg" alt="支付宝打赏">
+        <!-- 微信打赏图案 -->
+        <img src="/img//WeChatpay.jpg" alt="微信打赏">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn_donate').onclick = function(){
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+    </script>
+</div>
+<! -- 添加捐赠图标 -->
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#什么是PyTorch"><span class="toc-number">1.</span> <span class="toc-text">什么是PyTorch?</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Tensors"><span class="toc-number">1.1.</span> <span class="toc-text">Tensors</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#注意"><span class="toc-number">1.1.0.1.</span> <span class="toc-text">注意</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#注意-1"><span class="toc-number">1.1.0.2.</span> <span class="toc-text">注意</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Numpy和Tensor之间的转化"><span class="toc-number">1.2.</span> <span class="toc-text">Numpy和Tensor之间的转化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CUDA-Tensors"><span class="toc-number">1.3.</span> <span class="toc-text">CUDA Tensors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#热身-用numpy实现两层神经网络"><span class="toc-number">1.4.</span> <span class="toc-text">热身: 用numpy实现两层神经网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PyTorch-Tensors"><span class="toc-number">1.5.</span> <span class="toc-text">PyTorch: Tensors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PyTorch-Tensor和autograd"><span class="toc-number">1.6.</span> <span class="toc-text">PyTorch: Tensor和autograd</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PyTorch-nn"><span class="toc-number">1.7.</span> <span class="toc-text">PyTorch: nn</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PyTorch-optim"><span class="toc-number">1.8.</span> <span class="toc-text">PyTorch: optim</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PyTorch-自定义-nn-Modules"><span class="toc-number">1.9.</span> <span class="toc-text">PyTorch: 自定义 nn Modules</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"PyTorch　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/06/09/XLNet/" title="上一篇: XLNet">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/06/08/朴素贝叶斯/" title="下一篇: 朴素贝叶斯">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/扩展内容/">扩展内容</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/XLNet/">XLNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/PyTorch/">PyTorch</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/朴素贝叶斯/">朴素贝叶斯</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/GPT模型/">GPT模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/BERT系列预训练模型/">BERT系列预训练模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/19/阅读理解/">阅读理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/18/Transformer模型解读/">Transformer模型解读</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/16/Transformer-XL/">Transformer-XL</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/英文书籍word级别的文本生成代码注释/">英文书籍word级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/文本生成任务/">文本生成任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/09/常见预训练模型/">BERT&ELMo&co</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/01/大规模无监督预训练语言模型与应用上/">大规模无监督预训练语言模型与应用上</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/18/语言模型/">语言模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/15/NLP中的ConvNet/">NLP中的ConvNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/13/seq2seq/">seq2seq</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/09/机器翻译与文本摘要/">机器翻译与文本摘要</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/sentiment情感分析代码注释/">sentiment情感分析代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/11/聊天机器人二/">聊天机器人二</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/10/聊天机器人一/">聊天机器人一</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/09/结构化预测/">结构化预测</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/word-embedding/">word-embedding</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/酒店评价情感分类与CNN模型/">酒店评价情感分类与CNN模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/28/NLP技术基础整理/">NLP技术基础整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/18/CNN-Image-Classification/">CNN-Image-Classification</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/丘吉尔的人物传记char级别的文本生成代码注释/">丘吉尔的人物传记char级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/用朴素贝叶斯完成语种检测/">用朴素贝叶斯完成语种检测</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/24/文本分类问题/">文本分类问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/08/python正则表达式/">python正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/08/jieba中文处理/">jieba中文处理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

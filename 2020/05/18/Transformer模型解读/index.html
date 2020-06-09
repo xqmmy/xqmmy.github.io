@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="contextualized word vectors RNN, LSTM RNN(I study at Julyedu.) –&amp;gt; RNN(I)-&amp;gt;h1, RNN(study, h1)-&amp;gt;h2, RNN(at, h2)-&amp;gt;h3.  Encoder. 我可以同时观看全局信息。 query, keys, values q1, q2, .., q5 k1, k2, k3, k4,">
+<meta name="keywords" content="Transformer">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Transformer模型解读">
+<meta property="og:url" content="http://mmyblog.cn/2020/05/18/Transformer模型解读/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="contextualized word vectors RNN, LSTM RNN(I study at Julyedu.) –&amp;gt; RNN(I)-&amp;gt;h1, RNN(study, h1)-&amp;gt;h2, RNN(at, h2)-&amp;gt;h3.  Encoder. 我可以同时观看全局信息。 query, keys, values q1, q2, .., q5 k1, k2, k3, k4,">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://uploader.shimo.im/f/vkvOEopS6TMPw0SL.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/hraPVC4iek06oDwt.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/WFbnFyb8peoeJuXW.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/c7oNzYNSIoceXYFZ.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/Hmbb5V4mEJkBYpFS.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/MzJmdqVJiSUz4DT9.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/UsNXjO1OpN0usuAg.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/MAqlj67rbPYBI7Ad.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/kW9cJM4TjTc9xtMV.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/6kTtVymp0XgZCDh0.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/FrqMNrQrlo0tLBgV.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/xRsGTXMRHTQsNPiL.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/S1IEPFyGeMUTWMBk.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/vQX0sIYIoqUNYO4J.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/E4AxOnUs2JgGJ0bW.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/YmfWxTGsc48tTbfi.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/1F6bv1ngvE4hEp99.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/1p4K2IclsvwWGw0Z.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/HMQy3lipFooyu8rO.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/1qIGhKLQLYkHahSn.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/ivgMtxCc8CsI7lAF.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/TumXWzLQ6XMjJneZ.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/3AgIt6lqzgADLwuf.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/ai444UV6eQ4E0f6O.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/7ffWFIfMqOgtsK22.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/FNgjBBm5gbUGYgbs.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/feV2TQAHPF0z3Rr2.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/aWNgQPklQh8odGQP.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/rAnz8qY0eHgt2OAe.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/IyKk2fNcC3k4tgBt.png!thumbnail">
+<meta property="og:updated_time" content="2020-06-09T01:32:41.815Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Transformer模型解读">
+<meta name="twitter:description" content="contextualized word vectors RNN, LSTM RNN(I study at Julyedu.) –&amp;gt; RNN(I)-&amp;gt;h1, RNN(study, h1)-&amp;gt;h2, RNN(at, h2)-&amp;gt;h3.  Encoder. 我可以同时观看全局信息。 query, keys, values q1, q2, .., q5 k1, k2, k3, k4,">
+<meta name="twitter:image" content="https://uploader.shimo.im/f/vkvOEopS6TMPw0SL.png!thumbnail">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Transformer模型解读 | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Attention/">Attention</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BERT/">BERT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BLUE/">BLUE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Beam-search/">Beam search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CRF/">CRF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ConvNet/">ConvNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ELMo/">ELMo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPT/">GPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GRU/">GRU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradient-Clipping/">Gradient Clipping</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LSTM/">LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linear/">Linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Parsing/">Parsing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PyTorch/">PyTorch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QA/">QA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN/">RNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN-LSTM/">RNN/LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Recursive-Neural-Networks/">Recursive Neural Networks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seq2Seq/">Seq2Seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TorchText/">TorchText</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer/">Transformer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer-XL/">Transformer-XL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/XLNet/">XLNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/inference/">inference</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jiaba/">jiaba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jieba/">jieba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/word-embedding/">word-embedding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wxBot/">wxBot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/中文分词/">中文分词</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图神经网络/">图神经网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/朴素贝叶斯/">朴素贝叶斯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则表达式/">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聊天机器人/">聊天机器人</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言模型/">语言模型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-Transformer模型解读" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/05/18/Transformer模型解读/" class="article-date">
+      <time datetime="2020-05-18T00:28:15.000Z" itemprop="datePublished">2020-05-18</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Transformer模型解读
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/NLP/">NLP</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Transformer/">Transformer</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>contextualized word vectors</p>
+<p>RNN, LSTM</p>
+<p>RNN(I study at Julyedu.) –&gt; RNN(I)-&gt;h1, RNN(study, h1)-&gt;h2, RNN(at, h2)-&gt;h3. </p>
+<p>Encoder. 我可以同时观看全局信息。</p>
+<p>query, keys, values</p>
+<p>q1, q2, .., q5</p>
+<p>k1, k2, k3, k4, k5</p>
+<p>score(q, k1), score(q, k2), …, score(q, k5)</p>
+<p>v1, v2, v3, v4, v5</p>
+<p>\sum_{i=1}^5 func(score_i) v_i</p>
+<p>dot(a, b)</p>
+<p>mean</p>
+<p>var(dot(a, b))</p>
+<p>dot(a, b) = a1<em>b1 + a2</em>b2. …. </p>
+<p>E(dot(a, b)) = n * E(ai*bi)</p>
+<p>var(dot(a, b)) = E(dot(a, b)^2) - E(dot(a, b))^2</p>
+<p>affine transformation</p>
+<p>WX+b</p>
+<p>Attention(Q, K, V ) = softmax(QKT √ dk )V</p>
+<p>Q : seq_len, hid_size</p>
+<p>K^T:  hid_size, seq_len</p>
+<p>V: seq_len, hid_size</p>
+<p>QK^T : seq_len, seq_len</p>
+<p>QK^T V: seq_len, hid_size</p>
+<p>[emb_w(x), emb_p(i)]W –&gt; </p>
+<p>近两年来，NLP领域的模型研究已经被transformer模型以及它的各种变种给占领了。Transformer模型的火爆有很多原因，例如：</p>
+<ul>
+<li><p>模型简单易懂，encoder和decoder模块高度相似且通用</p>
+</li>
+<li><p>（encoder）容易并行，模型训练速度快</p>
+</li>
+<li><p>效果拔群，在NMT等领域都取得了state-of-the-art的效果</p>
+</li>
+</ul>
+<p>论文地址</p>
+<ul>
+<li><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a> </li>
+</ul>
+<p>下面的文章翻译自</p>
+<ul>
+<li><p><a href="https://jalammar.github.io/illustrated-transformer/" target="_blank" rel="noopener">The Illustrated Transformer</a></p>
+</li>
+<li><p><a href="https://blog.csdn.net/yujianmin1990/article/details/85221271" target="_blank" rel="noopener">中文翻译</a></p>
+</li>
+</ul>
+<p>高屋建瓴地说，Transformer模型拿到一个序列，用来生成另一个序列。</p>
+<p><img src="https://uploader.shimo.im/f/vkvOEopS6TMPw0SL.png!thumbnail" alt="img"></p>
+<p>打开这个黑箱，我们会看到其中包含了两个部分，encoders和decoders。</p>
+<p><img src="https://uploader.shimo.im/f/hraPVC4iek06oDwt.png!thumbnail" alt="img"></p>
+<p>其中encoders和decoders都是两个堆叠架构。一层一层同质的结构堆叠到一起，组成了编码器和解码器。</p>
+<p><img src="https://uploader.shimo.im/f/WFbnFyb8peoeJuXW.png!thumbnail" alt="img"></p>
+<p>首先我们打开每个encoder来参观一下其中包含的内容：</p>
+<p><img src="https://uploader.shimo.im/f/c7oNzYNSIoceXYFZ.png!thumbnail" alt="img"></p>
+<p>每一个encoder都包含了一个自注意力（self-attention）层和一个Feed Forward Neural Network。</p>
+<p>encoder的输入首先会经过一个self-attention层。self-attention的作用是让每个单词可以看到自己和其他单词的关系，并且将自己转换成一个与所有单词相关的，<strong>focus在自己身上的词向量(?)</strong>。</p>
+<p>self-attention之后的输出会再经过一层feed-forward神经网络。每个位置的输出被同样的feed-forward network处理。</p>
+<p>decoder也有同样的self-attention和feed-forward结构，但是在这两层之间还有一层encoder-decoder attention层，帮助decoder关注到某一些特别需要关注的encoder位置。</p>
+<h2 id="Tensor的变化"><a href="#Tensor的变化" class="headerlink" title="Tensor的变化"></a>Tensor的变化</h2><p><img src="https://uploader.shimo.im/f/Hmbb5V4mEJkBYpFS.png!thumbnail" alt="img"></p>
+<h2 id="编码器"><a href="#编码器" class="headerlink" title="编码器"></a>编码器</h2><p>下面我们来详细解读一下编码器的工作。</p>
+<p><img src="https://uploader.shimo.im/f/MzJmdqVJiSUz4DT9.png!thumbnail" alt="img"></p>
+<h3 id="Self-Attention机制"><a href="#Self-Attention机制" class="headerlink" title="Self-Attention机制"></a>Self-Attention机制</h3><p>我们考虑用Transformer模型翻译下面这一句话：</p>
+<p>“The animal didn’t cross the street because it was too tired”。</p>
+<p>当我们翻译到 it 的时候，我们知道 it 指代的是 animal 而不是 street。所以，如果有办法可以让 it 对应位置的 embedding 适当包含 animal 的信息，就会非常有用。self-attention的出现就是为了完成这一任务。</p>
+<p>如下图所示，self attnetion会让单词 it 和 某些单词发生比较强的联系，得到比较搞的attention分数。</p>
+<p><img src="https://uploader.shimo.im/f/UsNXjO1OpN0usuAg.png!thumbnail" alt="img"></p>
+<p>weight(The) = softmax(v(it) * v(The) / \sqrt(d))</p>
+<p>weight(The) = softmx(Query(It) * Key(The) / \sqrt(d))</p>
+<p>\sum_{word} weight(word) * Value(word)</p>
+<h3 id="Self-attention的细节"><a href="#Self-attention的细节" class="headerlink" title="Self-attention的细节"></a>Self-attention的细节</h3><p>为了实现 self-attention，每个输入的位置需要产生三个向量，分别是 <strong>Query 向量，Key 向量和 Value 向量</strong>。这些向量都是由输入 embedding 通过三个 matrices （也就是线性变化）产生的。</p>
+<p>注意到在Transformer架构中，这些新的向量比原来的输入向量要小，原来的向量是512维，转变后的三个向量都是64维。</p>
+<p><img src="https://uploader.shimo.im/f/MAqlj67rbPYBI7Ad.png!thumbnail" alt="img"></p>
+<p>第二步是<strong>计算分数</strong>。当我们在用self-attention encode某个位置上的某个单词的时候，我们希望知道这个单词对应的句子上其他单词的分数。其他单词所得到的分数表示了当我们encode当前单词的时候，应该放多少的关注度在其余的每个单词上。又或者说，其他单词和我当前的单词有多大的相关性或者相似性。</p>
+<p>在transformer模型中，这个分数是由query vector和key vector做点积（dot product）所得的结果。所以说，当我们在对第一个单词做self-attention处理的时候，第一个单词的分数是q_1和k_1的点积，第二个分数是q_1和k_2的分数。</p>
+<p><img src="https://uploader.shimo.im/f/kW9cJM4TjTc9xtMV.png!thumbnail" alt="img"></p>
+<p>第三步和第四步是将这些分数除以8。8这个数字是64的开方，也就是key vector的维度的开方。据说这么做可以稳定模型的gradient。然后我们将这些分数传入softmax层产生一些符合概率分布的probability scores。</p>
+<p><img src="https://uploader.shimo.im/f/6kTtVymp0XgZCDh0.png!thumbnail" alt="img"></p>
+<p>softmax = exp(x_i) / sum exp(x_i)</p>
+<p>这些分数就表示了在处理当前单词的时候我们应该分配多少的关注度给其他单词。</p>
+<p>第五步是将每个value vector乘以它们各自的attention score。第六步是把这些weighted value vectors相加，成为当前单词的vector表示。</p>
+<p><img src="https://uploader.shimo.im/f/FrqMNrQrlo0tLBgV.png!thumbnail" alt="img"></p>
+<p>得到了self-attention生成的词向量之后，我们就可以将它们传入feed-forward network了。</p>
+<h3 id="Self-Attention中的矩阵运算"><a href="#Self-Attention中的矩阵运算" class="headerlink" title="Self-Attention中的矩阵运算"></a>Self-Attention中的矩阵运算</h3><p>首先，我们要对每一个词向量计算Query, Key和Value矩阵。我们把句子中的每个词向量拼接到一起变成一个矩阵X，然后乘以不同的矩阵做线性变换（WQ, WK, WV）。</p>
+<p><img src="https://uploader.shimo.im/f/xRsGTXMRHTQsNPiL.png!thumbnail" alt="img"></p>
+<p>然后我们就用矩阵乘法实现上面介绍过的Self-Attention机制了。</p>
+<p><img src="https://uploader.shimo.im/f/S1IEPFyGeMUTWMBk.png!thumbnail" alt="img"></p>
+<h3 id="Multi-headed-attention"><a href="#Multi-headed-attention" class="headerlink" title="Multi-headed attention"></a>Multi-headed attention</h3><p>在论文当中，每个embedding vector并不止产生一个key, value, query vectors，而是产生若干组这样的vectors，称之为”multi-headed” attention。这么做有几个好处：</p>
+<ul>
+<li><p>k: key, q: query, v: value</p>
+</li>
+<li><p>模型有更强的能力产生不同的attention机制，focus在不同的单词上。</p>
+</li>
+<li><p>attention layer有多个不同的”representation space”。</p>
+</li>
+</ul>
+<p><img src="https://uploader.shimo.im/f/vQX0sIYIoqUNYO4J.png!thumbnail" alt="img"></p>
+<p>每个attention head最终都产生了一个matrix表示这个句子中的所有词向量。在transformer模型中，我们产生了八个matrices。我们知道self attention之后就是一个feed-forward network。那么我们是否需要做8次feed-forward network运算呢？事实上是不用的。我们只需要将这8个matrices拼接到一起，然后做一次前向神经网络的运算就可以了。</p>
+<p><img src="https://uploader.shimo.im/f/E4AxOnUs2JgGJ0bW.png!thumbnail" alt="img"></p>
+<p>综合起来，我们可以用下面一张图表示Self-Attention模块所做的事情。</p>
+<p><img src="https://uploader.shimo.im/f/YmfWxTGsc48tTbfi.png!thumbnail" alt="img"></p>
+<h3 id="Positional-Encoding"><a href="#Positional-Encoding" class="headerlink" title="Positional Encoding"></a>Positional Encoding</h3><p>thinking machine</p>
+<p>w_1, w_2</p>
+<p>p_1, p_2</p>
+<p>positional_embedding = nn.Embedding(512, 300)</p>
+<p>w_1 + p_1, w_2 + p_2, w_3 + p_3, …, w_n + p_n</p>
+<p>到目前为止，我们的模型完全没有考虑单词的顺序。即使我们将句子中单词的顺序完全打乱，对于transformer这个模型来说，并没有什么区别。为了加入句子中单词的顺序信息，我们引入一个概念叫做positional encoding。</p>
+<p><img src="https://uploader.shimo.im/f/1F6bv1ngvE4hEp99.png!thumbnail" alt="img"></p>
+<p>如果我们假设输入的embedding是4个维度的，那么他们的position encodings大概长下面这样。</p>
+<p><img src="https://uploader.shimo.im/f/1p4K2IclsvwWGw0Z.png!thumbnail" alt="img"></p>
+<p>下面这张图的每一行表示一个positional encoding vector。第一行表示第一个单词的positional encoding，以此类推。每一行都有512个-1到1之间的数字。我们用颜色标记了这些vectors。</p>
+<p><img src="https://uploader.shimo.im/f/HMQy3lipFooyu8rO.png!thumbnail" alt="img"></p>
+<h3 id="Residuals"><a href="#Residuals" class="headerlink" title="Residuals"></a>Residuals</h3><p>另外一个细节是，encoder中的每一层都包含了一个residual connection和layer-normalization。如下图所示。</p>
+<p><img src="https://uploader.shimo.im/f/1qIGhKLQLYkHahSn.png!thumbnail" alt="img"></p>
+<p>下面这张图是更详细的vector表示。</p>
+<p><img src="https://uploader.shimo.im/f/ivgMtxCc8CsI7lAF.png!thumbnail" alt="img"></p>
+<p>decoder也是同样的架构。如果我们把encoder和decoder放到一起，他们就长这样。</p>
+<p><img src="https://uploader.shimo.im/f/TumXWzLQ6XMjJneZ.png!thumbnail" alt="img"></p>
+<h2 id="解码器"><a href="#解码器" class="headerlink" title="解码器"></a>解码器</h2><p>encoder最后一层会输出attention vectors K和V。K和V会被decoder用作解码的原材料。</p>
+<p><img src="https://uploader.shimo.im/f/3AgIt6lqzgADLwuf.png!thumbnail" alt="img"></p>
+<p>在解码的过程中，解码器每一步会输出一个token。一直循环往复，直到它输出了一个特殊的end of sequence token，表示解码结束了。</p>
+<p><img src="https://uploader.shimo.im/f/ai444UV6eQ4E0f6O.png!thumbnail" alt="img"></p>
+<p>decoder的self attention机制与encoder稍有不同。在decoder当中，self attention层只能看到之前已经解码的文字。我们只需要把当前输出位置之后的单词全都mask掉（softmax层之前全都设置成-inf）即可。</p>
+<p>softmax(Q matmul K^T / sqrt(d)) matmul V</p>
+<p>weights = Q matmul K^T: [seq_len, seq_len]</p>
+<p>Masked Self Attention</p>
+<p>q, k (<strong>100, 24</strong>, 35 - inf, 88 - inf, -55 - inf) –&gt; softmax –&gt; (0.9, 0.1, 0, 0, 0)</p>
+<p>attention_mask</p>
+<p>0, -inf, -inf, -inf</p>
+<p>0, 0, -inf, -inf</p>
+<p>0, 0, 0, -inf </p>
+<p>0, 0, 0, 0</p>
+<p>softmax(weights - attention_mask, -1)</p>
+<p>训练</p>
+<p>QKV, 并行训练</p>
+<p>预测</p>
+<p>一个单词一个单词解码</p>
+<p>Encoder-Decoder Attention层和普通的multiheaded self-attention一样，除了它的Queries完全来自下面的decoder层，然后Key和Value来自encoder的输出向量。</p>
+<p>batch_size * seq_length * hidden_size </p>
+<p>padding_mask</p>
+<p>tgt_mask</p>
+<h3 id="最后的线性层和softmax层"><a href="#最后的线性层和softmax层" class="headerlink" title="最后的线性层和softmax层"></a>最后的线性层和softmax层</h3><p>解码器最后输出浮点向量，如何将它转成词？这是最后的线性层和softmax层的主要工作。</p>
+<p>线性层是个简单的全连接层，将解码器的最后输出映射到一个非常大的logits向量上。假设模型已知有1万个单词（输出的词表）从训练集中学习得到。那么，logits向量就有1万维，每个值表示是某个词的可能倾向值。</p>
+<p>softmax层将这些分数转换成概率值（都是正值，且加和为1），最高值对应的维上的词就是这一步的输出单词。</p>
+<p><img src="https://uploader.shimo.im/f/7ffWFIfMqOgtsK22.png!thumbnail" alt="img"></p>
+<h2 id="模型的训练"><a href="#模型的训练" class="headerlink" title="模型的训练"></a>模型的训练</h2><p>现在我们已经了解了一个训练完毕的Transformer的前向过程，顺道看下训练的概念也是非常有用的。在训练时，模型将经历上述的前向过程，当我们在标记训练集上训练时，可以对比预测输出与实际输出。为了可视化，假设输出一共只有6个单词（“a”, “am”, “i”, “thanks”, “student”, “”）</p>
+<p><img src="https://uploader.shimo.im/f/FNgjBBm5gbUGYgbs.png!thumbnail" alt="img"></p>
+<p>模型的词表是在训练之前的预处理中生成的</p>
+<p>一旦定义了词表，我们就能够构造一个同维度的向量来表示每个单词，比如one-hot编码，下面举例编码“am”。</p>
+<p><img src="https://uploader.shimo.im/f/feV2TQAHPF0z3Rr2.png!thumbnail" alt="img"></p>
+<p>举例采用one-hot编码输出词表</p>
+<p>下面让我们讨论下模型的loss损失，在训练过程中用来优化的指标，指导学习得到一个非常准确的模型。</p>
+<h3 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h3><p>我们用一个简单的例子来示范训练，比如翻译“merci”为“thanks”。那意味着输出的概率分布指向单词“thanks”，但是由于模型未训练是随机初始化的，不太可能就是期望的输出。</p>
+<p><img src="https://uploader.shimo.im/f/aWNgQPklQh8odGQP.png!thumbnail" alt="img"></p>
+<p>由于模型参数是随机初始化的，未训练的模型输出随机值。我们可以对比真实输出，然后利用误差后传调整模型权重，使得输出更接近与真实输出。如何对比两个概率分布呢？简单采用 <a href="https://colah.github.io/posts/2015-09-Visual-Information/" target="_blank" rel="noopener">cross-entropy</a>或者<a href="https://www.countbayesie.com/blog/2017/5/9/kullback-leibler-divergence-explained" target="_blank" rel="noopener">Kullback-Leibler divergence</a>中的一种。鉴于这是个极其简单的例子，更真实的情况是，使用一个句子作为输入。比如，输入是“je suis étudiant”，期望输出是“i am a student”。在这个例子下，我们期望模型输出连续的概率分布满足如下条件：</p>
+<ol>
+<li><p>每个概率分布都与词表同维度</p>
+</li>
+<li><p>第一个概率分布对“i”具有最高的预测概率值。</p>
+</li>
+<li><p>第二个概率分布对“am”具有最高的预测概率值。</p>
+</li>
+<li><p>一直到第五个输出指向””标记。</p>
+</li>
+</ol>
+<p><img src="https://uploader.shimo.im/f/rAnz8qY0eHgt2OAe.png!thumbnail" alt="img"></p>
+<p>对一个句子而言，训练模型的目标概率分布</p>
+<p>在足够大的训练集上训练足够时间之后，我们期望产生的概率分布如下所示：</p>
+<p><img src="https://uploader.shimo.im/f/IyKk2fNcC3k4tgBt.png!thumbnail" alt="img"></p>
+<p>训练好之后，模型的输出是我们期望的翻译。当然，这并不意味着这一过程是来自训练集。注意，每个位置都能有值，即便与输出近乎无关，这也是softmax对训练有帮助的地方。现在，因为模型每步只产生一组输出，假设模型选择最高概率，扔掉其他的部分，这是种产生预测结果的方法，叫做greedy 解码。另外一种方法是beam search，每一步仅保留最头部高概率的两个输出，根据这俩输出再预测下一步，再保留头部高概率的两个输出，重复直到预测结束</p>
+<h2 id="更多资料"><a href="#更多资料" class="headerlink" title="更多资料"></a>更多资料</h2><ul>
+<li><p><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a> </p>
+</li>
+<li><p>Transformer博客文章 <a href="https://ai.googleblog.com/2017/08/transformer-novel-neural-network.html" target="_blank" rel="noopener">Transformer: A Novel Neural Network Architecture for Language Understanding</a></p>
+</li>
+<li><p><a href="https://ai.googleblog.com/2017/06/accelerating-deep-learning-research.html" target="_blank" rel="noopener">Tensor2Tensor announcement</a>.</p>
+</li>
+<li><p><a href="https://colab.research.google.com/github/tensorflow/tensor2tensor/blob/master/tensor2tensor/notebooks/hello_t2t.ipynb" target="_blank" rel="noopener">Jupyter Notebook provided as part of the Tensor2Tensor repo</a></p>
+</li>
+<li><p><a href="https://github.com/tensorflow/tensor2tensor" target="_blank" rel="noopener">Tensor2Tensor repo</a>.</p>
+</li>
+</ul>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2020/05/18/Transformer模型解读/">Transformer模型解读</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2020-05-18, 08:28:15</p>
+        <p><span>最后更新:</span>2020-06-09, 09:32:41</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2020/05/18/Transformer模型解读/" title="Transformer模型解读">http://mmyblog.cn/2020/05/18/Transformer模型解读/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2020/05/18/Transformer模型解读/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2020/05/19/阅读理解/">
+                    阅读理解
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2020/05/16/Transformer-XL/">
+                    Transformer-XL
+                </a>
+            </div>
+        
+    </nav>
+
+  
+  
+    <! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+    <div id="donate_guide" class="donate_bar center hidden" >
+        
+            <!-- <img src="/img/Alipay.jpg" alt="支付宝打赏">
+            <img src="/img/WeChatpay.jpg" alt="微信打赏"> -->
+       
+        <!-- 方式二；
+            step1：在_config.yml中添加配置
+                Alipay: /img/Alipay.jpg
+                WeChatpay: /img/WeChatpay.jpg
+            step2：此处两张图片的路径分别设置为如下
+                <img src=""
+                <img src=""
+        -->
+        <!-- 支付宝打赏图案 -->
+        <img src="/img/Alipay.jpg" alt="支付宝打赏">
+        <!-- 微信打赏图案 -->
+        <img src="/img//WeChatpay.jpg" alt="微信打赏">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn_donate').onclick = function(){
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+    </script>
+</div>
+<! -- 添加捐赠图标 -->
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Tensor的变化"><span class="toc-number">1.</span> <span class="toc-text">Tensor的变化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编码器"><span class="toc-number">2.</span> <span class="toc-text">编码器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Self-Attention机制"><span class="toc-number">2.1.</span> <span class="toc-text">Self-Attention机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Self-attention的细节"><span class="toc-number">2.2.</span> <span class="toc-text">Self-attention的细节</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Self-Attention中的矩阵运算"><span class="toc-number">2.3.</span> <span class="toc-text">Self-Attention中的矩阵运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Multi-headed-attention"><span class="toc-number">2.4.</span> <span class="toc-text">Multi-headed attention</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Positional-Encoding"><span class="toc-number">2.5.</span> <span class="toc-text">Positional Encoding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Residuals"><span class="toc-number">2.6.</span> <span class="toc-text">Residuals</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解码器"><span class="toc-number">3.</span> <span class="toc-text">解码器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#最后的线性层和softmax层"><span class="toc-number">3.1.</span> <span class="toc-text">最后的线性层和softmax层</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模型的训练"><span class="toc-number">4.</span> <span class="toc-text">模型的训练</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#损失函数"><span class="toc-number">4.1.</span> <span class="toc-text">损失函数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#更多资料"><span class="toc-number">5.</span> <span class="toc-text">更多资料</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"Transformer模型解读　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/05/19/阅读理解/" title="上一篇: 阅读理解">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/05/16/Transformer-XL/" title="下一篇: Transformer-XL">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/扩展内容/">扩展内容</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/XLNet/">XLNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/PyTorch/">PyTorch</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/朴素贝叶斯/">朴素贝叶斯</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/GPT模型/">GPT模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/BERT系列预训练模型/">BERT系列预训练模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/19/阅读理解/">阅读理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/18/Transformer模型解读/">Transformer模型解读</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/16/Transformer-XL/">Transformer-XL</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/英文书籍word级别的文本生成代码注释/">英文书籍word级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/文本生成任务/">文本生成任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/09/常见预训练模型/">BERT&ELMo&co</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/01/大规模无监督预训练语言模型与应用上/">大规模无监督预训练语言模型与应用上</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/18/语言模型/">语言模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/15/NLP中的ConvNet/">NLP中的ConvNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/13/seq2seq/">seq2seq</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/09/机器翻译与文本摘要/">机器翻译与文本摘要</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/sentiment情感分析代码注释/">sentiment情感分析代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/11/聊天机器人二/">聊天机器人二</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/10/聊天机器人一/">聊天机器人一</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/09/结构化预测/">结构化预测</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/word-embedding/">word-embedding</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/酒店评价情感分类与CNN模型/">酒店评价情感分类与CNN模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/28/NLP技术基础整理/">NLP技术基础整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/18/CNN-Image-Classification/">CNN-Image-Classification</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/丘吉尔的人物传记char级别的文本生成代码注释/">丘吉尔的人物传记char级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/用朴素贝叶斯完成语种检测/">用朴素贝叶斯完成语种检测</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/24/文本分类问题/">文本分类问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/08/python正则表达式/">python正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/08/jieba中文处理/">jieba中文处理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

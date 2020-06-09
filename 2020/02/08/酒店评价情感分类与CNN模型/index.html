@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="酒店评价情感分类与CNN模型参考了https://github.com/bentrevett/pytorch-sentiment-analysis 我们会用PyTorch模型来做情感分析(检测一段文字的情感是正面的还是负面的)。我们会使用ChnSentiCorp_htl数据集，即酒店评论数据集。 数据下载链接：https://raw.githubusercontent.com/SophonPlus">
+<meta name="keywords" content="CNN,RNN&#x2F;LSTM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="酒店评价情感分类与CNN模型">
+<meta property="og:url" content="http://mmyblog.cn/2020/02/08/酒店评价情感分类与CNN模型/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="酒店评价情感分类与CNN模型参考了https://github.com/bentrevett/pytorch-sentiment-analysis 我们会用PyTorch模型来做情感分析(检测一段文字的情感是正面的还是负面的)。我们会使用ChnSentiCorp_htl数据集，即酒店评论数据集。 数据下载链接：https://raw.githubusercontent.com/SophonPlus">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="file:///Users/mmy/Downloads/assets/sentiment1.png">
+<meta property="og:image" content="file:///Users/mmy/Downloads/assets/sentiment7.png">
+<meta property="og:updated_time" content="2020-06-09T01:00:24.741Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="酒店评价情感分类与CNN模型">
+<meta name="twitter:description" content="酒店评价情感分类与CNN模型参考了https://github.com/bentrevett/pytorch-sentiment-analysis 我们会用PyTorch模型来做情感分析(检测一段文字的情感是正面的还是负面的)。我们会使用ChnSentiCorp_htl数据集，即酒店评论数据集。 数据下载链接：https://raw.githubusercontent.com/SophonPlus">
+<meta name="twitter:image" content="file:///Users/mmy/Downloads/assets/sentiment1.png">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>酒店评价情感分类与CNN模型 | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Attention/">Attention</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BERT/">BERT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BLUE/">BLUE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Beam-search/">Beam search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CRF/">CRF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ConvNet/">ConvNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ELMo/">ELMo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPT/">GPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GRU/">GRU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradient-Clipping/">Gradient Clipping</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LSTM/">LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linear/">Linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Parsing/">Parsing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PyTorch/">PyTorch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QA/">QA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN/">RNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN-LSTM/">RNN/LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Recursive-Neural-Networks/">Recursive Neural Networks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seq2Seq/">Seq2Seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TorchText/">TorchText</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer/">Transformer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer-XL/">Transformer-XL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/XLNet/">XLNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/inference/">inference</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jiaba/">jiaba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jieba/">jieba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/word-embedding/">word-embedding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wxBot/">wxBot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/中文分词/">中文分词</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图神经网络/">图神经网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/朴素贝叶斯/">朴素贝叶斯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则表达式/">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聊天机器人/">聊天机器人</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言模型/">语言模型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-酒店评价情感分类与CNN模型" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/02/08/酒店评价情感分类与CNN模型/" class="article-date">
+      <time datetime="2020-02-08T10:58:23.000Z" itemprop="datePublished">2020-02-08</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      酒店评价情感分类与CNN模型
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/NLP/">NLP</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CNN/">CNN</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RNN-LSTM/">RNN/LSTM</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h4 id="酒店评价情感分类与CNN模型"><a href="#酒店评价情感分类与CNN模型" class="headerlink" title="酒店评价情感分类与CNN模型"></a>酒店评价情感分类与CNN模型</h4><p>参考了<a href="https://github.com/bentrevett/pytorch-sentiment-analysis" target="_blank" rel="noopener">https://github.com/bentrevett/pytorch-sentiment-analysis</a></p>
+<p>我们会用PyTorch模型来做情感分析(检测一段文字的情感是正面的还是负面的)。我们会使用<a href="https://github.com/SophonPlus/ChineseNlpCorpus/blob/master/datasets/ChnSentiCorp_htl_all/intro.ipynb" target="_blank" rel="noopener">ChnSentiCorp_htl</a>数据集，即酒店评论数据集。</p>
+<p>数据下载链接：<a href="https://raw.githubusercontent.com/SophonPlus/ChineseNlpCorpus/master/datasets/ChnSentiCorp_htl_all/ChnSentiCorp_htl_all.csv" target="_blank" rel="noopener">https://raw.githubusercontent.com/SophonPlus/ChineseNlpCorpus/master/datasets/ChnSentiCorp_htl_all/ChnSentiCorp_htl_all.csv</a></p>
+<p>模型从简单到复杂，我们会依次构建：</p>
+<ul>
+<li>Word Averaging模型</li>
+<li>RNN/LSTM模型</li>
+<li>CNN模型</li>
+</ul>
+<h2 id="准备数据"><a href="#准备数据" class="headerlink" title="准备数据"></a>准备数据</h2><ul>
+<li>首先让我们加载数据，来看看这一批酒店评价数据长得怎样</li>
+</ul>
+<p>In [1]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">import pandas as pd</span><br><span class="line">import numpy as np</span><br><span class="line">path = &quot;ChnSentiCorp_htl_all.csv&quot;</span><br><span class="line">pd_all = pd.read_csv(path)</span><br><span class="line"></span><br><span class="line">print(&apos;评论数目（总体）：%d&apos; % pd_all.shape[0])</span><br><span class="line">print(&apos;评论数目（正向）：%d&apos; % pd_all[pd_all.label==1].shape[0])</span><br><span class="line">print(&apos;评论数目（负向）：%d&apos; % pd_all[pd_all.label==0].shape[0])</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">评论数目（总体）：7766</span><br><span class="line">评论数目（正向）：5322</span><br><span class="line">评论数目（负向）：2444</span><br></pre></td></tr></table></figure>
+
+<p>In [2]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pd_all.sample(5)</span><br></pre></td></tr></table></figure>
+
+<p>Out[2]:</p>
+<table>
+<thead>
+<tr>
+<th align="right"></th>
+<th align="right">label</th>
+<th align="right">review</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">914</td>
+<td align="right">1</td>
+<td align="right">地点看上去不错，在北京西客站对面，但出行十分不便，周边没有地铁，门口出租车倒是挺多，但就是不…</td>
+</tr>
+<tr>
+<td align="right">7655</td>
+<td align="right">0</td>
+<td align="right">酒店位置较偏僻，环境清净，交通也方便，但酒店及周边就餐选择不多;浴场海水中有水草,水亦太浅,…</td>
+</tr>
+<tr>
+<td align="right">3424</td>
+<td align="right">1</td>
+<td align="right">酒店给人感觉很温欣,服务员也挺有礼貌,房间内的舒适度也非常不错,离开李公递也很近,下次来苏州…</td>
+</tr>
+<tr>
+<td align="right">4854</td>
+<td align="right">1</td>
+<td align="right">离故宫不太远，走路大概10分钟不到点，环境还好，有一点非常不好的是窗帘就只有一层，早上很早就…</td>
+</tr>
+<tr>
+<td align="right">5852</td>
+<td align="right">0</td>
+<td align="right">宾馆背面就是省道,交通是方便的,停车场很大也很方便,但晚上尤其半夜路过的汽车声音很响,拖拉机…</td>
+</tr>
+</tbody></table>
+<p>In [3]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">import pkuseg</span><br><span class="line"></span><br><span class="line">seg = pkuseg.pkuseg()           # 以默认配置加载模型</span><br><span class="line">text = seg.cut(&apos;我爱北京天安门&apos;)  # 进行分词</span><br><span class="line">print(text)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&apos;我&apos;, &apos;爱&apos;, &apos;北京&apos;, &apos;天安门&apos;]</span><br></pre></td></tr></table></figure>
+
+<p>下面我们先手工把数据分成train, dev, test三个部分</p>
+<p>In [4]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">pd_all_shuf = pd_all.sample(frac=1)</span><br><span class="line"></span><br><span class="line"># 总共有多少ins</span><br><span class="line">total_num_ins = pd_all_shuf.shape[0]</span><br><span class="line">pd_train = pd_all_shuf.iloc[:int(total_num_ins*0.8)]</span><br><span class="line">pd_dev = pd_all_shuf.iloc[int(total_num_ins*0.8):int(total_num_ins*0.9)]</span><br><span class="line">pd_test = pd_all_shuf.iloc[int(total_num_ins*0.9):]</span><br><span class="line"></span><br><span class="line"># text, label</span><br><span class="line">train_text = [seg.cut(str(text)) for text in pd_train.review.tolist()]</span><br><span class="line">dev_text = [seg.cut(str(text)) for text in pd_dev.review.tolist()]</span><br><span class="line">test_text = [seg.cut(str(text)) for text in pd_test.review.tolist()]</span><br><span class="line">train_label = pd_train.label.tolist()</span><br><span class="line">dev_label = pd_dev.label.tolist()</span><br><span class="line">test_label = pd_test.label.tolist()</span><br></pre></td></tr></table></figure>
+
+<p>In [6]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_label[0]</span><br></pre></td></tr></table></figure>
+
+<p>Out[6]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0</span><br></pre></td></tr></table></figure>
+
+<p>我们从训练数据构造出一个由单词到index的单词表</p>
+<p>In [7]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">from collections import Counter</span><br><span class="line">def build_vocab(sents, max_words=50000):</span><br><span class="line">    word_counts = Counter()</span><br><span class="line">    for sent in sents:</span><br><span class="line">        for word in sent:</span><br><span class="line">            word_counts[word] += 1</span><br><span class="line">    itos = [w for w, c in word_counts.most_common(max_words)]</span><br><span class="line">    itos = [&quot;UNK&quot;, &quot;PAD&quot;] + itos</span><br><span class="line">    stoi = &#123;w:i for i, w in enumerate(itos)&#125;</span><br><span class="line">    return itos, stoi</span><br><span class="line"></span><br><span class="line">itos, stoi = build_vocab(train_text)</span><br></pre></td></tr></table></figure>
+
+<p>查看一下比较高频的单词</p>
+<p>In [8]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">itos[:10]</span><br></pre></td></tr></table></figure>
+
+<p>Out[8]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&apos;UNK&apos;, &apos;PAD&apos;, &apos;，&apos;, &apos;的&apos;, &apos;。&apos;, &apos;了&apos;, &apos;,&apos;, &apos;酒店&apos;, &apos;是&apos;, &apos;很&apos;]</span><br></pre></td></tr></table></figure>
+
+<p>In [10]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stoi[&quot;酒店&quot;]</span><br></pre></td></tr></table></figure>
+
+<p>Out[10]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">7</span><br></pre></td></tr></table></figure>
+
+<p>我们把文本中的单词都转换成index</p>
+<p>In [12]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">train_idx = [[stoi.get(word, stoi.get(&quot;UNK&quot;)) for word in text] for text in train_text ]</span><br><span class="line">dev_idx = [[stoi.get(word, stoi.get(&quot;UNK&quot;)) for word in text] for text in dev_text ]</span><br><span class="line">test_idx = [[stoi.get(word, stoi.get(&quot;UNK&quot;)) for word in text] for text in test_text ]</span><br></pre></td></tr></table></figure>
+
+<p>把数据和label都转成batch</p>
+<p>In [15]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">def get_minibatches(text_idx, labels, batch_size=64, sort=True):</span><br><span class="line">    if sort:</span><br><span class="line">        text_idx_and_labels = sorted(list(zip(text_idx, labels)), key=lambda x: len(x[0]))</span><br><span class="line">        </span><br><span class="line">    text_idx_batches = []</span><br><span class="line">    label_batches = []</span><br><span class="line">    for i in range(0, len(text_idx), batch_size):</span><br><span class="line">        text_batch = [t for t, l in text_idx_and_labels[i:i+batch_size]]</span><br><span class="line">        label_batch = [l for t, l in text_idx_and_labels[i:i+batch_size]]</span><br><span class="line">        max_len = max([len(t) for t in text_batch])</span><br><span class="line">        text_batch_np = np.ones((len(text_batch), max_len), dtype=np.int) # batch_size * max_seq_ength</span><br><span class="line">        for i, t in enumerate(text_batch):</span><br><span class="line">            text_batch_np[i, :len(t)] = t</span><br><span class="line">        text_idx_batches.append(text_batch_np)</span><br><span class="line">        label_batches.append(np.array(label_batch))</span><br><span class="line">        </span><br><span class="line">    return text_idx_batches, label_batches</span><br><span class="line"></span><br><span class="line">train_batches, train_label_batches = get_minibatches(train_idx, train_label)</span><br><span class="line">dev_batches, dev_label_batches = get_minibatches(dev_idx, dev_label)</span><br><span class="line">test_batches, test_label_batches = get_minibatches(test_idx, test_label)</span><br></pre></td></tr></table></figure>
+
+<p>In [17]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_batches[20]</span><br></pre></td></tr></table></figure>
+
+<p>Out[17]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">array([[  80,  177,  149, ...,  191,    3,    1],</span><br><span class="line">       [  49,   18,   20, ...,   53,    4,    1],</span><br><span class="line">       [   7,   18,   17, ...,  702,    4,    1],</span><br><span class="line">       ...,</span><br><span class="line">       [1107, 2067,   10, ...,  748,  172,  442],</span><br><span class="line">       [ 241,    9,   19, ...,   17,   44,   30],</span><br><span class="line">       [3058,   20,    6, ...,    9,   19,   98]])</span><br></pre></td></tr></table></figure>
+
+<p>In [18]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_label_batches[20]</span><br></pre></td></tr></table></figure>
+
+<p>Out[18]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">array([1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1,</span><br><span class="line">       1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0,</span><br><span class="line">       1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1])</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>和之前一样，我们会设定random seeds使实验可以复现。</li>
+</ul>
+<p>In [19]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">import torch</span><br><span class="line">from torchtext import data</span><br><span class="line">import random</span><br><span class="line"></span><br><span class="line">SEED = 1234</span><br><span class="line"></span><br><span class="line">torch.manual_seed(SEED)</span><br><span class="line">torch.cuda.manual_seed(SEED)</span><br><span class="line">torch.backends.cudnn.deterministic = True</span><br><span class="line"></span><br><span class="line">device = torch.device(&quot;cuda&quot; if torch.cuda.is_available() else &quot;cpu&quot;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Word-Averaging模型"><a href="#Word-Averaging模型" class="headerlink" title="Word Averaging模型"></a>Word Averaging模型</h2><ul>
+<li>我们首先介绍一个简单的Word Averaging模型。这个模型非常简单，我们把每个单词都通过<code>Embedding</code>层投射成word embedding vector，然后把一句话中的所有word vector做个平均，就是整个句子的vector表示了。接下来把这个sentence vector传入一个<code>Linear</code>层，做分类即可。</li>
+</ul>
+<p>In [32]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">import torch</span><br><span class="line">import torch.nn as nn</span><br><span class="line">import torch.nn.functional as F</span><br><span class="line"></span><br><span class="line">class WordAVGModel(nn.Module):</span><br><span class="line">    def __init__(self, vocab_size, embedding_size, output_size, pad_idx, dropout_p=0.2):</span><br><span class="line">        super(WordAVGModel, self).__init__()</span><br><span class="line">        self.embed = nn.Embedding(vocab_size, embedding_size, padding_idx=pad_idx)</span><br><span class="line">        self.linear = nn.Linear(embedding_size, output_size)</span><br><span class="line">        self.dropout = nn.Dropout(dropout_p) # 这个参数经常拿来调节</span><br><span class="line">    </span><br><span class="line">    def forward(self, text, mask):</span><br><span class="line">        # text: batch_size * max_seq_len</span><br><span class="line">        # mask: batch_size * max_seq_len</span><br><span class="line">        embedded = self.embed(text) # [batch_size, max_seq_len, embedding_size]</span><br><span class="line">        embedded = self.dropout(embedded)</span><br><span class="line">        # dropout</span><br><span class="line">        mask = (1. - mask.float()).unsqueeze(2) # [batch_size, seq_len, 1], 1 represents word, 0 represents padding</span><br><span class="line">        embedded = embedded * mask # [batch_size, seq_len, embedding_size]</span><br><span class="line">        # 求平均</span><br><span class="line">        sent_embed = embedded.sum(1) / (mask.sum(1) + 1e-9) # 防止mask.sum为0，那么不能除以零。</span><br><span class="line">        # dropout</span><br><span class="line">        return self.linear(sent_embed)</span><br></pre></td></tr></table></figure>
+
+<p>In [75]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">import torch</span><br><span class="line">import torch.nn as nn</span><br><span class="line">import torch.nn.functional as F</span><br><span class="line"></span><br><span class="line">class WordMaxModel(nn.Module):</span><br><span class="line">    def __init__(self, vocab_size, embedding_size, output_size, pad_idx, dropout_p=0.2):</span><br><span class="line">        super(WordMaxModel, self).__init__()</span><br><span class="line">        self.embed = nn.Embedding(vocab_size, embedding_size, padding_idx=pad_idx)</span><br><span class="line">        self.linear = nn.Linear(embedding_size, output_size)</span><br><span class="line">        self.dropout = nn.Dropout(dropout_p) # 这个参数经常拿来调节</span><br><span class="line">    </span><br><span class="line">    def forward(self, text, mask):</span><br><span class="line">        # text: batch_size * max_seq_len</span><br><span class="line">        # mask: batch_size * max_seq_len</span><br><span class="line">        embedded = self.embed(text) # [batch_size, max_seq_len, embedding_size]</span><br><span class="line">        embedded = self.dropout(embedded)</span><br><span class="line">        embedded.masked_fill(mask.unsqueeze(2), -999999)</span><br><span class="line">        # dropout</span><br><span class="line">        sent_embed = torch.max(embedded, 1)[0]</span><br><span class="line">        # dropout</span><br><span class="line">        return self.linear(sent_embed)</span><br></pre></td></tr></table></figure>
+
+<p>In [76]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">VOCAB_SIZE = len(itos)</span><br><span class="line">EMBEDDING_SIZE = 100</span><br><span class="line">OUTPUT_SIZE = 1</span><br><span class="line">PAD_IDX = stoi[&quot;PAD&quot;]</span><br><span class="line"></span><br><span class="line">model = WordMaxModel(vocab_size=VOCAB_SIZE, </span><br><span class="line">                     embedding_size=EMBEDDING_SIZE, </span><br><span class="line">                     output_size=OUTPUT_SIZE, </span><br><span class="line">                     pad_idx=PAD_IDX)</span><br></pre></td></tr></table></figure>
+
+<p>In [77]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VOCAB_SIZE</span><br></pre></td></tr></table></figure>
+
+<p>Out[77]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">24001</span><br></pre></td></tr></table></figure>
+
+<p>In [78]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># model</span><br><span class="line">def count_parameters(model):</span><br><span class="line">    return sum(p.numel() for p in model.parameters() if p.requires_grad)</span><br><span class="line"></span><br><span class="line">count_parameters(model)</span><br></pre></td></tr></table></figure>
+
+<p>Out[78]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2400201</span><br></pre></td></tr></table></figure>
+
+<p>In [79]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UNK_IDX = stoi[&quot;UNK&quot;]</span><br></pre></td></tr></table></figure>
+
+<h2 id="训练模型"><a href="#训练模型" class="headerlink" title="训练模型"></a>训练模型</h2><p>In [80]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">optimizer = torch.optim.Adam(model.parameters())</span><br><span class="line">crit = nn.BCEWithLogitsLoss()</span><br><span class="line"></span><br><span class="line">model = model.to(device)</span><br><span class="line"># crit = crit.to(device)</span><br></pre></td></tr></table></figure>
+
+<p>计算预测的准确率</p>
+<p>In [81]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def binary_accuracy(preds, y):</span><br><span class="line">    rounded_preds = torch.round(torch.sigmoid(preds))</span><br><span class="line">    correct = (rounded_preds == y).float()</span><br><span class="line">    acc = correct.sum() / len(correct)</span><br><span class="line">    return acc</span><br></pre></td></tr></table></figure>
+
+<p>In [82]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">def train(model, text_idxs, labels, optimizer, crit):</span><br><span class="line">    epoch_loss, epoch_acc = 0., 0.</span><br><span class="line">    model.train()</span><br><span class="line">    total_len = 0.</span><br><span class="line">    for text, label in zip(text_idxs, labels):</span><br><span class="line">        text = torch.from_numpy(text).to(device)</span><br><span class="line">        label = torch.from_numpy(label).to(device)</span><br><span class="line">        mask = text == PAD_IDX</span><br><span class="line">        preds = model(text, mask).squeeze() # [batch_size, sent_length]</span><br><span class="line">        loss = crit(preds, label.float()) </span><br><span class="line">        acc = binary_accuracy(preds, label)</span><br><span class="line">        </span><br><span class="line">        # sgd</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line">        </span><br><span class="line">#         print(&quot;batch loss: &#123;&#125;&quot;.format(loss.item()))</span><br><span class="line">        </span><br><span class="line">        epoch_loss += loss.item() * len(label)</span><br><span class="line">        epoch_acc += acc.item() * len(label)</span><br><span class="line">        total_len += len(label)</span><br><span class="line">        </span><br><span class="line">    return epoch_loss / total_len, epoch_acc / total_len</span><br></pre></td></tr></table></figure>
+
+<p>In [83]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">def evaluate(model, text_idxs, labels, crit):</span><br><span class="line">    epoch_loss, epoch_acc = 0., 0.</span><br><span class="line">    model.eval()</span><br><span class="line">    total_len = 0.</span><br><span class="line">    for text, label in zip(text_idxs, labels):</span><br><span class="line">        text = torch.from_numpy(text).to(device)</span><br><span class="line">        label = torch.from_numpy(label).to(device)</span><br><span class="line">        mask = text == PAD_IDX</span><br><span class="line">        with torch.no_grad():</span><br><span class="line">            preds = model(text, mask).squeeze()</span><br><span class="line">        loss = crit(preds, label.float())</span><br><span class="line">        acc = binary_accuracy(preds, label)</span><br><span class="line">        </span><br><span class="line">        epoch_loss += loss.item() * len(label)</span><br><span class="line">        epoch_acc += acc.item() * len(label)</span><br><span class="line">        total_len += len(label)</span><br><span class="line">    model.train()</span><br><span class="line">        </span><br><span class="line">    return epoch_loss / total_len, epoch_acc / total_len</span><br></pre></td></tr></table></figure>
+
+<p>In [84]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">N_EPOCHS = 10</span><br><span class="line">best_valid_acc = 0.</span><br><span class="line">for epoch in range(N_EPOCHS):</span><br><span class="line">    train_loss, train_acc = train(model, train_batches, train_label_batches, optimizer, crit)</span><br><span class="line">    valid_loss, valid_acc = evaluate(model, dev_batches, dev_label_batches, crit)</span><br><span class="line">    </span><br><span class="line">    if valid_acc &gt; best_valid_acc:</span><br><span class="line">        best_valid_acc = valid_acc</span><br><span class="line">        torch.save(model.state_dict(), &quot;wordavg-model.pth&quot;)</span><br><span class="line">        </span><br><span class="line">    print(&quot;Epoch&quot;, epoch, &quot;Train Loss&quot;, train_loss, &quot;Train Acc&quot;, train_acc)</span><br><span class="line">    print(&quot;Epoch&quot;, epoch, &quot;Valid Loss&quot;, valid_loss, &quot;Valid Acc&quot;, valid_acc)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Epoch 0 Train Loss 0.6241851981347865 Train Acc 0.6785254346426272</span><br><span class="line">Epoch 0 Valid Loss 0.7439712684126895 Valid Acc 0.396396396434752</span><br><span class="line">Epoch 1 Train Loss 0.6111872896254639 Train Acc 0.6775595621377978</span><br><span class="line">Epoch 1 Valid Loss 0.7044879783381213 Valid Acc 0.4761904762288318</span><br><span class="line">Epoch 2 Train Loss 0.5826128212314072 Train Acc 0.7041210560206053</span><br><span class="line">Epoch 2 Valid Loss 0.667004818775172 Valid Acc 0.5791505791889348</span><br><span class="line">Epoch 3 Train Loss 0.5516750626769744 Train Acc 0.7293947198969736</span><br><span class="line">Epoch 3 Valid Loss 0.6347547087583456 Valid Acc 0.6473616476684924</span><br><span class="line">Epoch 4 Train Loss 0.5236469646921791 Train Acc 0.7512878300064392</span><br><span class="line">Epoch 4 Valid Loss 0.5953507212444928 Valid Acc 0.7348777351845799</span><br><span class="line">Epoch 5 Train Loss 0.4969042095152394 Train Acc 0.7707662588538313</span><br><span class="line">Epoch 5 Valid Loss 0.5561252224092471 Valid Acc 0.7786357789426237</span><br><span class="line">Epoch 6 Train Loss 0.46501466702892946 Train Acc 0.797005795235029</span><br><span class="line">Epoch 6 Valid Loss 0.5206214915217887 Valid Acc 0.8018018021086468</span><br><span class="line">Epoch 7 Train Loss 0.43595607032794303 Train Acc 0.8163232453316163</span><br><span class="line">Epoch 7 Valid Loss 0.4846100037776058 Valid Acc 0.8159588161889497</span><br><span class="line">Epoch 8 Train Loss 0.40671270164611334 Train Acc 0.8386992916934964</span><br><span class="line">Epoch 8 Valid Loss 0.45964578196809097 Valid Acc 0.8211068213369549</span><br><span class="line">Epoch 9 Train Loss 0.38044816804408105 Train Acc 0.8539922730199614</span><br><span class="line">Epoch 9 Valid Loss 0.4279780917953187 Valid Acc 0.8416988419289755</span><br></pre></td></tr></table></figure>
+
+<p>In [85]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model.load_state_dict(torch.load(&quot;wordavg-model.pth&quot;))</span><br></pre></td></tr></table></figure>
+
+<p>Out[85]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;All keys matched successfully&gt;</span><br></pre></td></tr></table></figure>
+
+<p>In [86]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">def predict_sentiment(model, sentence):</span><br><span class="line">    model.eval()</span><br><span class="line">    indexed = [stoi.get(t, PAD_IDX) for t in seg.cut(sentence)]</span><br><span class="line">    tensor = torch.LongTensor(indexed).to(device) # seq_len</span><br><span class="line">    tensor = tensor.unsqueeze(0) # batch_size* seq_len </span><br><span class="line">    mask = tensor == PAD_IDX</span><br><span class="line">#     print(tensor, &quot;\n&quot;, mask)</span><br><span class="line">    with torch.no_grad():</span><br><span class="line">        pred = torch.sigmoid(model(tensor, mask))</span><br><span class="line">    return pred.item()</span><br></pre></td></tr></table></figure>
+
+<p>In [88]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(model, &quot;这个酒店非常脏乱差，不推荐&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[88]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.6831367611885071</span><br></pre></td></tr></table></figure>
+
+<p>In [90]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(model, &quot;这个酒店非常好，强烈推荐！&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[90]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.8252924680709839</span><br></pre></td></tr></table></figure>
+
+<p>In [91]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(model, &quot;房间设备太破,连喷头都是不好用,空调几乎感觉不到,虽然我开了最大另外就是设备维修不及时,洗澡用品感觉都是廉价货,味道很奇怪的洗头液等等...总体感觉服务还可以,设备招待所水平...&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[91]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.5120517611503601</span><br></pre></td></tr></table></figure>
+
+<p>In [92]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(model, &quot;房间稍小，但清洁，非常实惠。不足之处是：双人房的洗澡用品只有一套.宾馆反馈2008年8月5日：尊敬的宾客：您好！感谢您选择入住金陵溧阳宾馆！对于酒店双人房内的洗漱用品只有一套的问题，我们已经召集酒店相关部门对此问题进行了研究和整改。努力将我们的管理与服务工作做到位，进一步关注宾客，关注细节！再次向您表示我们最衷心的感谢！期待您能再次来溧阳并入住金陵溧阳宾馆！让我们有给您提供更加优质服务的机会！顺祝您工作顺利！身体健康！金陵溧阳宾馆客务关系主任&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[92]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.7319579124450684</span><br></pre></td></tr></table></figure>
+
+<p>In [93]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(model, &quot;该酒店对去溧阳公务或旅游的人都很适合，自助早餐很丰富，酒店内部环境和服务很好。唯一的不足是酒店大门口在晚上时太乱，各种车辆和人在门口挤成一团。补充点评2008年5月9日：房间淋浴水压不稳，一会热、一会冷，很不好调整。宾馆反馈2008年5月13日：非常感谢您选择入住金陵溧阳宾馆。您给予我们的肯定与赞赏让我们倍受鼓舞，也使我们更加自信地去做好每一天的服务工作。正是有许多像您一样的宾客给予我们不断的鼓励和赞赏，酒店的服务品质才能得以不断提升。对于酒店大门口的秩序和房间淋浴水的问题我们已做出了相应的措施。再次向您表示我们最衷心的感谢！我们期待您的再次光临！&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[93]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.793725311756134</span><br></pre></td></tr></table></figure>
+
+<p>In [94]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(model, &quot;环境不错，室内色调很温馨，MM很满意！就是窗户收拾得太马虎了，拉开窗帘就觉得很凌乱的感觉。最不足的地方就是淋浴了，一是地方太小了，二是洗澡时水时大时小的，中间还停了几秒！！&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[94]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.7605408430099487</span><br></pre></td></tr></table></figure>
+
+<p>In [95]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">model.load_state_dict(torch.load(&quot;wordavg-model.pth&quot;))</span><br><span class="line">test_loss, test_acc = evaluate(model, test_batches, test_label_batches, crit)</span><br><span class="line">print(&quot;CNN model test loss: &quot;, test_loss, &quot;accuracy:&quot;, test_acc)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CNN model test loss:  0.44893962796897346 accuracy: 0.8133848134615247</span><br></pre></td></tr></table></figure>
+
+<h2 id="RNN模型"><a href="#RNN模型" class="headerlink" title="RNN模型"></a>RNN模型</h2><ul>
+<li><p>下面我们尝试把模型换成一个</p>
+<p>recurrent neural network</p>
+</li>
+</ul>
+<p>  (RNN)。RNN经常会被用来encode一个sequence</p>
+<p>  ℎ𝑡=RNN(𝑥𝑡,ℎ𝑡−1)ht=RNN(xt,ht−1)</p>
+<ul>
+<li><p>我们使用最后一个hidden state ℎ𝑇hT来表示整个句子。</p>
+</li>
+<li><p>然后我们把ℎ𝑇hT通过一个线性变换𝑓f，然后用来预测句子的情感。</p>
+</li>
+</ul>
+<p><img src="file:///Users/mmy/Downloads/assets/sentiment1.png" alt="img"></p>
+<p><img src="file:///Users/mmy/Downloads/assets/sentiment7.png" alt="img"></p>
+<p>In [57]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">class RNNModel(nn.Module):</span><br><span class="line">    def __init__(self, vocab_size, embedding_size, output_size, pad_idx, hidden_size, dropout, avg_hidden=True):</span><br><span class="line">        super(RNNModel, self).__init__()</span><br><span class="line">        self.embed = nn.Embedding(vocab_size, embedding_size, padding_idx=pad_idx)</span><br><span class="line">        self.lstm = nn.LSTM(embedding_size, hidden_size, bidirectional=True, num_layers=2, batch_first=True)</span><br><span class="line">        self.linear = nn.Linear(hidden_size*2, output_size)</span><br><span class="line">            </span><br><span class="line">        self.dropout = nn.Dropout(dropout)</span><br><span class="line">        self.avg_hidden = avg_hidden</span><br><span class="line">    </span><br><span class="line">    def forward(self, text, mask):</span><br><span class="line">        embedded = self.embed(text) # [batch_size, seq_len, embedding_size] 其中包含一些pad</span><br><span class="line">        embedded  = self.dropout(embedded)</span><br><span class="line">        </span><br><span class="line">        # mask: batch_size * seq_length</span><br><span class="line">        seq_length = (1. - mask.float()).sum(1)</span><br><span class="line">        embedded = torch.nn.utils.rnn.pack_padded_sequence(</span><br><span class="line">            input=embedded,</span><br><span class="line">            lengths=seq_length,</span><br><span class="line">            batch_first=True,</span><br><span class="line">            enforce_sorted=False</span><br><span class="line">        ) # batch_size * seq_len * ...,    seq_len * batch_size * ...</span><br><span class="line">        output, (hidden, cell) = self.lstm(embedded)</span><br><span class="line">        output, seq_length = torch.nn.utils.rnn.pad_packed_sequence(</span><br><span class="line">            sequence=output,</span><br><span class="line">            batch_first=True,</span><br><span class="line">            padding_value=0,</span><br><span class="line">            total_length=mask.shape[1]</span><br><span class="line">        )</span><br><span class="line">        </span><br><span class="line">        # output: [batch_size, seq_length, hidden_dim * num_directions]</span><br><span class="line">        # hidden: [num_layers * num_directions, batch_size, hidden_dim]</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        if self.avg_hidden:</span><br><span class="line">            hidden = torch.sum(output * (1. - mask.float()).unsqueeze(2), 1) / torch.sum((1. - mask.float()), 1).unsqueeze(1)</span><br><span class="line">        else:</span><br><span class="line">            # 拿最后一个hidden state作为句子的表示</span><br><span class="line">            # hidden: 2 * batch_size * hidden_size</span><br><span class="line">            hidden = torch.cat([hidden[-1], hidden[-2]], dim=1)</span><br><span class="line">            hidden = self.dropout(hidden.squeeze())</span><br><span class="line">        return self.linear(hidden)</span><br></pre></td></tr></table></figure>
+
+<p>In [58]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">model = RNNModel(vocab_size=VOCAB_SIZE, </span><br><span class="line">                 embedding_size=EMBEDDING_SIZE, </span><br><span class="line">                 output_size=OUTPUT_SIZE, </span><br><span class="line">                 pad_idx=PAD_IDX, </span><br><span class="line">                 hidden_size=100, </span><br><span class="line">                 dropout=0.5)</span><br></pre></td></tr></table></figure>
+
+<h2 id="训练RNN模型"><a href="#训练RNN模型" class="headerlink" title="训练RNN模型"></a>训练RNN模型</h2><p>In [59]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">optimizer = torch.optim.Adam(model.parameters()) # L2</span><br><span class="line">crit = nn.BCEWithLogitsLoss()</span><br><span class="line"></span><br><span class="line">model = model.to(device)</span><br><span class="line">crit = crit.to(device)</span><br></pre></td></tr></table></figure>
+
+<p>In [60]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">N_EPOCHS = 10</span><br><span class="line">best_valid_acc = 0.</span><br><span class="line">for epoch in range(N_EPOCHS):</span><br><span class="line">    train_loss, train_acc = train(model, train_batches, train_label_batches, optimizer, crit)</span><br><span class="line">    valid_loss, valid_acc = evaluate(model, dev_batches, dev_label_batches, crit)</span><br><span class="line">    </span><br><span class="line">    if valid_acc &gt; best_valid_acc:</span><br><span class="line">        best_valid_acc = valid_acc</span><br><span class="line">        torch.save(model.state_dict(), &quot;lstm-model.pth&quot;)</span><br><span class="line">        </span><br><span class="line">    print(&quot;Epoch&quot;, epoch, &quot;Train Loss&quot;, train_loss, &quot;Train Acc&quot;, train_acc)</span><br><span class="line">    print(&quot;Epoch&quot;, epoch, &quot;Valid Loss&quot;, valid_loss, &quot;Valid Acc&quot;, valid_acc)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Epoch 0 Train Loss 0.5140281977456996 Train Acc 0.7472633612363168</span><br><span class="line">Epoch 0 Valid Loss 0.7321655497894631 Valid Acc 0.8133848134615247</span><br><span class="line">Epoch 1 Train Loss 0.4205178504441526 Train Acc 0.8209916291049582</span><br><span class="line">Epoch 1 Valid Loss 0.5658483397086155 Valid Acc 0.8391248392782616</span><br><span class="line">Epoch 2 Train Loss 0.3576773465620036 Train Acc 0.8473921442369607</span><br><span class="line">Epoch 2 Valid Loss 0.6089477152437777 Valid Acc 0.8545688548756996</span><br><span class="line">Epoch 3 Train Loss 0.3190276817504391 Train Acc 0.8647778493238892</span><br><span class="line">Epoch 3 Valid Loss 0.5731698980355968 Valid Acc 0.8622908625977073</span><br><span class="line">Epoch 4 Train Loss 0.2850390273336434 Train Acc 0.8881197681905988</span><br><span class="line">Epoch 4 Valid Loss 0.6073675444073966 Valid Acc 0.8622908625209961</span><br><span class="line">Epoch 5 Train Loss 0.26827128295812463 Train Acc 0.8884417256922086</span><br><span class="line">Epoch 5 Valid Loss 0.4971172449057934 Valid Acc 0.8700128701662925</span><br><span class="line">Epoch 6 Train Loss 0.23699480644442233 Train Acc 0.9059884095299421</span><br><span class="line">Epoch 6 Valid Loss 0.5370476412343549 Valid Acc 0.8635778636545748</span><br><span class="line">Epoch 7 Train Loss 0.22414902945487483 Train Acc 0.9072762395363811</span><br><span class="line">Epoch 7 Valid Loss 0.48257371315317876 Valid Acc 0.8725868726635838</span><br><span class="line">Epoch 8 Train Loss 0.2119196125996435 Train Acc 0.9162910495814552</span><br><span class="line">Epoch 8 Valid Loss 0.59562370292315 Valid Acc 0.8468468471536919</span><br><span class="line">Epoch 9 Train Loss 0.20756761220698194 Train Acc 0.9207984546039922</span><br><span class="line">Epoch 9 Valid Loss 0.6451035161122699 Valid Acc 0.8700128701662925</span><br></pre></td></tr></table></figure>
+
+<p>In [62]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(model, &quot;沈阳市政府的酒店，比较大气，交通便利，出门往左就是北陵公园，环境好。&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[62]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.9994519352912903</span><br></pre></td></tr></table></figure>
+
+<p>In [63]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(model, &quot;这个酒店非常脏乱差，不推荐！&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[63]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.01588270254433155</span><br></pre></td></tr></table></figure>
+
+<p>In [68]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(model, &quot;这个酒店不乱，非常推荐！&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[68]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.04462616145610809</span><br></pre></td></tr></table></figure>
+
+<p>在test上做模型预测</p>
+<p>In [69]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">model.load_state_dict(torch.load(&quot;lstm-model.pth&quot;))</span><br><span class="line">test_loss, test_acc = evaluate(model, test_batches, test_label_batches, crit)</span><br><span class="line">print(&quot;CNN model test loss: &quot;, test_loss, &quot;accuracy:&quot;, test_acc)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CNN model test loss:  0.5639284941220376 accuracy: 0.8481338484406932</span><br></pre></td></tr></table></figure>
+
+<h2 id="CNN模型"><a href="#CNN模型" class="headerlink" title="CNN模型"></a>CNN模型</h2><p>In [70]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">class CNN(nn.Module):</span><br><span class="line">    def __init__(self, vocab_size, embedding_size, output_size, pad_idx, num_filters, filter_sizes, dropout):</span><br><span class="line">        super(CNN, self).__init__()</span><br><span class="line">        self.filter_sizes = filter_sizes</span><br><span class="line">        self.embed = nn.Embedding(vocab_size, embedding_size, padding_idx=pad_idx)</span><br><span class="line">        self.convs = nn.ModuleList([</span><br><span class="line">            nn.Conv2d(in_channels=1, out_channels=num_filters, </span><br><span class="line">                          kernel_size=(fs, embedding_size)) </span><br><span class="line">            for fs in filter_sizes</span><br><span class="line">        ]) # 3个CNN </span><br><span class="line">        # fs实际上就是n-gram的n</span><br><span class="line">#         self.conv = nn.Conv2d(in_channels=1, out_channels=num_filters, kernel_size=(filter_size, embedding_size))</span><br><span class="line">        self.linear = nn.Linear(num_filters * len(filter_sizes), output_size)</span><br><span class="line">        self.dropout = nn.Dropout(dropout)</span><br><span class="line">    </span><br><span class="line">    def forward(self, text, mask):</span><br><span class="line">        embedded = self.embed(text) # [batch_size, seq_len, embedding_size]</span><br><span class="line">        embedded = embedded.unsqueeze(1) # # [batch_size, 1, seq_len, embedding_size]</span><br><span class="line">#         conved = F.relu(self.conv(embedded)) # [batch_size, num_filters, seq_len-filter_size+1, 1]</span><br><span class="line">#         conved = conved.squeeze(3) # [batch_size, num_filters, seq_len-filter_size+1]</span><br><span class="line">        conved = [</span><br><span class="line">            F.relu(conv(embedded)).squeeze(3) for conv in self.convs</span><br><span class="line">        ] # [batch_size, num_filters, seq_len-filter_size+1]</span><br><span class="line">    </span><br><span class="line">        # [2, 5, 1, 1]</span><br><span class="line">    </span><br><span class="line">        # mask [[0, 0, 1, 1]]</span><br><span class="line">        # fs: 2</span><br><span class="line">        # [0, 0, 1]</span><br><span class="line">        conved = [</span><br><span class="line">            conv.masked_fill(mask[:, :-filter_size+1].unsqueeze(1) , -999999) for (conv, filter_size) in zip(conved, self.filter_sizes)</span><br><span class="line">        ]</span><br><span class="line">        # max over time pooling</span><br><span class="line">#         pooled = F.max_pool1d(conved, conved.shape[2]) # [batch_size, num_filters, 1]</span><br><span class="line">#         pooled = pooled.squeeze(2)</span><br><span class="line">        pooled = [F.max_pool1d(conv, conv.shape[2]).squeeze(2) for conv in conved]</span><br><span class="line">        pooled = torch.cat(pooled, dim=1) # batch_size, 3*num_filters</span><br><span class="line">        pooled = self.dropout(pooled)</span><br><span class="line">        </span><br><span class="line">        return self.linear(pooled)</span><br><span class="line">    </span><br><span class="line">#     Conv1d? 1x1 Conv2d?</span><br></pre></td></tr></table></figure>
+
+<p>In [71]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">model = CNN(vocab_size=VOCAB_SIZE, </span><br><span class="line">           embedding_size=EMBEDDING_SIZE, </span><br><span class="line">           output_size=OUTPUT_SIZE, </span><br><span class="line">           pad_idx=PAD_IDX,</span><br><span class="line">           num_filters=100, </span><br><span class="line">           filter_sizes=[3,4,5],  # 3-gram, 4-gram, 5-gram</span><br><span class="line">           dropout=0.5)</span><br><span class="line"></span><br><span class="line">optimizer = torch.optim.Adam(model.parameters())</span><br><span class="line">crit = nn.BCEWithLogitsLoss()</span><br><span class="line"></span><br><span class="line">model = model.to(device)</span><br><span class="line">crit = crit.to(device)</span><br><span class="line"></span><br><span class="line">N_EPOCHS = 10</span><br><span class="line">best_valid_acc = 0.</span><br><span class="line">for epoch in range(N_EPOCHS):</span><br><span class="line">    train_loss, train_acc = train(model, train_batches, train_label_batches, optimizer, crit)</span><br><span class="line">    valid_loss, valid_acc = evaluate(model, dev_batches, dev_label_batches, crit)</span><br><span class="line">    </span><br><span class="line">    if valid_acc &gt; best_valid_acc:</span><br><span class="line">        best_valid_acc = valid_acc</span><br><span class="line">        torch.save(model.state_dict(), &quot;cnn-model.pth&quot;)</span><br><span class="line">        </span><br><span class="line">    print(&quot;Epoch&quot;, epoch, &quot;Train Loss&quot;, train_loss, &quot;Train Acc&quot;, train_acc)</span><br><span class="line">    print(&quot;Epoch&quot;, epoch, &quot;Valid Loss&quot;, valid_loss, &quot;Valid Acc&quot;, valid_acc)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Epoch 0 Train Loss 0.5229088294452341 Train Acc 0.7443657437218287</span><br><span class="line">Epoch 0 Valid Loss 0.39319338566087847 Valid Acc 0.8108108110409445</span><br><span class="line">Epoch 1 Train Loss 0.3683148011498043 Train Acc 0.837894397939472</span><br><span class="line">Epoch 1 Valid Loss 0.3534783678778964 Valid Acc 0.840411840565263</span><br><span class="line">Epoch 2 Train Loss 0.3185185533801318 Train Acc 0.8644558918222794</span><br><span class="line">Epoch 2 Valid Loss 0.34023444222207233 Valid Acc 0.8545688547222771</span><br><span class="line">Epoch 3 Train Loss 0.27130810793366883 Train Acc 0.8889246619446233</span><br><span class="line">Epoch 3 Valid Loss 0.30879392936116173 Valid Acc 0.8648648650182874</span><br><span class="line">Epoch 4 Train Loss 0.24334710945314694 Train Acc 0.9034127495170637</span><br><span class="line">Epoch 4 Valid Loss 0.3020249246553718 Valid Acc 0.8790218791753015</span><br><span class="line">Epoch 5 Train Loss 0.2156534520195556 Train Acc 0.912105602060528</span><br><span class="line">Epoch 5 Valid Loss 0.326562241774575 Valid Acc 0.8571428572962797</span><br><span class="line">Epoch 6 Train Loss 0.189559489642123 Train Acc 0.9245009658725049</span><br><span class="line">Epoch 6 Valid Loss 0.28917587651095644 Valid Acc 0.885456885610308</span><br><span class="line">Epoch 7 Train Loss 0.16508568145445063 Train Acc 0.9356084996780425</span><br><span class="line">Epoch 7 Valid Loss 0.2982815937876241 Valid Acc 0.8790218791753015</span><br><span class="line">Epoch 8 Train Loss 0.14198238390007764 Train Acc 0.9452672247263362</span><br><span class="line">Epoch 8 Valid Loss 0.2929042390184513 Valid Acc 0.8880308881843105</span><br><span class="line">Epoch 9 Train Loss 0.11862559608529824 Train Acc 0.9552479072762395</span><br><span class="line">Epoch 9 Valid Loss 0.29382622203618247 Valid Acc 0.886743886820598</span><br></pre></td></tr></table></figure>
+
+<p>In [72]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">model.load_state_dict(torch.load(&quot;cnn-model.pth&quot;))</span><br><span class="line">test_loss, test_acc = evaluate(model, test_batches, test_label_batches, crit)</span><br><span class="line">print(&quot;CNN model test loss: &quot;, test_loss, &quot;accuracy:&quot;, test_acc)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CNN model test loss:  0.32514461861537386 accuracy: 0.8674388674388674</span><br></pre></td></tr></table></figure>
+
+<p>In [74]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predict_sentiment(model, &quot;酒店位于昆明中心区,地理位置不错,可惜酒店服务有些差,第一天晚上可能入住的客人不多,空调根本没开,打了电话问,说是中央空调要晚上统一开,结果晚上也没开,就热了一晚上,第二天有开会的入住,晚上就有了空调,不得不说酒店经济帐作的好.房间的床太硬,睡的不好.酒店的早餐就如其他人评价一样,想法的难吃.不过携程的预订价钱还不错.&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Out[74]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.893503725528717</span><br></pre></td></tr></table></figure>
+
+<p>learning representation</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> </span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2020/02/08/酒店评价情感分类与CNN模型/">酒店评价情感分类与CNN模型</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2020-02-08, 18:58:23</p>
+        <p><span>最后更新:</span>2020-06-09, 09:00:24</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2020/02/08/酒店评价情感分类与CNN模型/" title="酒店评价情感分类与CNN模型">http://mmyblog.cn/2020/02/08/酒店评价情感分类与CNN模型/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2020/02/08/酒店评价情感分类与CNN模型/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2020/02/11/word-embedding/">
+                    word-embedding
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2020/01/28/NLP技术基础整理/">
+                    NLP技术基础整理
+                </a>
+            </div>
+        
+    </nav>
+
+  
+  
+    <! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+    <div id="donate_guide" class="donate_bar center hidden" >
+        
+            <!-- <img src="/img/Alipay.jpg" alt="支付宝打赏">
+            <img src="/img/WeChatpay.jpg" alt="微信打赏"> -->
+       
+        <!-- 方式二；
+            step1：在_config.yml中添加配置
+                Alipay: /img/Alipay.jpg
+                WeChatpay: /img/WeChatpay.jpg
+            step2：此处两张图片的路径分别设置为如下
+                <img src=""
+                <img src=""
+        -->
+        <!-- 支付宝打赏图案 -->
+        <img src="/img/Alipay.jpg" alt="支付宝打赏">
+        <!-- 微信打赏图案 -->
+        <img src="/img//WeChatpay.jpg" alt="微信打赏">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn_donate').onclick = function(){
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+    </script>
+</div>
+<! -- 添加捐赠图标 -->
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#酒店评价情感分类与CNN模型"><span class="toc-number">1.</span> <span class="toc-text">酒店评价情感分类与CNN模型</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#准备数据"><span class="toc-number"></span> <span class="toc-text">准备数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Word-Averaging模型"><span class="toc-number"></span> <span class="toc-text">Word Averaging模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练模型"><span class="toc-number"></span> <span class="toc-text">训练模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RNN模型"><span class="toc-number"></span> <span class="toc-text">RNN模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练RNN模型"><span class="toc-number"></span> <span class="toc-text">训练RNN模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CNN模型"><span class="toc-number"></span> <span class="toc-text">CNN模型</span></a>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"酒店评价情感分类与CNN模型　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/02/11/word-embedding/" title="上一篇: word-embedding">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/01/28/NLP技术基础整理/" title="下一篇: NLP技术基础整理">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/扩展内容/">扩展内容</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/XLNet/">XLNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/PyTorch/">PyTorch</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/朴素贝叶斯/">朴素贝叶斯</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/GPT模型/">GPT模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/BERT系列预训练模型/">BERT系列预训练模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/19/阅读理解/">阅读理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/18/Transformer模型解读/">Transformer模型解读</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/16/Transformer-XL/">Transformer-XL</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/英文书籍word级别的文本生成代码注释/">英文书籍word级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/文本生成任务/">文本生成任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/09/常见预训练模型/">BERT&ELMo&co</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/01/大规模无监督预训练语言模型与应用上/">大规模无监督预训练语言模型与应用上</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/18/语言模型/">语言模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/15/NLP中的ConvNet/">NLP中的ConvNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/13/seq2seq/">seq2seq</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/09/机器翻译与文本摘要/">机器翻译与文本摘要</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/sentiment情感分析代码注释/">sentiment情感分析代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/11/聊天机器人二/">聊天机器人二</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/10/聊天机器人一/">聊天机器人一</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/09/结构化预测/">结构化预测</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/word-embedding/">word-embedding</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/酒店评价情感分类与CNN模型/">酒店评价情感分类与CNN模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/28/NLP技术基础整理/">NLP技术基础整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/18/CNN-Image-Classification/">CNN-Image-Classification</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/丘吉尔的人物传记char级别的文本生成代码注释/">丘吉尔的人物传记char级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/用朴素贝叶斯完成语种检测/">用朴素贝叶斯完成语种检测</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/24/文本分类问题/">文本分类问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/08/python正则表达式/">python正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/08/jieba中文处理/">jieba中文处理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

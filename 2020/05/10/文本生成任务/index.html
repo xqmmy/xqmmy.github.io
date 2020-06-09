@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="MingmingYe">
+
+
+
+<meta name="description" content="主要讨论  文本生成的方法：inference  增加文本生成的多样性：variational auto encoder  可以控制的文本生成、文本风格迁移  Generative Adversarial Networks  Data to text   log loss:  [s1, s2, …, s_n] –&amp;gt; softmax(s) = exp(s_i) / sum_i exp(s_i)">
+<meta name="keywords" content="inference">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文本生成任务">
+<meta property="og:url" content="http://mmyblog.cn/2020/05/10/文本生成任务/index.html">
+<meta property="og:site_name" content="Stay hungry, Stay foolish.">
+<meta property="og:description" content="主要讨论  文本生成的方法：inference  增加文本生成的多样性：variational auto encoder  可以控制的文本生成、文本风格迁移  Generative Adversarial Networks  Data to text   log loss:  [s1, s2, …, s_n] –&amp;gt; softmax(s) = exp(s_i) / sum_i exp(s_i)">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://uploader.shimo.im/f/8IjYXmjBFmAwnJy3.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/OoUmk9RItWAALQ69.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/1HQEntdhGB8sSbbd.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/YQtU3e2EeBc0e4VH.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/FSNiIgsmVLc0HyUH.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/XpeVKp5c144d4RWl.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/LeCZ7dpW9JcvYC6T.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/qAE9oBPi2Lg7LJro.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/WTJqo8usWYYxMR8k.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/uLmDTf81yPUZJbae.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/NejrcnoWDRgz7k58.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/LWIaBAzxmwkLY0pj.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/IGw674vLSf4tiqHe.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/2BUGTCxcajoerOmj.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/fE6u9Ap33JIRO8So.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/Fo4ylW4dnbgm68U9.png!thumbnail">
+<meta property="og:image" content="https://uploader.shimo.im/f/9QQQLucVUMsIVS6P.png!thumbnail">
+<meta property="og:updated_time" content="2020-06-09T01:22:20.753Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="文本生成任务">
+<meta name="twitter:description" content="主要讨论  文本生成的方法：inference  增加文本生成的多样性：variational auto encoder  可以控制的文本生成、文本风格迁移  Generative Adversarial Networks  Data to text   log loss:  [s1, s2, …, s_n] –&amp;gt; softmax(s) = exp(s_i) / sum_i exp(s_i)">
+<meta name="twitter:image" content="https://uploader.shimo.im/f/8IjYXmjBFmAwnJy3.png!thumbnail">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Stay hungry, Stay foolish." type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>文本生成任务 | Stay hungry, Stay foolish.</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head></html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/deep.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">MingmingYe</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="#" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AUC/">AUC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Attention/">Attention</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BERT/">BERT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BLUE/">BLUE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Beam-search/">Beam search</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CNN/">CNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CRF/">CRF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ConvNet/">ConvNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ELMo/">ELMo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPT/">GPT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GRU/">GRU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gradient-Clipping/">Gradient Clipping</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LR/">LR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LSTM/">LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linear/">Linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Parsing/">Parsing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PyTorch/">PyTorch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/QA/">QA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN/">RNN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RNN-LSTM/">RNN/LSTM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROC/">ROC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Recursive-Neural-Networks/">Recursive Neural Networks</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SVM/">SVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Seq2Seq/">Seq2Seq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TorchText/">TorchText</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer/">Transformer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Transformer-XL/">Transformer-XL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/XLNet/">XLNet</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/boosting/">boosting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cbow/">cbow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hierarchical-softmax/">hierarchical softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/inference/">inference</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jiaba/">jiaba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jieba/">jieba</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mumpy/">mumpy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/negative-sampling/">negative sampling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pandas/">pandas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pyspark/">pyspark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/seaborn/">seaborn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skip-gram/">skip-gram</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/softmax/">softmax</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/word-embedding/">word-embedding</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wxBot/">wxBot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/中文分词/">中文分词</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/优化方法/">优化方法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/决策树/">决策树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图神经网络/">图神经网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微积分/">微积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/朴素贝叶斯/">朴素贝叶斯</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/机器学习/">机器学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概率/">概率</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/模型调优/">模型调优</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则表达式/">正则表达式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/深度学习速查表/">深度学习速查表</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/特征工程/">特征工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/线性代数/">线性代数</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/统计/">统计</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聊天机器人/">聊天机器人</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/聚类/">聚类</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言模型/">语言模型</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/贝叶斯分类器/">贝叶斯分类器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/降维/">降维</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/集成学习/">集成学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://mmyblog.cn/">mmy</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">MingmingYe</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/deep.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">MingmingYe</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">当你的才华撑不起你的野心时，只有静下心来好好学习！纵使命运注定是个打酱油的，也要打一瓶与别人不一样的酱油！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:878759487@qq.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="#" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-文本生成任务" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/05/10/文本生成任务/" class="article-date">
+      <time datetime="2020-05-10T00:39:03.000Z" itemprop="datePublished">2020-05-10</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      文本生成任务
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/NLP/">NLP</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/inference/">inference</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>主要讨论</p>
+<ul>
+<li><p>文本生成的方法：<strong>inference</strong></p>
+</li>
+<li><p>增加文本生成的多样性：<strong>variational auto encoder</strong></p>
+</li>
+<li><p>可以<strong>控制的文本生成、文本风格迁移</strong></p>
+</li>
+<li><p>Generative Adversarial Networks</p>
+</li>
+<li><p>Data to text</p>
+</li>
+</ul>
+<p>log loss:</p>
+<ul>
+<li><p>[s1, s2, …, s_n] –&gt; softmax(s) = exp(s_i) / sum_i exp(s_i)  </p>
+</li>
+<li><p>p_i log q_i</p>
+</li>
+</ul>
+<h1 id="关于文本生成"><a href="#关于文本生成" class="headerlink" title="关于文本生成"></a>关于文本生成</h1><p>之前的课程中，我们主要讨论了Natural Language Understanding，也就是给你一段文字，如何从各个方面去理解它。常见的NLU任务有：文本分类，情感分类，<strong>命名实体识别（Named Entity Recognition, NER），Relation Extraction</strong>等等。也就是说，从文字中提取出我们想要了解的关键信息。</p>
+<p>这节课我们来讨论文本生成的一些方法。</p>
+<p>对于文本生成，我们关心哪些问题？</p>
+<ul>
+<li><p>与文本理解相反，我们有一些想要表达的信息，这些信息可能来自于对话的历史，可能来自于结构化的数据 (structured data, data-to-text generation)。现在我们要考虑的是如何把这些我们想要表达的信息转换成自然语言的方式。这一任务在构建聊天机器人中显得尤为重要。目前看来，基于<strong>模板 (template)</strong> 的方法仍然是最保险的，但是在研究领域中，人们越来越关注<strong>基于神经网络的文本生成方法</strong>。</p>
+</li>
+<li><p>基于上文的文本补全任务，故事生成，生成式聊天机器人</p>
+</li>
+<li><p>人们一直希望计算机可以完成一些人类才可以完成的创造性任务，例如作画。AI作画实际上已经不是什么新闻了，Portrait of Edmond de Belamy，一幅AI创作的画像，拍卖出了43.2万美金的高价。</p>
+</li>
+<li><p>那么AI能不能写文章讲故事呢？关于文本生成的研究相对来说没有特别客观的评价指标，所以很多时候人们会按照自己的主观评价来判断模型的好坏。例如给定故事的上文，AI系统能不能很好地补全这个故事呢？</p>
+</li>
+<li><p>文本补全这个任务本质上就是训练一个语言模型，当然也有人尝试使用Seq2Seq的方法做文本生成。目前看来最强的模型是基于GPT-2预训练的语言模型。很多研究者使用GPT-2来进行文本生成相关的实验。由于训练GPT-2这样规模的语言模型需要大量的算力和数据资源，所以大部分的研究都关注在如何使用模型，也就是inference的步骤，而不在于模型的训练环节。</p>
+</li>
+</ul>
+<h2 id="Greedy-Decoding"><a href="#Greedy-Decoding" class="headerlink" title="Greedy Decoding"></a>Greedy Decoding</h2><p><strong>autoregressive</strong>: 基于之前生成的文字来生成后续的文字? </p>
+<p>P(y_i | y_1, … y_{i-1})</p>
+<p>parallel generation</p>
+<p>大部分基于神经网络的文本生成模型采用的是一种条件语言模型的方法，也就是说，我们有一些先决条件，例如 auto encoder 中的隐向量，然后我们基于这个隐向量来生成句子。</p>
+<p>大部分语言模型的基本假设是从左往右的条件概率模型，也就是说，给定了单词1至n-1，我们希望生成第n个单词。假设我们现在采用一个基于LSTM的语言模型，在当前第i个位置上，我们预测下一个生成单词的概率分布为 p = (p_1, <strong>p_2</strong>, … p_|V|)，那么在当前位置上我们应该生成什么单词呢？</p>
+<p>argmax_i p_i = 2</p>
+<p>一个最简单的方法是使用Greedy Decoding，也就是说，我们直接采用 argmax_i (p_i) 即可。当然，同学们很容易联想到，这种decoding的方法是有问题的，因为每次都选择最大概率的单词并不能保证我们生成出来的句子的总体概率分布是最大的。事实上，大部分时候这样生成的句子其实是不好的。然而我们没有办法遍历所有可能的句子：首先句子的长度是不确定的；即使我们假定自己知道句子的长度 l，如果在每个位置上考虑每个可能的单词，我们需要考虑 |V|^l 种可能的情况，在计算资源上也是不现实的。</p>
+<p>一种妥协的方法是采用 <strong>Beam Search</strong> （<a href="https://shimo.im/docs/rHwdq8wd8txyXjP6）。也就是说，在decoding的每个步骤，我们都保留着" target="_blank" rel="noopener">https://shimo.im/docs/rHwdq8wd8txyXjP6）。也就是说，在decoding的每个步骤，我们都保留着</a> <strong>top K</strong> 个可能的候选单词，然后到了下一个步骤的时候，我们对这 K 个单词都做下一步 decoding，分别选出 top K，然后对这 K^2 个候选句子再挑选出 <strong>top K 个句子</strong>。以此类推一直到 decoding 结束为止。当然 Beam Search 本质上也是一个 greedy decoding 的方法，所以我们无法保证自己一定可以得到最好的 decoding 结果。</p>
+<p>p(x_1, x_2, …, x_n) = log (p(x_1) * p(x_2 | x_1) … p(x_n | x_1, …, x_{n-1})) / n</p>
+<p><strong>Greedy Decoding</strong>的问题</p>
+<ul>
+<li><p>容易出现很无聊的回答：I don’t know. </p>
+</li>
+<li><p>容易重复自己：I don’t know. I don’t know. I don’t know. I don’t know. I don’t know. I don’t know. </p>
+</li>
+<li><p>Beam search K = 200</p>
+</li>
+</ul>
+<h2 id="Sampling"><a href="#Sampling" class="headerlink" title="Sampling"></a>Sampling</h2><p>argmax 不一定是最好的</p>
+<p>vocab(y_i) = [<strong>0.9</strong>, 0.05, 0.01, 0.01, 0.01, …., 0.01]  softmax(logits/temperature)</p>
+<p>sample(vocab(y_i))</p>
+<p>sample很多个句子，然后用另一个模型来打分，找出最佳generated text</p>
+<p>sampling over the full vocabulary：我们可以在生成文本的时候引入一些随机性。例如现在语言模型告诉我们下一个单词在整个单词表上的概率分布是 p = (p_1, p_2, … p_|V|)，那么我们就可以按照这个概率分布进行随机采样，然后决定下一个单词生成什么。采样相对于greedy方法的好处是，我们生成的文字开始有了一些随机性，不会总是生成很机械的回复了。</p>
+<p>1 - 0.98^n</p>
+<p>Sampling的问题</p>
+<ul>
+<li><p>生成的话容易不连贯，上下文比较矛盾。</p>
+</li>
+<li><p>容易生成奇怪的话，出现<strong>罕见词</strong>。</p>
+</li>
+</ul>
+<p>top-k sampling 可以缓解生成罕见单词的问题。比如说，我们可以每次只在概率最高的50个单词中按照概率分布做采样。</p>
+<p>我只保留top-k个probability的单词，然后在这些单词中根据概率做sampling</p>
+<h2 id="Neucleus-Sampling"><a href="#Neucleus-Sampling" class="headerlink" title="Neucleus Sampling"></a>Neucleus Sampling</h2><h3 id="The-Curious-Case-of-Neural-Text-Degeneration"><a href="#The-Curious-Case-of-Neural-Text-Degeneration" class="headerlink" title="The Curious Case of Neural Text Degeneration"></a>The Curious Case of Neural Text Degeneration</h3><p><a href="https://arxiv.org/pdf/1904.09751.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1904.09751.pdf</a></p>
+<p><img src="https://uploader.shimo.im/f/8IjYXmjBFmAwnJy3.png!thumbnail" alt="img"></p>
+<p>这篇文章在前些日子引起了不小的关注。文章提出了一种做sampling的方法，叫做 Neucleus Sampling。</p>
+<p>Neucleus Sampling的基本思想是，我们不做beam search，而是做top p sampling。</p>
+<p>设置一个threshold，p=0.95</p>
+<p>top-k sampling 和 neucleus sampling 的代码：<a href="https://gist.github.com/thomwolf/1a5a29f6962089e871b94cbd09daf317" target="_blank" rel="noopener">https://gist.github.com/thomwolf/1a5a29f6962089e871b94cbd09daf317</a></p>
+<h1 id="Variational-Auto-Encoder-VAE"><a href="#Variational-Auto-Encoder-VAE" class="headerlink" title="Variational Auto Encoder (VAE)"></a>Variational Auto Encoder (VAE)</h1><h2 id="Auto-Encoder-自编码器"><a href="#Auto-Encoder-自编码器" class="headerlink" title="Auto Encoder 自编码器"></a>Auto Encoder 自编码器</h2><p>NLP中的一个重要问题是获得一种语言的表示，无论是单词的表示还是句子的表示。为了获得句子的表示，一种直观的思路是训练一个auto encoder，也就是说一个encoder用来编码一个句子，把一个句子转换成一个vector；另一个decoder用来解码一个句子，也就是说把一个vector解码成一个句子。auto encoder 事实上是一种数据压缩的方法。</p>
+<p>Encoder(text) –&gt; vector</p>
+<p>Decoder(vector) –&gt; text</p>
+<p>Encoder：得到很好的文本表示，这个文本表示你可用用于任何其他的任务。</p>
+<p>Decoder: conditional language model</p>
+<p>generalize能力不一定好。过拟合。</p>
+<p>预期：希望类似的句子，能够变成比较相近的vector。不类似的句子，能够距离比较远。</p>
+<p>Decoder(0,200,-23, 122) –&gt; text?</p>
+<p>我爱[MASK]然语[MASK]处理 –&gt; vector –&gt; 我爱自然语言处理</p>
+<p>在 auto encoder 的基础上又衍生出了各种类型的 auto encoder，例如 <strong>denoising</strong> auto encoder （<a href="https://www.cs.toronto.edu/~larocheh/publications/icml-2008-denoising-autoencoders.pdf）。denoising" target="_blank" rel="noopener">https://www.cs.toronto.edu/~larocheh/publications/icml-2008-denoising-autoencoders.pdf）。denoising</a> auto encoder 的基本思想是要加强 auto encoder 的 robustness。也就是说，我们希望把输入句子的一部分给“污染” (corrupt) 了，但是我们希望在经过编码和解码的过程之后，我们能够得到原来的正确的句子。事实上 BERT 的 masking 就是一种“污染”的手段。</p>
+<p>Encoder(corrupt(text)) –&gt; vector</p>
+<p>Decoder(vector) –&gt; text</p>
+<p>随机产生一个vector –&gt; decoder –&gt; 生成一个句子</p>
+<p>mapping </p>
+<p>N(0, 1) –&gt; 各种各样的文字</p>
+<p>从一个分布去生成一些东西</p>
+<p>为了训练出可以用来sample文字的模型，人们发明了variational auto encoder (VAE)。VAE与普通auto encoder的不同之处在于，我们添加了一个constraint，希望encoder编码的每个句子都能够局限在某些特定的位置。例如，我们可以要求每个句子的encoding在空间上满足一个多维标准高斯分布。</p>
+<p><strong>vector ~ N(0, 1)</strong></p>
+<h2 id="什么是VAE？"><a href="#什么是VAE？" class="headerlink" title="什么是VAE？"></a>什么是VAE？</h2><p>网上有很多VAE的论文，博客，建议感兴趣的同学可以选择性阅读。我们这节课不会讨论太多的数学公式，而是从比较high level的层面介绍一下VAE模型以及它所解决的一些问题。</p>
+<p>简单来说，VAE本质上是一种生成模型，我们希望能够通过隐向量z生成数据样本x。在文本生成的问题中，这个x往往表示的是一些文本/句子等内容。</p>
+<p><img src="https://uploader.shimo.im/f/OoUmk9RItWAALQ69.png!thumbnail" alt="img"></p>
+<p>下面是 Kingma 在 <strong>VAE</strong> 论文中定义的优化目标。</p>
+<p>文本–&gt; 向量表示 –&gt; 文本</p>
+<p>auto encoder: sentence –&gt; vector –&gt; sentence</p>
+<p>Loss = -log P_{sentence}(dec(enc(sentence)))</p>
+<p><img src="https://uploader.shimo.im/f/1HQEntdhGB8sSbbd.png!thumbnail" alt="img"></p>
+<p>z -&gt; z’ -&gt; decoder(z) –&gt; 一个句子</p>
+<p><strong>crossentropyloss(decoder(encoder(x)), x)</strong></p>
+<p><strong>我们对z没有任何的约束条件</strong></p>
+<p>q: encoder</p>
+<p>p: decoder</p>
+<p>KL divergence: 计算两个概率分布的差值</p>
+<p>z: 把句子变成一个概率分布</p>
+<p>z: (\mu, \sigma) –&gt; 正态分布的参数</p>
+<p>用z做采样</p>
+<p>KL Divergence的定义</p>
+<p><img src="https://uploader.shimo.im/f/YQtU3e2EeBc0e4VH.png!thumbnail" alt="img"></p>
+<p>sampling</p>
+<p>N(0,1): sampling: 0.1, 0.05, 0.2, -0.1, -100</p>
+<p>我们可以发现，VAE模型本质上就是要最大化样本的生成概率，并且最小化样本encode之后的参数表示与某种分布(正态分布)的KL散度。之所以我们会限制数据被编码后的向量服从某个局部的正态分布，是因为我们不希望这些数据被编码之后杂乱地散布在一个空间上，而是希望信息能够得到一定程度上的压缩。之所以让他们服从一个分布而不是一些固定的值，是因为我们希望模型中能够有一些随机性，好让模型的解码器能够生成各种各样的句子。</p>
+<p>有了这个VAE模型的架构之后，人们就可以在各种任务上玩出各种不同的花样了。</p>
+<p>例如对于图像来说，这里的<img src="https://uploader.shimo.im/f/FSNiIgsmVLc0HyUH.png!thumbnail" alt="img">和<img src="https://uploader.shimo.im/f/XpeVKp5c144d4RWl.png!thumbnail" alt="img">可能是CNN模型，对于自然语言来说，它们可能是一些RNN/LSTM之类的模型。</p>
+<p>下面我们来看一些VAE在NLP领域的具体模型。</p>
+<h3 id="Generating-Sentences-from-a-Continuous-Space"><a href="#Generating-Sentences-from-a-Continuous-Space" class="headerlink" title="Generating Sentences from a Continuous Space"></a>Generating Sentences from a Continuous Space</h3><p><a href="https://arxiv.org/pdf/1511.06349.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1511.06349.pdf</a></p>
+<p><img src="https://uploader.shimo.im/f/LeCZ7dpW9JcvYC6T.png!thumbnail" alt="img"></p>
+<p><img src="https://uploader.shimo.im/f/qAE9oBPi2Lg7LJro.png!thumbnail" alt="img"></p>
+<p>从上图可以看到，这篇论文的思路非常简单，就是把一个句子用RNN编码起来，编码之后得到的隐向量输出两个信息\mu和\simga，分别表示一个正太分布的平均值和标准差。然后这个分布应该尽可能地接近标准正态分布，在KL散度的表示下。并且如果我们用这个分布去采样得到新的向量表示，那么decoder应该要尽可能好地复原我们原来的这个句子。</p>
+<p>具体的实验细节我们就不展开了，但是我们看一些论文中展示的生成的句子。</p>
+<p><img src="https://uploader.shimo.im/f/WTJqo8usWYYxMR8k.png!thumbnail" alt="img"></p>
+<p>下面看看VAE当中编码的空间是否具有某种连续性。</p>
+<p><img src="https://uploader.shimo.im/f/uLmDTf81yPUZJbae.png!thumbnail" alt="img"></p>
+<p>代码阅读：</p>
+<ul>
+<li><p><a href="https://github.com/timbmg/Sentence-VAE/blob/master/model.py" target="_blank" rel="noopener">https://github.com/timbmg/Sentence-VAE/blob/master/model.py</a></p>
+</li>
+<li><p><strong>练习</strong>：这份代码已经一年多没有更新了，感兴趣的同学可以把它更新到最新版本的PyTorch上，作为写代码练习，并且在自己的数据集上做一些实验，看看能否得到与论文中类似的效果（sentence interpolation）。</p>
+</li>
+</ul>
+<p>GAN: generative adversarial networks</p>
+<ul>
+<li><p>generator: G(z) –&gt; x 一张逼真的汽车照片</p>
+</li>
+<li><p>discriminator: D(x) –&gt; 这个到底是不是一张汽车的照片 二分类</p>
+</li>
+</ul>
+<p>Discriminator的目标</p>
+<p>D(G(z)) –&gt; False</p>
+<p>D(true photo) –&gt; True</p>
+<p>Generator 的目标 D(G(z)) –&gt; True</p>
+<h2 id="可控制的文本生成"><a href="#可控制的文本生成" class="headerlink" title="可控制的文本生成"></a>可控制的文本生成</h2><h3 id="Toward-Controlled-Generation-of-Text"><a href="#Toward-Controlled-Generation-of-Text" class="headerlink" title="Toward Controlled Generation of Text"></a>Toward Controlled Generation of Text</h3><p><a href="https://arxiv.org/pdf/1703.00955.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1703.00955.pdf</a></p>
+<ul>
+<li><p>Controlled Text Generation: 控制生成文本的一些特征</p>
+</li>
+<li><p>Learning disentangled latent representations: 对于文本不同的特征有不同的向量表示</p>
+</li>
+</ul>
+<p>模型</p>
+<p><img src="https://uploader.shimo.im/f/NejrcnoWDRgz7k58.png!thumbnail" alt="img"></p>
+<p>To model and control the attributes of interest in an interpretable way, we augment the unstructured variables z with a set of structured variables c each of which targets a salient and independent semantic feature of sentences.</p>
+<p>这篇文章试图解决这样一个问题，能不能把一句话编码成几个向量(z和c)。z和c分别包含了一些不同的关于句子的信息。</p>
+<p><img src="https://uploader.shimo.im/f/LWIaBAzxmwkLY0pj.png!thumbnail" alt="img"></p>
+<p>模型包含几个部分，一个generator可以基于若干个向量(z和c)生成句子，几个encoder可以从句子生成z和c的分布，几个discriminator用来判断模型编码出的向量(c)是否符合example的正确分类。这个模型的好处是，我们在某种程度上分离了句子的信息。例如如果向量c用来表示的是句子的情感正负，那么模型就具备了生成正面情感的句子和负面情感句子的能力。</p>
+<p><img src="https://uploader.shimo.im/f/IGw674vLSf4tiqHe.png!thumbnail" alt="img"></p>
+<p>参考代码</p>
+<p><a href="https://github.com/wiseodd/controlled-text-generation" target="_blank" rel="noopener">https://github.com/wiseodd/controlled-text-generation</a></p>
+<p>更多阅读</p>
+<p>VAE论文：Auto-Encoding Variational Bayes <a href="https://arxiv.org/pdf/1312.6114.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1312.6114.pdf</a></p>
+<p>An Introduction to Variational Autoencoders <a href="https://arxiv.org/pdf/1906.02691.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1906.02691.pdf</a></p>
+<p>Stype Transfer</p>
+<p>文本 –&gt; 内容z，风格c</p>
+<p>z, 换一个风格c’ –&gt; 同样内容，不同风格的文本</p>
+<h1 id="文本生成的应用：文本风格迁移"><a href="#文本生成的应用：文本风格迁移" class="headerlink" title="文本生成的应用：文本风格迁移"></a>文本生成的应用：文本风格迁移</h1><h3 id="Style-Transfer-from-Non-Parallel-Text-by-Cross-Alignment"><a href="#Style-Transfer-from-Non-Parallel-Text-by-Cross-Alignment" class="headerlink" title="Style Transfer from Non-Parallel Text by Cross-Alignment"></a>Style Transfer from Non-Parallel Text by Cross-Alignment</h3><p>论文：<a href="https://papers.nips.cc/paper/7259-style-transfer-from-non-parallel-text-by-cross-alignment.pdf" target="_blank" rel="noopener">https://papers.nips.cc/paper/7259-style-transfer-from-non-parallel-text-by-cross-alignment.pdf</a></p>
+<p>代码：<a href="https://github.com/shentianxiao/language-style-transfer/blob/master/code/style_transfer.py" target="_blank" rel="noopener">https://github.com/shentianxiao/language-style-transfer/blob/master/code/style_transfer.py</a></p>
+<p>style transfer 其实也是controlled text generation的一种，只是它control的是文本的风格。文本风格有很多种，例如情感的正负面，文章是随意的还是严肃的。</p>
+<p><img src="https://uploader.shimo.im/f/2BUGTCxcajoerOmj.png!thumbnail" alt="img"></p>
+<p><img src="https://uploader.shimo.im/f/fE6u9Ap33JIRO8So.png!thumbnail" alt="img"></p>
+<p>一个很好的repo，总结了文本风格迁移领域的paper</p>
+<p><a href="https://github.com/fuzhenxin/Style-Transfer-in-Text" target="_blank" rel="noopener">https://github.com/fuzhenxin/Style-Transfer-in-Text</a></p>
+<h1 id="Generative-Adversarial-Networks-GAN-在NLP上的应用"><a href="#Generative-Adversarial-Networks-GAN-在NLP上的应用" class="headerlink" title="Generative Adversarial Networks (GAN) 在NLP上的应用"></a>Generative Adversarial Networks (GAN) 在NLP上的应用</h1><p>最早Ian Goodfellow的关于GAN的文章，其基本做法就是一个<strong>generator</strong>和一个<strong>discriminator</strong>(辅助角色)，然后让两个模型互相竞争对抗，在对抗的过程中逐渐提升各自的模型能力。而其中的generator就是我们希望能够最终optimize并且被拿来使用的模型。</p>
+<p>早期GAN主要成功应用都在于图像领域。其关键原因在于，图像的每个像素都是三个连续的RGB数值。discriminator如果给图像计算一个概率分数，当我们在优化generator希望提高这个分数的时候，我们可以使用Back Propagation算法计算梯度，然后做梯度上升/下降来完成我们想要优化的目标。</p>
+<p>discriminator: 二分类问题 图片–&gt;分类</p>
+<p>D(G(z)) –&gt; cross entropyloss –&gt; backprop 到generator</p>
+<p>文本–&gt; </p>
+<p>LSTM –&gt; P_vocab() –&gt; <strong>argmax 文字</strong> –&gt; discriminator</p>
+<p>LSTM –&gt; P_vocab() –&gt; discriminator</p>
+<p>而文本生成是一个不同的问题，其特殊之处在于我们在做文本生成的时候有一步<strong>argmax</strong>的操作，也就是说当我们做inference生成文字的时候，在输出层使用了argmax或者sampling的操作。当我们把argmax或者sampling得到的文字传给discriminator打分的时候，我们无法用这个分数做<strong>back propagation</strong>对生成器做优化操作。</p>
+<p>真正的sample –&gt; one hot vector ([1, 0, 0, 0, 0, 0])</p>
+<p>预测一个输出单词的时候：([0.8, 0.1, 0, 0.05, 0, 0.05]) –&gt; gumbel_softmax –&gt; discriminator判断一下</p>
+<p>为了解决这个问题，人们大致走了两条路线，一条是将普通的argmax转变成可导的Gumbel-softmax，然后我们就可以同时优化generator和discriminator了。</p>
+<p>预测一个输出单词的时候：([0.8, 0.1, 0, 0.05, 0, 0.05]) –&gt; gumbel_softmax –&gt; discriminator判断一下</p>
+<p><a href="https://arxiv.org/pdf/1611.04051.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1611.04051.pdf</a></p>
+<p><a href="https://www.zhihu.com/question/62631725" target="_blank" rel="noopener">https://www.zhihu.com/question/62631725</a></p>
+<p>另外一种方法是使用<strong>Reinforcement Learning</strong>中的<strong>Policy Gradient</strong>来估算模型的gradient，并做优化。</p>
+<p>根据当前的policy来<strong>sample</strong> steps。</p>
+<p>NLP： policy就是我们的<strong>语言模型</strong>，也就是说根据当前的hidden state, 决定我下一步要生成什么单词。</p>
+<p>P_vocab –&gt; argmax</p>
+<p>P_vocab –&gt; sampling</p>
+<p>backpropagation –&gt; 没有办法更新模型</p>
+<p>文本翻译 – 优化<strong>BLEU?</strong></p>
+<p>训练？ cross entropy loss</p>
+<p>policy gradient直接优化BLEU</p>
+<p>可以不可以找个方法估算gradient。</p>
+<p>Policy: 当前执行的策略,在文本生成模型中，这个Policy一般就是指我们的decoder(LSTM)</p>
+<p>Policy Gradient: 根据当前的policy执行任务，然后得到reward，并估算每个参数的gradient, SGD</p>
+<p>这里就涉及到一些Reinforcement Learning当中的基本知识。我们可以认为一个语言模型，例如LSTM，是在做一连串连续的决策。每一个decoding的步骤，每个hidden state对应一个<strong>状态state</strong>，每个输出对应一个<strong>observation</strong>。如果我们每次输出一个文字的时候使用sampling的方法，Reinforcement Learning有一套成熟的算法可以帮助我们估算模型的梯度，这种算法叫做policy gradient。如果采用这种方法，我们也可以对模型进行优化。</p>
+<p><a href="https://arxiv.org/pdf/1609.05473.pdf" target="_blank" rel="noopener">https://arxiv.org/pdf/1609.05473.pdf</a></p>
+<p>这一套policy gradient的做法在很多文本生成（例如翻译，image captioning）的优化问题上也经常见到。</p>
+<p>翻译：优化BLEU</p>
+<p>Improved Image Captioning via Policy Gradient optimization of SPIDEr</p>
+<p><a href="http://openaccess.thecvf.com/content_ICCV_2017/papers/Liu_Improved_Image_Captioning_ICCV_2017_paper.pdf" target="_blank" rel="noopener">http://openaccess.thecvf.com/content_ICCV_2017/papers/Liu_Improved_Image_Captioning_ICCV_2017_paper.pdf</a></p>
+<p>还有一些方法是，我们不做最终的文本采样，我们直接使用模型输出的在单词表上的输出分布，或者是使用LSTM中的一些hidden vector来传给discriminator，并直接优化语言模型。</p>
+<p>我个人的看法是GAN在文本生成上的作用大小还不明确，一部分原因在于我们没有一种很好的机制去评估文本生成的好坏。我们看到很多论文其实对模型的好坏没有明确的评价，很多时候是随机产生几个句子，然后由作者来评价一下生成句子的好坏。</p>
+<h1 id="Data-to-text"><a href="#Data-to-text" class="headerlink" title="Data-to-text"></a>Data-to-text</h1><p><img src="https://uploader.shimo.im/f/Fo4ylW4dnbgm68U9.png!thumbnail" alt="img"></p>
+<ul>
+<li><p>Content selection: 选择什么数据需要进入到我们的文本之中</p>
+</li>
+<li><p>Sentence planning: 决定句子的结构</p>
+</li>
+<li><p>Surface realization: 把句子结构转化成具体的字符串</p>
+</li>
+</ul>
+<p><img src="https://uploader.shimo.im/f/9QQQLucVUMsIVS6P.png!thumbnail" alt="img"></p>
+<p>问题定义</p>
+<ul>
+<li><p>输入: A table of records。每个record包含四个features: type, entity, value, home or away</p>
+</li>
+<li><p>输出: 一段文字描述</p>
+</li>
+</ul>
+<h2 id="相关资料"><a href="#相关资料" class="headerlink" title="相关资料"></a>相关资料</h2><p><a href="https://github.com/Morde-kaiser/LearningNotes/blob/master/GAN-Overview-Chinese.pdf" target="_blank" rel="noopener">https://github.com/Morde-kaiser/LearningNotes/blob/master/GAN-Overview-Chinese.pdf</a></p>
+<p>William Wang关于GAN in NLP的slides: <a href="http://sameersingh.org/files/ppts/naacl19-advnlp-part1-william-slides.pdf" target="_blank" rel="noopener">http://sameersingh.org/files/ppts/naacl19-advnlp-part1-william-slides.pdf</a></p>
+<p>这篇博文也讲的很好</p>
+<p><a href="https://zhuanlan.zhihu.com/p/29168803" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/29168803</a></p>
+<p>参考该知乎专栏文章 <a href="https://zhuanlan.zhihu.com/p/36880287" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/36880287</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2020/05/10/文本生成任务/">文本生成任务</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">MingmingYe</a></p>
+        <p><span>发布时间:</span>2020-05-10, 08:39:03</p>
+        <p><span>最后更新:</span>2020-06-09, 09:22:20</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2020/05/10/文本生成任务/" title="文本生成任务">http://mmyblog.cn/2020/05/10/文本生成任务/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://mmyblog.cn/2020/05/10/文本生成任务/　　作者: MingmingYe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2020/05/12/英文书籍word级别的文本生成代码注释/">
+                    英文书籍word级别的文本生成代码注释
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2020/05/09/常见预训练模型/">
+                    BERT&amp;ELMo&amp;co
+                </a>
+            </div>
+        
+    </nav>
+
+  
+  
+    <! -- 添加捐赠图标 -->
+<div class ="post-donate">
+    <div id="donate_board" class="donate_bar center">
+        <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏"></a>
+        <span class="donate_txt">
+           ↑<br>
+           欣赏此文？求鼓励，求支持！
+        </span>
+        <br>
+      </div>  
+    <div id="donate_guide" class="donate_bar center hidden" >
+        
+            <!-- <img src="/img/Alipay.jpg" alt="支付宝打赏">
+            <img src="/img/WeChatpay.jpg" alt="微信打赏"> -->
+       
+        <!-- 方式二；
+            step1：在_config.yml中添加配置
+                Alipay: /img/Alipay.jpg
+                WeChatpay: /img/WeChatpay.jpg
+            step2：此处两张图片的路径分别设置为如下
+                <img src=""
+                <img src=""
+        -->
+        <!-- 支付宝打赏图案 -->
+        <img src="/img/Alipay.jpg" alt="支付宝打赏">
+        <!-- 微信打赏图案 -->
+        <img src="/img//WeChatpay.jpg" alt="微信打赏">
+    </div>
+    <script type="text/javascript">
+        document.getElementById('btn_donate').onclick = function(){
+            $('#donate_board').addClass('hidden');
+            $('#donate_guide').removeClass('hidden');
+        }
+    </script>
+</div>
+<! -- 添加捐赠图标 -->
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#关于文本生成"><span class="toc-number">1.</span> <span class="toc-text">关于文本生成</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Greedy-Decoding"><span class="toc-number">1.1.</span> <span class="toc-text">Greedy Decoding</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sampling"><span class="toc-number">1.2.</span> <span class="toc-text">Sampling</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Neucleus-Sampling"><span class="toc-number">1.3.</span> <span class="toc-text">Neucleus Sampling</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Curious-Case-of-Neural-Text-Degeneration"><span class="toc-number">1.3.1.</span> <span class="toc-text">The Curious Case of Neural Text Degeneration</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Variational-Auto-Encoder-VAE"><span class="toc-number">2.</span> <span class="toc-text">Variational Auto Encoder (VAE)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Auto-Encoder-自编码器"><span class="toc-number">2.1.</span> <span class="toc-text">Auto Encoder 自编码器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是VAE？"><span class="toc-number">2.2.</span> <span class="toc-text">什么是VAE？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Generating-Sentences-from-a-Continuous-Space"><span class="toc-number">2.2.1.</span> <span class="toc-text">Generating Sentences from a Continuous Space</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可控制的文本生成"><span class="toc-number">2.3.</span> <span class="toc-text">可控制的文本生成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Toward-Controlled-Generation-of-Text"><span class="toc-number">2.3.1.</span> <span class="toc-text">Toward Controlled Generation of Text</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#文本生成的应用：文本风格迁移"><span class="toc-number">3.</span> <span class="toc-text">文本生成的应用：文本风格迁移</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Style-Transfer-from-Non-Parallel-Text-by-Cross-Alignment"><span class="toc-number">3.0.1.</span> <span class="toc-text">Style Transfer from Non-Parallel Text by Cross-Alignment</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Generative-Adversarial-Networks-GAN-在NLP上的应用"><span class="toc-number">4.</span> <span class="toc-text">Generative Adversarial Networks (GAN) 在NLP上的应用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Data-to-text"><span class="toc-number">5.</span> <span class="toc-text">Data-to-text</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#相关资料"><span class="toc-number">5.1.</span> <span class="toc-text">相关资料</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-5 i,
+        .toc-level-5 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"文本生成任务　| Stay hungry, Stay foolish.　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/05/12/英文书籍word级别的文本生成代码注释/" title="上一篇: 英文书籍word级别的文本生成代码注释">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/05/09/常见预训练模型/" title="下一篇: BERT&amp;ELMo&amp;co">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/扩展内容/">扩展内容</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/09/XLNet/">XLNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/PyTorch/">PyTorch</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/06/08/朴素贝叶斯/">朴素贝叶斯</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/GPT模型/">GPT模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/30/BERT系列预训练模型/">BERT系列预训练模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/19/阅读理解/">阅读理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/18/Transformer模型解读/">Transformer模型解读</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/16/Transformer-XL/">Transformer-XL</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/英文书籍word级别的文本生成代码注释/">英文书籍word级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/文本生成任务/">文本生成任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/09/常见预训练模型/">BERT&ELMo&co</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/01/大规模无监督预训练语言模型与应用上/">大规模无监督预训练语言模型与应用上</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/word2vec/">word2vec</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/20/特征工程与模型调优/">特征工程与模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/18/语言模型/">语言模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/SQuAD-BiDAF/">SQuAD-BiDAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/15/NLP中的ConvNet/">NLP中的ConvNet</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/13/seq2seq/">seq2seq</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/09/机器翻译与文本摘要/">机器翻译与文本摘要</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/sentiment情感分析代码注释/">sentiment情感分析代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/11/聊天机器人二/">聊天机器人二</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/10/聊天机器人一/">聊天机器人一</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/09/结构化预测/">结构化预测</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/20/SVM/">SVM</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/11/word-embedding/">word-embedding</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/酒店评价情感分类与CNN模型/">酒店评价情感分类与CNN模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/28/NLP技术基础整理/">NLP技术基础整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/18/CNN-Image-Classification/">CNN-Image-Classification</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/丘吉尔的人物传记char级别的文本生成代码注释/">丘吉尔的人物传记char级别的文本生成代码注释</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/08/用朴素贝叶斯完成语种检测/">用朴素贝叶斯完成语种检测</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/深度学习速查表/">深度学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/模型调优/">模型调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/集成学习与boosting模型/">集成学习与boosting模型</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/聚类与降维/">聚类与降维</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/贝叶斯分类器/">贝叶斯分类器</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/01/决策树与随机森林/">决策树与随机森林</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/29/机器学习逻辑回归与softmax/">机器学习逻辑回归与softmax</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/24/文本分类问题/">文本分类问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/机器学习基本概念/">机器学习基本概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/简洁版机器学习速查表/">简洁版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/23/CS229版机器学习速查表/">CS229版机器学习速查表</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/08/葫芦书学习笔记/">葫芦书学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/06/数学基础知识整理/">数学基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/24/大数据基础/">大数据基础</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/22/数据分析常用工具总结/">数据分析常用工具总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/20/python基础知识整理/">python基础知识整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/07/08/python正则表达式/">python正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/06/08/jieba中文处理/">jieba中文处理</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2020 MingmingYe
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
